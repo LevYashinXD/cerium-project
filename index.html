@@ -721,63 +721,44 @@
             setPageState('preloading');
             setTimeout(() => showLoginWall(), 400);
         };
-// Replace the old discord-login-btn event listener with this final version:
-document.getElementById('discord-login-btn').addEventListener('click', () => {
-    // Your specific Client ID.
-    const clientId = '1397805094854197280'; 
 
-    // Your specific and final Redirect URI.
-    const redirectUri = 'https://ceriumwebsitecc.vercel.app/api/auth-callback';
-    
-    // This line builds the final URL. No more changes are needed here.
-    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=identify`;
-    window.location.href = discordAuthUrl;
-});
-// 2. When the page loads, check if the user was redirected back from our API
-function handleApiRedirect() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userDataParam = urlParams.get('user');
-    const errorParam = urlParams.get('error');
+        discordLoginBtn.addEventListener('click', () => {
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            window.location.href = authUrl;
+        });
+        
+        discordLogoutBtnHeader.addEventListener('click', handleLogout);
 
-    if (errorParam) {
-        console.error("Authentication failed:", errorParam);
-        // Optionally show an error message to the user on the login screen
-        setPageState('login');
-        return;
-    }
-
-    if (userDataParam) {
-        try {
-            // Decode the user data from the URL
-            const decodedJson = atob(userDataParam); // atob decodes Base64
-            const userData = JSON.parse(decodedJson);
+        const handleOAuthCallback = async () => {
+            const fragment = new URLSearchParams(window.location.hash.substring(1));
+            const accessToken = fragment.get('access_token');
             
-            // Save the user data to localStorage just like before
-            localStorage.setItem('discord_user_v2', JSON.stringify(userData));
-            
-            // Clean the URL so the user data isn't visible to them
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            // Show the welcome transition and main content
-            showWelcomeTransition(userData);
+            if (accessToken) {
+                try {
+                    const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
+                    if (!response.ok) throw new Error('Failed to fetch user data.');
+                    
+                    const userData = await response.json();
+                    localStorage.setItem('discord_user_v2', JSON.stringify(userData));
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    showWelcomeTransition(userData);
+                } catch (error) {
+                    showLoginWall('Login failed. Please try again.');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } else {
+                const storedUser = localStorage.getItem('discord_user_v2');
+                setTimeout(() => {
+                    if (storedUser) {
+                        showWelcomeTransition(JSON.parse(storedUser));
+                    } else {
+                        showLoginWall();
+                    }
+                }, 500);
+            }
+        };
 
-        } catch (error) {
-            console.error("Failed to parse user data from URL", error);
-            setPageState('login');
-        }
-    } else {
-        // If no user data in URL, check localStorage for a previous session
-        const storedUser = localStorage.getItem('discord_user_v2');
-        if (storedUser) {
-            showMainContent(JSON.parse(storedUser));
-        } else {
-            setPageState('login');
-        }
-    }
-}
-
-// Run this new redirect handler when the page loads
-handleApiRedirect();
+        handleOAuthCallback();
 
         function initializePageScripts() {
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
