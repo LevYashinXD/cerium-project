@@ -969,29 +969,44 @@
                         timestamp: new Date().toISOString()
                     }]
                 };
+// ... inside the event listener
 
-                fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(discordPayload)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        statusMessage.textContent = 'Thank you! Your report has been submitted successfully.';
-                        statusMessage.className = 'success';
-                        localStorage.setItem('cerium_last_report_timestamp', Date.now());
-                        bugReportForm.reset();
-                        clearFormState(); // QOL: Clear saved draft
-                        
-                        const profile = getOrCreateProfile(userData);
-                        profile.reportCount += 1;
-                        localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
-                        checkAndUnlockAchievements(profile);
+// The WEBHOOK_URL constant is no longer needed on the front-end!
+// You can remove this line:
+// const WEBHOOK_URL = '...';
 
-                    } else { throw new Error(`Discord API responded with status: ${response.status}`); }
-                })
-                .catch(error => { statusMessage.textContent = error.message; statusMessage.className = 'error'; })
-                .finally(() => { submitButton.disabled = false; submitButton.innerHTML = 'Submit Report'; });
+fetch('/api/submit-report', { // <-- This is the new, safe endpoint
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ discordPayload }) // Wrap the payload in an object
+})
+.then(async response => { // Add async here to parse error messages
+    if (response.ok) {
+        statusMessage.textContent = 'Thank you! Your report has been submitted successfully.';
+        statusMessage.className = 'success';
+        localStorage.setItem('cerium_last_report_timestamp', Date.now());
+        bugReportForm.reset();
+        clearFormState();
+        
+        const profile = getOrCreateProfile(userData);
+        profile.reportCount += 1;
+        localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
+        checkAndUnlockAchievements(profile);
+
+    } else { 
+        // Get the error message from our own API
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit report.');
+    }
+})
+.catch(error => { 
+    statusMessage.textContent = error.message; 
+    statusMessage.className = 'error'; 
+})
+.finally(() => { 
+    submitButton.disabled = false; 
+    submitButton.innerHTML = 'Submit Report'; 
+});
             });
             
             bugReportForm.addEventListener('input', () => {
