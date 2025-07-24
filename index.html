@@ -10,6 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Dependency for comment timestamps -->
+    <script src="https://unpkg.com/timeago.js/dist/timeago.min.js"></script>
+
     <style>
         :root {
             --color-background: #050505;
@@ -255,8 +258,6 @@
         .game-card.coming-soon .game-card-header { cursor: default; }
         .game-card.coming-soon .card-toggle-icon { display: none; }
 
-        /* --- END NEW GAME CARD STYLES --- */
-
         .feature-tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; }
         .feature-tab-btn { background: var(--color-card-bg); border: 1px solid var(--color-card-border); color: var(--color-text); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-family); font-weight: 600; transition: all 0.3s; }
         .feature-tab-btn:hover { background: rgba(255,255,255,0.1); color: var(--color-heading); transform: translateY(-3px); }
@@ -314,6 +315,76 @@
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
         .user-name { font-weight: 600; color: var(--color-heading); }
         
+        /* --- NEW COMMENT SYSTEM STYLES --- */
+        #comment-form {
+            max-width: 700px;
+            margin: 0 auto 60px auto;
+            text-align: left;
+        }
+        #comment-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--color-card-border);
+            background: var(--color-card-bg);
+            color: var(--color-text);
+            font-family: var(--font-family);
+            font-size: 1rem;
+            resize: vertical;
+        }
+        #comment-form button {
+            margin-top: 15px;
+        }
+        #comment-status-message {
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        #comment-status-message.success { color: var(--color-status-up); }
+        #comment-status-message.error { color: var(--color-status-down); }
+        #comments-list {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .comment-card {
+            display: flex;
+            gap: 20px;
+            padding: 25px;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--border-radius);
+            animation: fade-in 0.5s ease;
+        }
+        .comment-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .comment-content .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .comment-header .username {
+            font-weight: 700;
+            color: var(--color-heading);
+        }
+        .comment-header .timestamp {
+            font-size: 0.85rem;
+            color: var(--color-text);
+            opacity: 0.6;
+        }
+        .comment-body {
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
         #cta-section { padding: 120px 5%; background: transparent; }
         #cta-section h2 { font-size: 3rem; margin-bottom: 20px; }
         .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background-image: var(--primary-gradient); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 999; transform: translateY(20px); }
@@ -676,6 +747,26 @@
                 </div>
             </section>
 
+            <!-- NEW COMMENT SECTION -->
+            <section id="comments-section" class="content-section">
+                <h2 class="section-title reveal-container"><span class="reveal-child">Community Discussion</span></h2>
+                <div class="reveal-container" data-stagger-container>
+                    <!-- Form for submitting a new comment -->
+                    <form id="comment-form" class="reveal-child" style="--i: 1;">
+                        <div class="form-group">
+                            <textarea id="comment-textarea" placeholder="Share your thoughts..." required minlength="5"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                        <p id="comment-status-message"></p>
+                    </form>
+
+                    <!-- Container where comments will be loaded -->
+                    <div id="comments-list" class="reveal-child" style="--i: 2;">
+                        <p class="loading-comments">Loading comments...</p>
+                    </div>
+                </div>
+            </section>
+
             <section id="cta-section" class="content-section">
                 <div class="reveal-container">
                     <h2 class="reveal-child" style="--i: 1;">Ready to Redefine Your Game?</h2>
@@ -708,44 +799,20 @@
         
         // --- ACHIEVEMENT CONFIGURATION ---
         const ACHIEVEMENTS = {
-            'welcome': {
-                name: 'Welcome to the Hub',
-                description: 'Successfully logged in for the first time.',
-                icon: 'fas fa-door-open',
-                condition: (profile) => true
-            },
-            'first_report': {
-                name: 'Bug Squasher',
-                description: 'Submitted your first bug report.',
-                icon: 'fas fa-bug',
-                condition: (profile) => profile.reportCount >= 1
-            },
-            'veteran': {
-                name: 'Community Veteran',
-                description: 'A member of the community for over 30 days.',
-                icon: 'fas fa-shield-alt',
-                condition: (profile) => {
-                    const thirtyDaysInMillis = 30 * 24 * 60 * 60 * 1000;
-                    return (Date.now() - new Date(profile.joinDate).getTime()) >= thirtyDaysInMillis;
-                }
-            }
+            'welcome': { name: 'Welcome to the Hub', description: 'Successfully logged in for the first time.', icon: 'fas fa-door-open', condition: (p) => true },
+            'first_report': { name: 'Bug Squasher', description: 'Submitted your first bug report.', icon: 'fas fa-bug', condition: (p) => p.reportCount >= 1 },
+            'veteran': { name: 'Community Veteran', description: 'A member of the community for over 30 days.', icon: 'fas fa-shield-alt', condition: (p) => (Date.now() - new Date(p.joinDate).getTime()) >= (30 * 24 * 60 * 60 * 1000) }
         };
 
         // --- ACHIEVEMENT & PROFILE LOGIC ---
-        function getProfileKey(discordId) { return `cerium_user_profile_${discordId}`; }
-        function getNewAchievementsKey(discordId) { return `cerium_new_achievements_${discordId}`; }
+        function getProfileKey(id) { return `cerium_user_profile_${id}`; }
+        function getNewAchievementsKey(id) { return `cerium_new_achievements_${id}`; }
 
         function getOrCreateProfile(userData) {
             const profileKey = getProfileKey(userData.id);
             let profile = JSON.parse(localStorage.getItem(profileKey));
-
             if (!profile) {
-                profile = {
-                    discordId: userData.id,
-                    joinDate: new Date().toISOString(),
-                    reportCount: 0,
-                    unlockedAchievements: []
-                };
+                profile = { discordId: userData.id, joinDate: new Date().toISOString(), reportCount: 0, unlockedAchievements: [] };
                 localStorage.setItem(profileKey, JSON.stringify(profile));
                 unlockAchievement(profile, 'welcome');
             }
@@ -776,34 +843,21 @@
         function displayProfileModal() {
             const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
             const profile = getOrCreateProfile(userData);
-            const newKey = getNewAchievementsKey(profile.discordId);
-            const newAchievements = JSON.parse(sessionStorage.getItem(newKey)) || [];
-
+            const newAchievements = JSON.parse(sessionStorage.getItem(getNewAchievementsKey(userData.id))) || [];
             document.getElementById('profile-modal-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
             document.getElementById('profile-modal-username').textContent = `${userData.username}#${userData.discriminator}`;
             document.getElementById('profile-modal-join-date').textContent = new Date(profile.joinDate).toLocaleDateString();
             document.getElementById('profile-modal-report-count').textContent = profile.reportCount;
-            
             const grid = document.getElementById('achievements-grid');
             grid.innerHTML = '';
-
             for (const id in ACHIEVEMENTS) {
-                const achievement = ACHIEVEMENTS[id];
-                const isUnlocked = profile.unlockedAchievements.includes(id);
-                const isNew = newAchievements.includes(id);
-                
+                const ach = ACHIEVEMENTS[id], isUnlocked = profile.unlockedAchievements.includes(id), isNew = newAchievements.includes(id);
                 const card = document.createElement('div');
                 card.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-                card.title = achievement.description;
-                card.innerHTML = `
-                    ${isNew ? '<span class="new-badge">New!</span>' : ''}
-                    <i class="icon ${achievement.icon}"></i>
-                    <h5>${achievement.name}</h5>
-                    <p>${achievement.description}</p>
-                `;
+                card.title = ach.description;
+                card.innerHTML = `${isNew ? '<span class="new-badge">New!</span>' : ''}<i class="icon ${ach.icon}"></i><h5>${ach.name}</h5><p>${ach.description}</p>`;
                 grid.appendChild(card);
             }
-
             profileModal.classList.add('visible');
             body.classList.add('no-scroll');
             profileModalClose.focus();
@@ -817,41 +871,29 @@
             if(userData) sessionStorage.removeItem(getNewAchievementsKey(userData.id));
         }
 
-        // --- PAGE STATE MANAGEMENT ---
+        // --- PAGE STATE MANAGEMENT & AUTH ---
         const setPageState = (state) => { body.className = `state-${state}`; };
-
         const showLoginWall = (message = null) => {
-            if (message) {
-                const statusMsg = document.getElementById('login-status-message');
-                if (statusMsg) {
-                    statusMsg.textContent = message;
-                    statusMsg.className = 'error';
-                }
-            }
+            if (message) document.getElementById('login-status-message').textContent = message;
             preloader.classList.add('hidden');
             setPageState('login');
         };
-
         const showWelcomeTransition = (userData) => {
             document.getElementById('welcome-username').textContent = userData.username;
             preloader.classList.add('hidden');
             setPageState('welcome');
-
             setTimeout(() => {
                 welcomeTransition.classList.add('exiting');
                 setTimeout(() => { showMainContent(userData); }, 800);
             }, 2000);
         };
-        
         const showMainContent = (userData) => {
             document.getElementById('nav-user-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
             document.getElementById('nav-user-name').textContent = `${userData.username}#${userData.discriminator}`;
-            const profile = getOrCreateProfile(userData);
-            checkAndUnlockAchievements(profile);
+            checkAndUnlockAchievements(getOrCreateProfile(userData));
             setPageState('authenticated status-up');
             initializePageScripts();
         };
-        
         const handleLogout = () => {
             if (window.confirm("Are you sure you want to log out?")) {
                 localStorage.removeItem('discord_user_v2');
@@ -859,17 +901,11 @@
                 setTimeout(() => showLoginWall(), 400);
             }
         };
-
-        discordLoginBtn.addEventListener('click', () => {
-            window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-        });
-        
+        discordLoginBtn.addEventListener('click', () => { window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; });
         discordLogoutBtnHeader.addEventListener('click', handleLogout);
-
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
-            
             if (accessToken) {
                 try {
                     const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
@@ -884,24 +920,14 @@
                 }
             } else {
                 const storedUser = localStorage.getItem('discord_user_v2');
-                setTimeout(() => {
-                    if (storedUser) showWelcomeTransition(JSON.parse(storedUser));
-                    else showLoginWall();
-                }, 500);
+                setTimeout(() => { storedUser ? showWelcomeTransition(JSON.parse(storedUser)) : showLoginWall(); }, 500);
             }
         };
-
         handleOAuthCallback();
         
-        // --- Bug Report Form Draft QOL ---
+        // --- FORM DRAFT & UTILITIES ---
         const reportFormStateKey = 'cerium_bug_report_draft';
-        const saveFormState = () => {
-            const state = {
-                game: document.getElementById('game-select').value,
-                description: document.getElementById('bug-description').value
-            };
-            localStorage.setItem(reportFormStateKey, JSON.stringify(state));
-        };
+        const saveFormState = () => localStorage.setItem(reportFormStateKey, JSON.stringify({ game: document.getElementById('game-select').value, description: document.getElementById('bug-description').value }));
         const restoreFormState = () => {
             const state = JSON.parse(localStorage.getItem(reportFormStateKey));
             if (state) {
@@ -910,148 +936,104 @@
             }
         };
         const clearFormState = () => localStorage.removeItem(reportFormStateKey);
-
+        
         function initializePageScripts() {
             // --- Interactive Game Cards ---
-            const gameCards = document.querySelectorAll('.game-grid .game-card');
-            gameCards.forEach(card => {
-                if (card.classList.contains('coming-soon')) return;
-                const header = card.querySelector('.game-card-header');
+            document.querySelectorAll('.game-grid .game-card:not(.coming-soon) .game-card-header').forEach(header => {
                 header.addEventListener('click', () => {
+                    const card = header.parentElement;
                     const wasActive = card.classList.contains('active');
-                    gameCards.forEach(otherCard => otherCard.classList.remove('active'));
+                    document.querySelectorAll('.game-grid .game-card').forEach(c => c.classList.remove('active'));
                     if (!wasActive) card.classList.add('active');
                 });
             });
             
             // --- General Page Scripts ---
-            const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
-            if (window.matchMedia('(pointer: fine)').matches && !isReducedMotion) {
-                const glow = document.getElementById('cursor-glow');
-                document.addEventListener('mousemove', (e) => { requestAnimationFrame(() => { glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`; }); });
-                document.addEventListener('mousedown', () => glow.classList.add('clicking'));
-                document.addEventListener('mouseup', () => glow.classList.remove('clicking'));
-            }
-
-            const header = document.querySelector('.main-header');
-            const backToTopButton = document.querySelector('.back-to-top');
+            const header = document.querySelector('.main-header'), backToTopButton = document.querySelector('.back-to-top');
             window.addEventListener('scroll', () => {
                 header.classList.toggle('scrolled', window.scrollY > 50);
                 backToTopButton.classList.toggle('visible', window.scrollY > 300);
             }, { passive: true });
-
-            if (!isReducedMotion) {
-                const observer = new IntersectionObserver((entries, obs) => {
-                    entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); obs.unobserve(entry.target); } });
-                }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+            if (!window.matchMedia(`(prefers-reduced-motion: reduce)`).matches) {
+                const observer = new IntersectionObserver((entries, obs) => { entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); } }); }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
                 document.querySelectorAll('.reveal-container').forEach(el => observer.observe(el));
-            } else {
-                document.querySelectorAll('.reveal-container').forEach(el => el.classList.add('is-visible'));
-            }
+            } else { document.querySelectorAll('.reveal-container').forEach(el => el.classList.add('is-visible')); }
             
-            const hamburger = document.querySelector('.hamburger');
-            const mobileNavMenu = document.querySelector('.mobile-nav-container .nav-menu');
-            if (hamburger && mobileNavMenu) {
-                const toggleMenu = () => {
-                    const isActive = hamburger.classList.toggle('active');
-                    mobileNavMenu.classList.toggle('active');
-                    document.body.classList.toggle('no-scroll', isActive);
-                };
+            const hamburger = document.querySelector('.hamburger'), mobileNavMenu = document.querySelector('.mobile-nav-container .nav-menu');
+            if (hamburger) {
+                const toggleMenu = () => { hamburger.classList.toggle('active'); mobileNavMenu.classList.toggle('active'); document.body.classList.toggle('no-scroll', hamburger.classList.contains('active')); };
                 hamburger.addEventListener('click', toggleMenu);
-                mobileNavMenu.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { if (hamburger.classList.contains('active')) toggleMenu(); }); });
+                mobileNavMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => { if (hamburger.classList.contains('active')) toggleMenu(); }));
             }
             
-            const featureTabButtons = document.querySelectorAll('.feature-tab-btn');
-            const featurePanes = document.querySelectorAll('.feature-pane');
-            featureTabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const gameId = button.dataset.game;
-                    featureTabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.game === gameId));
-                    featurePanes.forEach(pane => pane.classList.toggle('active', pane.id === `features-${gameId}`));
-                });
-            });
-
             document.querySelectorAll('.get-script-btn').forEach(btn => {
                 const originalHTML = btn.innerHTML;
-                btn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(btn.dataset.loadstring).then(() => {
-                        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                        btn.style.cssText = 'background-image: none; background-color: var(--color-status-up);';
-                        setTimeout(() => { btn.innerHTML = originalHTML; btn.style.cssText = ''; }, 2500);
-                    }).catch(() => {
-                        btn.innerHTML = '<i class="fas fa-times"></i> Failed';
-                        btn.style.cssText = 'background-image: none; background-color: var(--color-status-down);';
-                        setTimeout(() => { btn.innerHTML = originalHTML; btn.style.cssText = ''; }, 2500);
-                    });
-                });
+                btn.addEventListener('click', () => { navigator.clipboard.writeText(btn.dataset.loadstring).then(() => { btn.innerHTML = '<i class="fas fa-check"></i> Copied!'; btn.style.cssText = 'background:var(--color-status-up);color:black;'; }).catch(() => { btn.innerHTML = '<i class="fas fa-times"></i> Failed'; btn.style.cssText = 'background:var(--color-status-down);color:black;'; }).finally(() => setTimeout(() => { btn.innerHTML = originalHTML; btn.style.cssText = ''; }, 2500)); });
             });
             
             headerUserInfo.addEventListener('click', displayProfileModal);
             profileModalClose.addEventListener('click', closeProfileModal);
-            window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
+            window.addEventListener('click', (e) => { if (e.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
 
-            // --- Bug Report Form Logic ---
+            // --- Bug Report Form ---
             restoreFormState();
-            const requiredFields = bugReportForm.querySelectorAll('[required]');
-            bugReportForm.addEventListener('submit', function(event) {
-                event.preventDefault();
+            bugReportForm.addEventListener('submit', function(e) {
+                e.preventDefault();
                 const statusMessage = document.getElementById('form-status-message');
-                if (localStorage.getItem('cerium_last_report_timestamp') && (Date.now() - localStorage.getItem('cerium_last_report_timestamp') < RATE_LIMIT_MS)) {
-                    const timeLeft = Math.ceil((RATE_LIMIT_MS - (Date.now() - localStorage.getItem('cerium_last_report_timestamp'))) / 60000);
-                    statusMessage.textContent = `You can submit another report in ${timeLeft} minutes.`;
-                    statusMessage.className = 'error';
-                    return;
-                }
-
-                if (!Array.from(requiredFields).every(f => f.value)) {
-                    statusMessage.textContent = 'Please fill out all required fields.'; statusMessage.className = 'error'; return;
-                }
-
+                if (Date.now() - (localStorage.getItem('cerium_last_report_timestamp') || 0) < RATE_LIMIT_MS) { statusMessage.textContent = `You can submit another report in ${Math.ceil((RATE_LIMIT_MS - (Date.now() - localStorage.getItem('cerium_last_report_timestamp'))) / 60000)} minutes.`; statusMessage.className = 'error'; return; }
+                if (!Array.from(bugReportForm.querySelectorAll('[required]')).every(f => f.value)) { statusMessage.textContent = 'Please fill out all required fields.'; statusMessage.className = 'error'; return; }
                 const submitButton = document.getElementById('submit-bug-report');
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-                statusMessage.textContent = ''; statusMessage.className = '';
-
-                const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
-                const discordPayload = {
-                    username: "Cerium", avatar_url: "https://i.imgur.com/g4IARd6.png",
-                    embeds: [{
-                        author: { name: `Report by ${userData.username}#${userData.discriminator}`, icon_url: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` },
-                        color: 3092790, 
-                        fields: [
-                            { name: "Game", value: document.getElementById('game-select').value, inline: true },
-                            { name: "Reporter ID", value: userData.id, inline: true },
-                            { name: "Description", value: "```" + document.getElementById('bug-description').value.trim() + "```" }
-                        ],
-                        footer: { text: "Cerium Bug Report System" },
-                        timestamp: new Date().toISOString()
-                    }]
-                };
-
+                submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                const userData = JSON.parse(localStorage.getItem('discord_user_v2')), discordPayload = { embeds: [{ author: { name: `Report by ${userData.username}#${userData.discriminator}`, icon_url: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` }, color: 3092790, fields: [{ name: "Game", value: document.getElementById('game-select').value, inline: true }, { name: "Description", value: "```" + document.getElementById('bug-description').value.trim() + "```" }], footer: { text: "Cerium Bug Report System" }, timestamp: new Date().toISOString() }] };
                 fetch('/api/submit-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ discordPayload }) })
-                .then(async response => {
-                    if (response.ok) {
-                        statusMessage.textContent = 'Thank you! Your report has been submitted successfully.';
-                        statusMessage.className = 'success';
-                        localStorage.setItem('cerium_last_report_timestamp', Date.now());
-                        bugReportForm.reset();
-                        clearFormState();
-                        const profile = getOrCreateProfile(userData);
-                        profile.reportCount++;
-                        localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
-                        checkAndUnlockAchievements(profile);
-                    } else { const err = await response.json(); throw new Error(err.error || 'Failed to submit report.'); }
-                })
-                .catch(error => { statusMessage.textContent = error.message; statusMessage.className = 'error'; })
+                .then(async res => { if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to submit.'); } return res.json(); })
+                .then(() => { statusMessage.textContent = 'Report submitted!'; statusMessage.className = 'success'; localStorage.setItem('cerium_last_report_timestamp', Date.now()); bugReportForm.reset(); clearFormState(); const p = getOrCreateProfile(userData); p.reportCount++; localStorage.setItem(getProfileKey(p.discordId), JSON.stringify(p)); checkAndUnlockAchievements(p); })
+                .catch(err => { statusMessage.textContent = err.message; statusMessage.className = 'error'; })
                 .finally(() => { submitButton.disabled = false; submitButton.innerHTML = 'Submit Report'; });
             });
+            bugReportForm.addEventListener('input', () => { saveFormState(); const sm = document.getElementById('form-status-message'); if (sm.textContent) { sm.textContent = ''; sm.className = ''; } });
             
-            bugReportForm.addEventListener('input', () => {
-                saveFormState();
-                const statusMessage = document.getElementById('form-status-message');
-                if(statusMessage.textContent) { statusMessage.textContent = ''; statusMessage.className = ''; }
+            // --- NEW COMMENT SYSTEM LOGIC ---
+            const commentForm = document.getElementById('comment-form'), commentTextarea = document.getElementById('comment-textarea'), commentsList = document.getElementById('comments-list'), commentStatusMessage = document.getElementById('comment-status-message'), topicId = 'main_page_discussion';
+            function escapeHTML(str) { return str.replace(/[&<>'"]/g, t => ({'&':'&','<':'<','>':'>',"'":''','"':'"'}[t]||t)); }
+            function renderComment(c) {
+                const card = document.createElement('div');
+                card.className = 'comment-card';
+                card.innerHTML = `<img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${c.user_name}'s avatar" class="comment-avatar"><div class="comment-content"><div class="comment-header"><span class="username">${c.user_name}</span><span class="timestamp" title="${new Date(c.created_at).toLocaleString()}">${timeago.format(c.created_at)}</span></div><p class="comment-body">${escapeHTML(c.content)}</p></div>`;
+                return card;
+            }
+            async function fetchAndRenderComments() {
+                commentsList.innerHTML = '<p class="loading-comments">Loading comments...</p>';
+                try {
+                    const res = await fetch(`/api/comments?topic=${topicId}`);
+                    if (!res.ok) throw new Error('Failed to load comments.');
+                    const comments = await res.json();
+                    commentsList.innerHTML = '';
+                    if (comments.length === 0) commentsList.innerHTML = '<p>No comments yet. Be the first to share your thoughts!</p>';
+                    else comments.forEach(c => commentsList.appendChild(renderComment(c)));
+                } catch (error) { commentsList.innerHTML = `<p class="error">${error.message}</p>`; }
+            }
+            commentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const content = commentTextarea.value.trim(), submitButton = commentForm.querySelector('button[type="submit"]');
+                if (!content) return;
+                const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
+                if (!userData) { commentStatusMessage.textContent = 'You must be logged in to comment.'; commentStatusMessage.className = 'error'; return; }
+                submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...'; commentStatusMessage.textContent = '';
+                try {
+                    const res = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: topicId, content, user: userData }) });
+                    const newComment = await res.json();
+                    if (!res.ok) throw new Error(newComment.error || 'Failed to post comment.');
+                    commentTextarea.value = '';
+                    if (commentsList.querySelector('p')) commentsList.innerHTML = '';
+                    const newCard = renderComment(newComment);
+                    commentsList.prepend(newCard);
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (error) { commentStatusMessage.textContent = error.message; commentStatusMessage.className = 'error'; } 
+                finally { submitButton.disabled = false; submitButton.innerHTML = 'Post Comment'; }
             });
+            fetchAndRenderComments();
         }
     });
     </script>
