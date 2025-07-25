@@ -15,11 +15,12 @@
             --color-background: #050505;
             --color-heading: #FFFFFF;
             --color-text: #E0E0E0;
+            --color-text-muted: #A0A0A0;
             --color-card-bg: rgba(255, 255, 255, 0.05);
             --color-card-border: rgba(255, 255, 255, 0.1);
-            --color-card-border-hover: rgba(255, 255, 255, 0.2);
-            --primary-gradient: linear-gradient(90deg, #FFFFFF, #888888);
-            --color-glow: rgba(255, 255, 255, 0.3);
+            --color-card-border-hover: rgba(255, 255, 255, 0.25);
+            --primary-gradient: linear-gradient(90deg, #FFFFFF, #AAAAAA);
+            --color-glow: rgba(255, 255, 255, 0.15);
             --color-status-up: #00FF7F;
             --color-status-caution: #FFD700;
             --header-height: 80px;
@@ -29,23 +30,35 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text); line-height: 1.7; overflow-x: hidden; background-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 35%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%); }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%);
+            background-attachment: fixed;
+        }
         .content-section { padding: 100px 5% 140px; max-width: 1280px; margin: 0 auto; }
         .section-title { font-size: 3.5rem; font-weight: 800; color: var(--color-heading); margin-bottom: 20px; text-align: center; }
         .section-subtitle { font-size: 1.1rem; max-width: 700px; margin: 0 auto 80px auto; color: var(--color-text); text-align: center; }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 1px solid var(--color-card-border); cursor: pointer; }
+        
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
+        .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 15px var(--color-glow); transform: translateY(-2px); }
         .btn-secondary { background-color: transparent; color: var(--color-heading); border-color: var(--color-heading); }
-        .btn-secondary:hover { background-color: var(--color-heading); color: var(--color-background); }
+        .btn-secondary:hover { background-color: var(--color-heading); color: var(--color-background); box-shadow: 0 0 15px var(--color-glow); }
 
-        .main-header { position: sticky; top: 0; z-index: 1000; height: var(--header-height); display: flex; align-items: center; background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-card-border); }
+        .main-header { position: sticky; top: 0; z-index: 1000; height: var(--header-height); display: flex; align-items: center; background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-card-border); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 5%; }
         .nav-left { display: flex; align-items: center; gap: 60px; }
         .nav-logo { font-size: 1.8rem; font-weight: 800; color: var(--color-heading); text-decoration: none; }
         .nav-menu { list-style: none; display: flex; gap: 45px; }
-        .nav-link { color: var(--color-text); text-decoration: none; font-weight: 600; }
-        .nav-link.active { color: var(--color-heading); }
+        .nav-link { color: var(--color-text); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        .nav-link:hover, .nav-link.active { color: var(--color-heading); }
         .nav-actions { display: flex; align-items: center; gap: 25px; }
         .user-info-details { display: flex; align-items: center; gap: 15px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
@@ -54,20 +67,24 @@
         
         .games-controls { display: flex; gap: 20px; margin-bottom: 60px; justify-content: center; align-items: center; flex-wrap: wrap; }
         .search-container { position: relative; flex-grow: 1; max-width: 400px; }
-        #game-search-input { width: 100%; padding: 14px 20px 14px 50px; border-radius: 50px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-size: 1rem; }
+        #game-search-input { width: 100%; padding: 14px 20px 14px 50px; border-radius: 50px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-size: 1rem; transition: all 0.3s ease; }
+        #game-search-input:focus { border-color: var(--color-card-border-hover); box-shadow: 0 0 15px var(--color-glow); }
         .search-container i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); opacity: 0.6; }
         .filter-buttons { display: flex; gap: 10px; background: var(--color-card-bg); padding: 5px; border-radius: 50px; border: 1px solid var(--color-card-border); }
-        .filter-btn { background: transparent; border: none; color: var(--color-text); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; }
+        .filter-btn { background: transparent; border: none; color: var(--color-text); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
         .filter-btn.active { background-image: var(--primary-gradient); color: black; }
         
         .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .game-card { background: var(--color-card-bg); border-radius: var(--border-radius); text-align: left; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; }
-        .game-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-color: var(--color-card-border-hover); }
+        .game-card { background: var(--color-card-bg); border-radius: var(--border-radius); text-align: left; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; overflow: hidden; }
+        .game-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px -5px rgba(0,0,0,0.4), 0 0 20px -5px var(--color-glow); border-color: var(--color-card-border-hover); }
         .game-card.coming-soon { opacity: 0.5; filter: grayscale(50%); cursor: not-allowed; }
-        .game-card-thumbnail img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--border-radius) var(--border-radius) 0 0; }
-        .game-card-info { padding: 20px; }
-        .game-card-info h3 { color: var(--color-heading); }
-        #no-results-message { display: none; padding: 50px; text-align: center; }
+        .game-card.coming-soon:hover { transform: none; box-shadow: none; border-color: var(--color-card-border); }
+        .game-card-thumbnail { position: relative; }
+        .game-card-thumbnail img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+        .game-card-thumbnail::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to top, var(--color-background) 10%, transparent); }
+        .game-card-info { padding: 20px; transform: translateY(-20px); }
+        .game-card-info h3 { color: var(--color-heading); font-size: 1.25rem; }
+        #no-results-message { display: none; padding: 50px; text-align: center; color: var(--color-text-muted); }
         .game-key-tag { margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--color-card-border); border-radius: 8px; font-size: 0.85rem; }
         .game-key-tag span { font-weight: 600; color: var(--color-status-caution); }
 
@@ -76,31 +93,41 @@
         .detail-header { display: grid; grid-template-columns: 350px 1fr; gap: 40px; margin-bottom: 50px; align-items: flex-start; }
         #detail-thumbnail { width: 100%; border-radius: var(--border-radius); border: 1px solid var(--color-card-border); }
         #detail-title { font-size: 2.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
-        #detail-status { font-weight: 600; display: inline-block; padding: 4px 12px; border-radius: 20px; margin-bottom: 15px; }
-        #detail-status.Live { background-color: var(--color-status-up); color: #000; }
-        #detail-status.Beta { background-color: var(--color-status-caution); color: #000; }
+        #detail-status { font-weight: 600; display: inline-block; padding: 4px 12px; border-radius: 20px; margin-bottom: 15px; font-size: 0.9rem; }
+        #detail-status.Live { background-color: var(--color-status-up); color: #000; box-shadow: 0 0 10px #00FF7F40; }
+        #detail-status.Beta { background-color: var(--color-status-caution); color: #000; box-shadow: 0 0 10px #FFD70040; }
         #detail-key-display { font-size: 1rem; margin-bottom: 25px; }
         #detail-key-display strong { color: var(--color-text-muted); }
-        #detail-key-value { background: #000; padding: 5px 10px; border-radius: 8px; color: var(--color-status-caution); font-weight: 600; font-family: monospace; }
+        #detail-key-value { background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; color: var(--color-status-caution); font-weight: 600; font-family: monospace; border: 1px solid var(--color-card-border); }
         .detail-section { background: var(--color-card-bg); border: 1px solid var(--color-card-border); border-radius: var(--border-radius); padding: 30px 40px; margin-bottom: 30px; }
-        .detail-section h3 { font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--color-card-border); }
-        #detail-execute-box { background: #000; padding: 20px; border-radius: 12px; font-family: monospace; white-space: pre-wrap; word-break: break-all; position: relative; }
+        .detail-section h3 { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--color-card-border); color: var(--color-heading); }
+        
+        #detail-execute-box { background: var(--color-card-bg); border: 1px solid var(--color-card-border); padding: 20px; border-radius: 12px; font-family: monospace; white-space: pre-wrap; word-break: break-all; position: relative; }
         #detail-copy-btn { position: absolute; top: 15px; right: 15px; padding: 5px 15px; font-size: 0.8rem; }
         
-        .comment-form { display: flex; gap: 12px; margin-bottom: 30px; align-items: flex-start; }
-        .comment-form-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; }
-        .comment-form-input-wrapper { flex-grow: 1; }
-        .comment-textarea { width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: rgba(0,0,0,0.2); color: var(--color-text); resize: vertical; min-height: 70px; font-size: 0.95rem; }
-        .comment-form-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
-        .comment-form-actions .btn-primary { padding: 8px 20px; font-size: 0.9rem; }
-        .comments-list { display: flex; flex-direction: column; gap: 15px; }
-        .comment-card { display: flex; gap: 12px; padding: 15px; background: rgba(255,255,255,0.03); border: 1px solid var(--color-card-border); border-radius: 12px; }
-        .comment-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; }
-        .comment-user { font-weight: 600; color: var(--color-heading); font-size: 0.9rem; }
-        .comment-body { margin-top: 4px; font-size: 0.95rem; line-height: 1.6; color: var(--color-text); opacity: 0.9; }
+        /* --- Redesigned Comment Section --- */
+        #detail-comment-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        .comment-form-main { display: flex; gap: 12px; align-items: flex-start; }
+        .comment-form-avatar { width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; }
+        .comment-textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: rgba(0,0,0,0.2); color: var(--color-text); resize: vertical; min-height: 80px; font-size: 0.95rem; font-family: var(--font-family); transition: all 0.3s ease; }
+        .comment-textarea:focus { border-color: var(--color-card-border-hover); box-shadow: 0 0 15px var(--color-glow); outline: none; }
+        .comment-form-actions { display: flex; justify-content: flex-end; }
+        .comment-form-actions .btn-primary { padding: 10px 24px; font-size: 0.95rem; }
 
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @media(max-width: 768px) { .detail-header { grid-template-columns: 1fr; } #detail-title { font-size: 2.2rem; } }
+        .comments-list { display: flex; flex-direction: column; gap: 20px; }
+        .comment-card { display: flex; gap: 15px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--color-card-border); border-radius: 12px; }
+        .comment-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; }
+        .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .comment-user { font-weight: 600; color: var(--color-heading); font-size: 1rem; }
+        .comment-timestamp { font-size: 0.8rem; color: var(--color-text-muted); }
+        .comment-body { font-size: 0.95rem; line-height: 1.6; color: var(--color-text); opacity: 0.95; }
+
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media(max-width: 768px) {
+            .detail-header { grid-template-columns: 1fr; }
+            #detail-title { font-size: 2.2rem; }
+            .section-title { font-size: 2.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -130,7 +157,7 @@
             <section class="content-section">
                 <div id="games-browser-view">
                     <h2 class="section-title">Our <span class="gradient-text">Products</span></h2>
-                    <p class="section-subtitle">Browse our full catalog of supported games. Click any game to see details.</p>
+                    <p class="section-subtitle">Browse our full catalog of supported games. Click any game to see details, features, and discuss with the community.</p>
                     <div class="games-controls">
                         <div class="search-container">
                             <i class="fas fa-search"></i>
@@ -144,7 +171,7 @@
                         </div>
                     </div>
                     <div class="game-grid"></div>
-                    <div id="no-results-message"><h3>No Games Found</h3></div>
+                    <div id="no-results-message"><h3>No Games Found</h3><p>Try adjusting your search or filter.</p></div>
                 </div>
 
                 <div id="game-detail-view">
@@ -169,13 +196,14 @@
                     </div>
                     <div class="detail-section">
                         <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
+                        <!-- UPDATED COMMENT FORM STRUCTURE -->
                         <form id="detail-comment-form">
-                            <img src="" alt="Your avatar" class="comment-form-avatar">
-                            <div class="comment-form-input-wrapper">
+                            <div class="comment-form-main">
+                                <img src="" alt="Your avatar" class="comment-form-avatar">
                                 <textarea class="comment-textarea" placeholder="Share your thoughts..." required></textarea>
-                                <div class="comment-form-actions">
-                                    <button type="submit" class="btn btn-primary">Post Comment</button>
-                                </div>
+                            </div>
+                            <div class="comment-form-actions">
+                                <button type="submit" class="btn btn-primary">Post Comment</button>
                             </div>
                         </form>
                         <div class="comments-list"></div>
@@ -222,7 +250,8 @@
             document.getElementById('detail-title').textContent = game.name;
             const statusEl = document.getElementById('detail-status');
             statusEl.textContent = game.status;
-            statusEl.className = game.status || '';
+            statusEl.className = '';
+            statusEl.classList.add(game.status);
             document.getElementById('detail-loadstring').textContent = game.loadstring || 'Not available.';
             document.getElementById('detail-features').innerHTML = game.features_html || '<p>No features listed.</p>';
             document.getElementById('detail-comment-form').dataset.topic = game.topic_id;
@@ -291,18 +320,30 @@
             } catch (e) { list.innerHTML = `<p class="api-status" style="color:red;">Could not load comments.</p>`; }
         };
         
+        // --- UPDATED to create the new comment card structure ---
         const createCommentCardHTML = (comment) => {
-            const tempDiv = document.createElement('div');
-            const userStrong = document.createElement('strong');
-            userStrong.className = 'comment-user';
-            userStrong.textContent = comment.user_name || 'Anonymous';
-            const contentP = document.createElement('p');
-            contentP.className = 'comment-body';
-            contentP.textContent = comment.content || '';
-            tempDiv.appendChild(userStrong);
-            tempDiv.appendChild(contentP);
-            
-            return `<div class="comment-card"><img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar"><div class="comment-content">${tempDiv.innerHTML}</div></div>`;
+            const sanitizedContent = document.createElement('p');
+            sanitizedContent.className = 'comment-body';
+            sanitizedContent.textContent = comment.content || '';
+
+            const sanitizedUsername = document.createElement('span');
+            sanitizedUsername.className = 'comment-user';
+            sanitizedUsername.textContent = comment.user_name || 'Anonymous';
+
+            const randomTime = Math.floor(Math.random() * 24);
+            const timestamp = randomTime > 0 ? `${randomTime}h ago` : 'Just now';
+
+            return `
+                <div class="comment-card">
+                    <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            ${sanitizedUsername.outerHTML}
+                            <span class="comment-timestamp">· ${timestamp}</span>
+                        </div>
+                        ${sanitizedContent.outerHTML}
+                    </div>
+                </div>`;
         };
 
         document.getElementById('back-to-grid-btn').addEventListener('click', showGridView);
@@ -336,6 +377,7 @@
             
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true;
+            submitButton.textContent = 'Posting...';
 
             try {
                 const response = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, content, user }) });
@@ -349,6 +391,7 @@
                 alert(error.message);
             } finally {
                 submitButton.disabled = false;
+                submitButton.textContent = 'Post Comment';
             }
         });
 
