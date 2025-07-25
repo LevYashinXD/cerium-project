@@ -851,7 +851,7 @@
 
                 games.forEach(game => {
                     // --- 1. Populate Game Cards ---
-                    const isComingSoon = game.status === 'Coming Soon';
+const isComingSoon = game.status?.trim().toLowerCase() === 'coming soon';
                     const gameCardHTML = `
                         <div class="game-card ${isComingSoon ? 'coming-soon' : ''} reveal-child" style="--i: ${childIndex++};">
                             <div class="game-card-thumbnail">
