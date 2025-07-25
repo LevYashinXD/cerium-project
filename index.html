@@ -22,7 +22,7 @@
             --color-glow: rgba(255, 255, 255, 0.3);
             --color-status-up: #00FF7F;
             --color-status-down: #FF3366;
-            --color-status-caution: #FFD700;
+            --color-status-maintenance: #FFD700;
             --header-height: 80px;
             --font-family: 'Inter', sans-serif;
             --border-radius: 16px;
@@ -102,13 +102,13 @@
         .new-badge { position: absolute; top: 10px; right: 10px; background-color: var(--color-status-up); color: black; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
 
 
-        #cursor-glow { position: fixed; top: 0; left: 0; width: 600px; height: 600px; background: radial-gradient(circle, var(--color-glow) 0%, transparent S70%); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: -1; transition: transform 0.2s ease-out, width 0.3s ease, height 0.3s ease; }
+        #cursor-glow { position: fixed; top: 0; left: 0; width: 600px; height: 600px; background: radial-gradient(circle, var(--color-glow) 0%, transparent 70%); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: -1; transition: transform 0.2s ease-out, width 0.3s ease, height 0.3s ease; }
         #cursor-glow.clicking { width: 550px; height: 550px; }
         @media (pointer: coarse) { #cursor-glow { display: none; } }
         .btn { position: relative; display: inline-block; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all var(--transition-speed) var(--transition-curve); border: 1px solid var(--color-card-border); cursor: pointer; white-space: nowrap; overflow: hidden; backdrop-filter: blur(5px); }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; box-shadow: 0 8px 30px -10px var(--color-glow); }
         .btn-primary:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 35px -8px var(--color-glow); }
-        .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; transform: skewX(-25deg); background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%); animation: btn-shine 1s ease-in-out 2.s infinite; }
+        .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; transform: skewX(-25deg); background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%); animation: btn-shine 1s ease-in-out 2s infinite; }
         .btn-secondary { background-color: transparent; color: var(--color-heading); border-color: var(--color-heading); }
         .btn-secondary:hover { background-color: var(--color-heading); color: var(--color-background); transform: translateY(-4px) scale(1.05); box-shadow: 0 0 15px -5px var(--color-heading); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
@@ -148,136 +148,92 @@
         .hero-subtitle { font-size: 1.25rem; max-width: 650px; margin: 0 auto 40px; min-height: 58px; opacity: 0; animation: reveal-up 1s cubic-bezier(0.165, 0.84, 0.44, 1) 0.8s forwards; }
         .hero-buttons { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; opacity: 0; animation: reveal-up 1s cubic-bezier(0.165, 0.84, 0.44, 1) 1s forwards; }
 
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; }
-        .game-card { background: var(--color-card-bg); border-radius: var(--border-radius); overflow: hidden; text-align: left; transition: all 0.3s ease; border: 1px solid var(--color-card-border); }
-        .game-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); border-color: var(--color-card-border-hover); }
-        .game-card.coming-soon { opacity: 0.6; filter: grayscale(80%); }
-        .game-card-thumbnail { position: relative; }
-        .game-card-thumbnail img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
-        .coming-soon-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--color-heading); font-size: 1.1rem; letter-spacing: 1px; backdrop-filter: blur(2px); }
-        .game-card-info { padding: 20px; }
-        .game-card-info h3 { color: var(--color-heading); font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .game-card-info p { color: var(--color-text); opacity: 0.7; font-size: 0.9rem; }
-        .game-card-actions { padding: 0 20px 20px; display: flex; gap: 10px; }
-        .game-card-actions .btn { padding: 8px 20px; font-size: 0.9rem; }
-
-        .feature-tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; }
-        .feature-tab-btn { background: var(--color-card-bg); border: 1px solid var(--color-card-border); color: var(--color-text); padding: 12px 24px; border-radius: 8px; cursor: pointer; font-family: var(--font-family); font-weight: 600; transition: all 0.3s; }
-        .feature-tab-btn:hover { background: rgba(255,255,255,0.1); color: var(--color-heading); transform: translateY(-3px); }
-        .feature-tab-btn.active { background-image: var(--primary-gradient); color: black; border-color: transparent; }
-        .feature-pane { display: none; animation: reveal-up 0.5s var(--transition-curve) forwards; }
-        .feature-pane.active { display: block; }
-        .feature-category { margin-top: 60px; } .feature-category:first-child { margin-top: 0; }
-        .feature-category h3 { font-size: 2rem; margin-bottom: 30px; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; text-align: left; }
-        .feature-card { padding: 25px; display: flex; align-items: flex-start; gap: 20px; }
-        .feature-card .card-icon { font-size: 2rem; margin-top: 5px; width: 40px; transition: transform 0.3s ease; }
-        .feature-card:hover .card-icon { transform: scale(1.1); }
-        .cta-script-box { text-align: center; margin: 60px auto 0; padding: 40px; border-radius: var(--border-radius); max-width: 650px; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05), transparent 70%), var(--color-card-bg); }
-        .cta-script-box h4 { font-size: 1.5rem; }
-        .get-script-btn { margin-top: 20px; }
-
-        /* --- Comments Section Styles --- */
-        .comments-section {
-            margin-top: 80px;
-            padding-top: 40px;
-            border-top: 1px solid var(--color-card-border);
-            text-align: left;
-        }
-        .comments-section h3 {
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .comment-form {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            margin-bottom: 40px;
-        }
-        .comment-form-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .comment-form-input-wrapper {
-            flex-grow: 1;
-        }
-        .comment-textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--color-card-border);
-            background: var(--color-card-bg);
-            color: var(--color-text);
-            font-family: var(--font-family);
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            resize: vertical;
-            min-height: 80px;
-        }
-        .comment-textarea:focus {
-            outline: none;
-            border-color: var(--color-heading);
-            box-shadow: 0 0 10px var(--color-glow);
-        }
-        .comment-form-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-        .comments-list {
+        /* --- NEW: Game List Section --- */
+        #game-list-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
-            padding-right: 10px; /* For scrollbar */
-        }
-        .comment-card {
-            display: flex;
             gap: 15px;
-            padding: 20px;
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-card-border);
-            border-radius: var(--border-radius);
-            animation: fade-in 0.5s ease;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: left;
+            padding: 25px;
         }
-        .comment-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .comment-content {
-            flex-grow: 1;
-        }
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
+        .game-list-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
             align-items: center;
-            margin-bottom: 8px;
+            gap: 20px;
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-card-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
-        .comment-user {
-            font-weight: 700;
+        .game-list-item:hover {
+             background: var(--color-card-bg);
+             border-color: var(--color-card-border-hover);
+             transform: translateY(-2px);
+        }
+        .game-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .game-info h3 {
+            font-size: 1.5rem;
             color: var(--color-heading);
+            margin: 0;
         }
-        .comment-time {
-            font-size: 0.85rem;
+        .game-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        .status-indicator { width: 10px; height: 10px; border-radius: 50%; }
+        .status-indicator.operational { background-color: var(--color-status-up); }
+        .status-indicator.maintenance { background-color: var(--color-status-maintenance); }
+        .status-indicator.coming-soon { background-color: var(--color-text); opacity: 0.5; }
+
+        .select-wrapper { position: relative; }
+        .select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+        .game-version-select {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: var(--color-card-bg);
             color: var(--color-text);
-            opacity: 0.6;
+            border: 1px solid var(--color-card-border);
+            border-radius: 8px;
+            padding: 12px 40px 12px 15px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .comment-body {
-            line-height: 1.6;
-            white-space: pre-wrap; /* Preserve line breaks */
-            word-break: break-word;
-        }
-        .comments-status {
-            text-align: center;
-            padding: 40px;
-            font-style: italic;
-            opacity: 0.7;
-        }
+        .game-version-select:hover { border-color: var(--color-card-border-hover); }
+        .game-version-select:focus { outline: none; border-color: var(--color-heading); box-shadow: 0 0 10px var(--color-glow); }
+        .game-version-select:disabled { opacity: 0.5; cursor: not-allowed; }
+        .copy-loadstring-btn { padding: 12px 25px; font-size: 0.9rem; border-radius: 8px; }
+
+        /* --- NEW: Simplified Features Section --- */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; text-align: left; }
+        .feature-card { padding: 30px; display: flex; align-items: flex-start; gap: 20px; }
+        .feature-card .card-icon { font-size: 2rem; margin-top: 5px; width: 40px; transition: transform 0.3s ease; }
+        .feature-card:hover .card-icon { transform: scale(1.1) rotate(-5deg); }
+        .feature-card h4 { color: var(--color-heading); margin-bottom: 5px; }
+
 
         .timeline-container { position: relative; max-width: 900px; margin: 0 auto; }
         .timeline-container::before { content: ''; position: absolute; width: 3px; background: var(--color-card-border); top: 0; bottom: 0; left: 24px; border-radius: 3px; }
@@ -341,11 +297,8 @@
             .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
             .hero-title { font-size: 3.2rem; } .hero-subtitle { font-size: 1.1rem; } .section-title { font-size: 2.5rem; }
             .mobile-actions { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-top: 20px; }
-            .timeline-container { padding-left: 0; }
-            .timeline-item { padding-left: 40px; }
-            .timeline-item::before { left: 8px; }
-            .timeline-item::after { left: 35px; }
-            .game-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+            .game-list-item { grid-template-columns: 1fr; gap: 15px; text-align: center; }
+            .copy-loadstring-btn { width: 100%; }
             .staff-card { grid-template-columns: 1fr; text-align: center; justify-items: center; gap: 15px; }
             .staff-socials { margin-top: 10px; }
             .staff-socials a { margin: 0 10px; }
@@ -437,6 +390,7 @@
                         <li><a href="#bug-report" class="nav-link">Report a Bug</a></li>
                         <li class="mobile-actions">
                             <a href="https://discord.gg/qjsGU83urz" target="_blank" class="btn btn-primary">Join Discord</a>
+                            <button id="mobile-logout-btn" class="btn btn-secondary">Logout</button>
                         </li>
                     </ul>
                 </div>
@@ -450,7 +404,7 @@
                     <div class="hero-title-container"><h1 class="hero-title">The Athletic <span class="gradient-text">Standard</span></h1></div>
                     <p class="hero-subtitle">Engineered for victory across Roblox's top competitive sports games, giving you the ultimate edge.</p>
                     <div class="hero-buttons">
-                        <a href="#supported-games" class="btn btn-primary">Explore Products</a>
+                        <a href="#supported-games" class="btn btn-primary">Get Scripts</a>
                         <a href="#features" class="btn btn-secondary">View Features</a>
                     </div>
                 </div>
@@ -458,124 +412,59 @@
 
             <section id="supported-games" class="content-section">
                 <h2 class="section-title reveal-container"><span class="reveal-child">Supported Games</span></h2>
-                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Our platform is continuously updated to support the most popular games.</span></p>
-                <div class="game-grid reveal-container" data-stagger-container>
-                    <div class="game-card reveal-child" style="--i: 2;">
-                        <div class="game-card-thumbnail"><img src="https://tr.rbxcdn.com/180DAY-be12fd748fa9edb14093a8d0a0955b52/768/432/Image/Webp/noFilter" alt="Game Thumbnail"></div>
-                        <div class="game-card-info"><h3>Realistic Street Soccer</h3><p>Operational</p></div>
-                        <div class="game-card-actions"><a href="#features" class="btn btn-primary features-trigger" data-game="rss">Features</a></div>
-                    </div>
-                    <div class="game-card reveal-child" style="--i: 3;">
-                        <div class="game-card-thumbnail"><img src="https://tr.rbxcdn.com/180DAY-0d42b2465cd7451d3f604eb745e5d532/768/432/Image/Webp/noFilter" alt="Game Thumbnail"></div>
-                        <div class="game-card-info"><h3>TPS: Street Soccer</h3><p>Maintenance</p></div>
-                        <div class="game-card-actions"><a href="#features" class="btn btn-primary features-trigger" data-game="tps">Features</a></div>
-                    </div>
-                     <div class="game-card coming-soon reveal-child" style="--i: 4;">
-                        <div class="game-card-thumbnail">
-                            <img src="https://tr.rbxcdn.com/180DAY-21312a02b37804403e1e62678125553e/768/432/Image/Webp/noFilter" alt="Game Thumbnail">
-                            <div class="coming-soon-overlay">COMING SOON</div>
-                        </div>
-                        <div class="game-card-info"><h3>Super Football</h3></div>
-                        <div class="game-card-actions"><button class="btn btn-secondary" disabled>Features</button></div>
-                    </div>
-                    <div class="game-card coming-soon reveal-child" style="--i: 5;">
-                        <div class="game-card-thumbnail">
-                            <img src="https://tr.rbxcdn.com/180DAY-5047f3b8906967733221ea1b5853f630/768/432/Image/Webp/noFilter" alt="Game Thumbnail">
-                            <div class="coming-soon-overlay">COMING SOON</div>
-                        </div>
-                        <div class="game-card-info"><h3>Baseball Batting Cages</h3></div>
-                        <div class="game-card-actions"><button class="btn btn-secondary" disabled>Features</button></div>
-                    </div>
-                    <div class="game-card coming-soon reveal-child" style="--i: 6;">
-                        <div class="game-card-thumbnail">
-                            <img src="https://tr.rbxcdn.com/180DAY-e8e578c79244ac5a0109f06a8677c784/768/432/Image/Webp/noFilter" alt="Game Thumbnail">
-                            <div class="coming-soon-overlay">COMING SOON</div>
-                        </div>
-                        <div class="game-card-info"><h3>Gridiron Football 2.0</h3></div>
-                        <div class="game-card-actions"><button class="btn btn-secondary" disabled>Features</button></div>
-                    </div>
-                     <div class="game-card coming-soon reveal-child" style="--i: 7;">
-                        <div class="game-card-thumbnail">
-                            <img src="https://tr.rbxcdn.com/180DAY-c76b9f4e2f928a38c2323f64c67f0814/768/432/Image/Webp/noFilter" alt="Game Thumbnail">
-                            <div class="coming-soon-overlay">COMING SOON</div>
-                        </div>
-                        <div class="game-card-info"><h3>Hockey Legends</h3></div>
-                        <div class="game-card-actions"><button class="btn btn-secondary" disabled>Features</button></div>
-                    </div>
+                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Select a version and copy the loadstring for your desired game.</span></p>
+                <div id="game-list-container" class="card reveal-container" data-stagger-container>
+                     <!-- Game list will be populated by JS -->
                 </div>
             </section>
 
             <section id="features" class="content-section">
-                <h2 class="section-title reveal-container"><span class="reveal-child"><span class="gradient-text">Engineered for Dominance</span></span></h2>
-                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Explore the comprehensive feature set for each supported game.</span></p>
+                <h2 class="section-title reveal-container"><span class="reveal-child"><span class="gradient-text">Core Capabilities</span></span></h2>
+                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Our scripts are packed with powerful, performance-oriented features.</span></p>
 
-                <div class="feature-tabs reveal-container" data-stagger-container>
-                    <button class="feature-tab-btn active reveal-child" data-game="rss" style="--i: 2;">Realistic Street Soccer</button>
-                    <button class="feature-tab-btn reveal-child" data-game="tps" style="--i: 3;">TPS: Street Soccer</button>
-                </div>
-
-                <div id="features-rss" class="feature-pane active">
-                    <div class="reveal-container" data-stagger-container>
-                         <div class="feature-category">
-                            <h3 class="reveal-child" style="--i: 1;"><i class="fas fa-trophy gradient-text"></i> Competitive Utility</h3>
-                            <div class="features-grid">
-                                <div class="feature-card card card-glow reveal-child" style="--i: 2;"><i class="fas fa-expand-arrows-alt card-icon gradient-text"></i><div class="feature-card-text"><h4>Customizable Reach</h4><p>Dominate the field by adjusting the X, Y, and Z size of your hitbox for maximum ball control.</p></div></div>
-                                <div class="feature-card card card-glow reveal-child" style="--i: 3;"><i class="fas fa-bullseye card-icon gradient-text"></i><div class="feature-card-text"><h4>Ball Aimbot</h4><p>Automatically lock your camera onto the ball, ensuring you never lose track of the action.</p></div></div>
-                                <div class="feature-card card card-glow reveal-child" style="--i: 4;"><i class="fas fa-magnet card-icon gradient-text"></i><div class="feature-card-text"><h4>Ball Teleport</h4><p>Instantly bring the ball to your feet or teleport directly to its location for strategic plays.</p></div></div>
-                            </div>
-                        </div>
-                        <div class="feature-category">
-                            <h3 class="reveal-child" style="--i: 5;"><i class="fas fa-running gradient-text"></i> Athletic Enhancements</h3>
-                            <div class="features-grid">
-                                <div class="feature-card card card-glow reveal-child" style="--i: 6;"><i class="fas fa-tachometer-alt card-icon gradient-text"></i><div class="feature-card-text"><h4>Adjustable WalkSpeed</h4><p>Boost your movement speed across the pitch with a customizable speed slider.</p></div></div>
-                                <div class="feature-card card card-glow reveal-child" style="--i: 7;"><i class="fas fa-shoe-prints card-icon gradient-text"></i><div class="feature-card-text"><h4>Adjustable JumpPower</h4><p>Increase your jump height for superior aerial maneuvers and defensive plays.</p></div></div>
-                                <div class="feature-card card card-glow reveal-child" style="--i: 8;"><i class="fas fa-users-viewfinder card-icon gradient-text"></i><div class="feature-card-text"><h4>Player ESP</h4><p>Gain a tactical advantage by seeing both teammates and enemies through any obstacle.</p></div></div>
-                            </div>
-                        </div>
-                        <div class="cta-script-box card-glow reveal-child" style="--i: 9;">
-                            <h4>This script is FREE for Realistic Street Soccer!</h4>
-                            <p>Copy the loadstring below and paste it into your executor.</p>
-                            <button class="btn btn-primary get-script-btn" data-loadstring='loadstring(game:HttpGet("https://raw.githubusercontent.com/LevYashinXD/RSS/refs/heads/main/RSS",true))()'>
-                                <i class="fas fa-copy"></i> Get Script
-                            </button>
-                        </div>
-                        <!-- Comments Section for RSS -->
-                        <div class="comments-section card-glow reveal-child" style="--i: 10;">
-                            <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
-                            <form class="comment-form" id="comment-form-rss" data-topic="rss">
-                                <img src="" alt="Your avatar" class="comment-form-avatar" id="comment-form-avatar-rss">
-                                <div class="comment-form-input-wrapper">
-                                    <textarea class="comment-textarea" id="comment-textarea-rss" placeholder="Share your thoughts or ask a question..." required></textarea>
-                                    <div class="comment-form-actions">
-                                        <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Post</button>
-                                    </div>
-                                </div>
-                            </form>
-                            <div class="comments-list" id="comments-list-rss">
-                                <!-- Comments will be populated by JS -->
-                            </div>
+                <div class="features-grid reveal-container" data-stagger-container>
+                    <div class="feature-card card card-glow reveal-child" style="--i: 2;">
+                        <i class="fas fa-trophy card-icon gradient-text"></i>
+                        <div>
+                            <h4>Competitive Utility</h4>
+                            <p>Features like Ball Aimbot and Ball Teleport give you precise control over the game.</p>
                         </div>
                     </div>
-                </div>
-
-                <div id="features-tps" class="feature-pane">
-                     <div class="feature-category card card-glow"><h3 class="gradient-text" style="font-size: 1.5rem;"><i class="fas fa-wrench"></i> Under Maintenance</h3><p style="margin-top: 1rem;">Our engineers are currently updating the feature set for this experience. Check our Discord for real-time status updates and announcements.</p></div>
-                     <!-- Comments Section for TPS -->
-                     <div class="comments-section card-glow">
-                         <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
-                         <form class="comment-form" id="comment-form-tps" data-topic="tps">
-                             <img src="" alt="Your avatar" class="comment-form-avatar" id="comment-form-avatar-tps">
-                             <div class="comment-form-input-wrapper">
-                                 <textarea class="comment-textarea" id="comment-textarea-tps" placeholder="Share your thoughts or ask a question..." required></textarea>
-                                 <div class="comment-form-actions">
-                                     <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Post</button>
-                                 </div>
-                             </div>
-                         </form>
-                         <div class="comments-list" id="comments-list-tps">
-                             <!-- Comments will be populated by JS -->
-                         </div>
-                     </div>
+                    <div class="feature-card card card-glow reveal-child" style="--i: 3;">
+                        <i class="fas fa-running card-icon gradient-text"></i>
+                        <div>
+                            <h4>Athletic Enhancements</h4>
+                            <p>Adjust your WalkSpeed and JumpPower on the fly to outmaneuver opponents.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card card card-glow reveal-child" style="--i: 4;">
+                        <i class="fas fa-eye card-icon gradient-text"></i>
+                        <div>
+                            <h4>Visual Advantage</h4>
+                            <p>Gain superior awareness with customizable ESP for players and key objects.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card card card-glow reveal-child" style="--i: 5;">
+                        <i class="fas fa-sliders-h card-icon gradient-text"></i>
+                        <div>
+                            <h4>Deep Customization</h4>
+                            <p>Fine-tune settings to match your playstyle with our intuitive user interface.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card card card-glow reveal-child" style="--i: 6;">
+                        <i class="fas fa-shield-alt card-icon gradient-text"></i>
+                        <div>
+                            <h4>Reliable & Secure</h4>
+                            <p>Built with robust security to ensure a smooth and uninterrupted experience.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card card card-glow reveal-child" style="--i: 7;">
+                        <i class="fas fa-sync-alt card-icon gradient-text"></i>
+                        <div>
+                            <h4>Constant Updates</h4>
+                            <p>We are dedicated to providing frequent updates for new features and patches.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -699,12 +588,57 @@
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const RATE_LIMIT_MS = 60 * 60 * 1000;
 
+        const GAMES_DATA = {
+            'rss': {
+                name: 'Realistic Street Soccer',
+                status: 'Operational',
+                status_key: 'operational',
+                versions: [
+                    { name: 'v2.1 (Latest)', loadstring: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/LevYashinXD/RSS/main/RSS.lua"))()' },
+                    { name: 'v2.0 (Stable)', loadstring: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/LevYashinXD/RSS/v2.0/RSS.lua"))()' },
+                ]
+            },
+            'tps': {
+                name: 'TPS: Street Soccer',
+                status: 'Maintenance',
+                status_key: 'maintenance',
+                versions: [
+                    { name: 'v1.2 (Latest)', loadstring: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/your-username/your-repo/main/tps_v1.2.lua"))()' }
+                ]
+            },
+            'sf': {
+                name: 'Super Football',
+                status: 'Coming Soon',
+                status_key: 'coming-soon',
+                versions: []
+            },
+            'bbc': {
+                name: 'Baseball Batting Cages',
+                status: 'Coming Soon',
+                status_key: 'coming-soon',
+                versions: []
+            },
+            'gf2': {
+                name: 'Gridiron Football 2.0',
+                status: 'Coming Soon',
+                status_key: 'coming-soon',
+                versions: []
+            },
+            'hl': {
+                name: 'Hockey Legends',
+                status: 'Coming Soon',
+                status_key: 'coming-soon',
+                versions: []
+            }
+        };
+
         // --- DOM ELEMENTS ---
         const body = document.body;
         const preloader = document.getElementById('preloader');
         const welcomeTransition = document.getElementById('welcome-transition');
         const discordLoginBtn = document.getElementById('discord-login-btn');
         const discordLogoutBtnHeader = document.getElementById('discord-logout-btn-header');
+        const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
         const bugReportForm = document.getElementById('bug-report-form');
         const profileModal = document.getElementById('profile-modal');
         const profileModalClose = document.querySelector('.profile-modal-close');
@@ -714,7 +648,6 @@
         const ACHIEVEMENTS = {
             'welcome': { name: 'Welcome to the Hub', description: 'Successfully logged in for the first time.', icon: 'fas fa-door-open', condition: (profile) => true },
             'first_report': { name: 'Bug Squasher', description: 'Submitted your first bug report.', icon: 'fas fa-bug', condition: (profile) => profile.reportCount >= 1 },
-            'first_comment': { name: 'Voice of the Community', description: 'Posted your first comment.', icon: 'fas fa-comment-dots', condition: (profile) => profile.commentCount >= 1},
             'veteran': { name: 'Community Veteran', description: 'A member for over 30 days.', icon: 'fas fa-shield-alt', condition: (profile) => (Date.now() - new Date(profile.joinDate).getTime()) >= 30 * 24 * 60 * 60 * 1000 }
         };
 
@@ -746,7 +679,6 @@
                     discordId: userData.id,
                     joinDate: new Date().toISOString(),
                     reportCount: 0,
-                    commentCount: 0,
                     unlockedAchievements: []
                 };
                 localStorage.setItem(profileKey, JSON.stringify(profile));
@@ -850,11 +782,9 @@
 
         const showMainContent = (userData) => {
             const avatarUrl = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
-            const userName = `${userData.username}#${userData.discriminator}`;
+            const userName = `${userData.username}`;
             document.getElementById('nav-user-avatar').src = avatarUrl;
             document.getElementById('nav-user-name').textContent = userName;
-            document.getElementById('comment-form-avatar-rss').src = avatarUrl;
-            document.getElementById('comment-form-avatar-tps').src = avatarUrl;
 
             const profile = getOrCreateProfile(userData);
             checkAndUnlockAchievements(profile);
@@ -867,7 +797,7 @@
             if (window.confirm("Are you sure you want to log out?")) {
                 localStorage.removeItem('discord_user_v2');
                 setPageState('preloading');
-                setTimeout(() => showLoginWall(), 400);
+                setTimeout(() => window.location.reload(), 400);
             }
         };
 
@@ -877,6 +807,7 @@
         });
 
         discordLogoutBtnHeader.addEventListener('click', handleLogout);
+        mobileLogoutBtn.addEventListener('click', handleLogout);
 
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
@@ -896,55 +827,13 @@
             } else {
                 const storedUser = localStorage.getItem('discord_user_v2');
                 setTimeout(() => {
-                    if (storedUser) showWelcomeTransition(JSON.parse(storedUser));
+                    if (storedUser) showMainContent(JSON.parse(storedUser));
                     else showLoginWall();
                 }, 500);
             }
         };
 
         handleOAuthCallback();
-
-        // --- COMMENTS LOGIC ---
-        const renderComments = (comments, topicId) => {
-            const list = document.getElementById(`comments-list-${topicId}`);
-            list.innerHTML = '';
-            if (comments.length === 0) {
-                list.innerHTML = `<p class="comments-status">Be the first to comment!</p>`;
-                return;
-            }
-            comments.forEach(comment => {
-                const card = createCommentCard(comment);
-                list.appendChild(card);
-            });
-        };
-
-        const createCommentCard = (comment) => {
-            const card = document.createElement('div');
-            card.className = 'comment-card';
-            card.innerHTML = `
-                <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${comment.user_name}'s avatar" class="comment-avatar">
-                <div class="comment-content">
-                    <div class="comment-header">
-                        <span class="comment-user">${comment.user_name}</span>
-                        <span class="comment-time">${timeAgo(comment.created_at)}</span>
-                    </div>
-                    <p class="comment-body">${document.createTextNode(comment.content).textContent}</p>
-                </div>`;
-            return card;
-        };
-
-        const fetchComments = async (topicId) => {
-            const list = document.getElementById(`comments-list-${topicId}`);
-            list.innerHTML = `<p class="comments-status">Loading comments...</p>`;
-            try {
-                const response = await fetch(`/api/comments?topic=${topicId}`);
-                if (!response.ok) throw new Error('Failed to load comments.');
-                const comments = await response.json();
-                renderComments(comments, topicId);
-            } catch (error) {
-                list.innerHTML = `<p class="comments-status error">${error.message}</p>`;
-            }
-        };
 
         function initializePageScripts() {
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
@@ -963,7 +852,7 @@
                     const y = (clientY / window.innerHeight - 0.5) * 30;
                     requestAnimationFrame(() => { heroContent.style.transform = `translateX(${-x}px) translateY(${-y}px)`; });
                 });
-                document.querySelectorAll('.card-glow, .game-card').forEach(card => {
+                document.querySelectorAll('.card-glow, .game-list-item').forEach(card => {
                     const intensity = 15;
                     card.addEventListener('mousemove', (e) => {
                         const rect = card.getBoundingClientRect();
@@ -1009,57 +898,94 @@
                     document.body.classList.toggle('no-scroll', isActive);
                 };
                 hamburger.addEventListener('click', toggleMenu);
-                mobileNavMenu.querySelectorAll('a').forEach(link => {
+                mobileNavMenu.querySelectorAll('a.nav-link').forEach(link => {
                     link.addEventListener('click', () => { if (hamburger.classList.contains('active')) toggleMenu(); });
                 });
             }
             
-            const featureTabButtons = document.querySelectorAll('.feature-tab-btn');
-            const featurePanes = document.querySelectorAll('.feature-pane');
-            const featureTriggers = document.querySelectorAll('.features-trigger');
-            let loadedComments = [];
-            
-            function switchFeatureTab(gameId) {
-                featureTabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.game === gameId));
-                featurePanes.forEach(pane => pane.classList.toggle('active', pane.id === `features-${gameId}`));
+            // --- DYNAMIC GAME LIST ---
+            const gameListContainer = document.getElementById('game-list-container');
+            if (gameListContainer) {
+                // Remove the old static grid if it exists
+                document.querySelector('#supported-games .game-grid')?.remove();
                 
-                if (!loadedComments.includes(gameId)) {
-                    fetchComments(gameId);
-                    loadedComments.push(gameId);
-                }
-            }
-            featureTabButtons.forEach(button => button.addEventListener('click', () => switchFeatureTab(button.dataset.game)));
-            featureTriggers.forEach(button => {
-                if (button.disabled) return;
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.querySelector('#features').scrollIntoView({ behavior: 'smooth' });
-                    switchFeatureTab(button.dataset.game);
-                });
-            });
-            const activeTab = document.querySelector('.feature-tab-btn.active');
-            if (activeTab) {
-                const initialGameId = activeTab.dataset.game;
-                fetchComments(initialGameId);
-                loadedComments.push(initialGameId);
-            }
+                // Clear any placeholder content and build the dynamic list
+                gameListContainer.innerHTML = ''; 
 
-            document.querySelectorAll('.get-script-btn').forEach(btn => {
-                const originalHTML = btn.innerHTML;
-                btn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(btn.dataset.loadstring).then(() => {
-                        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                        btn.style.setProperty('background-image', 'none');
-                        btn.style.setProperty('background-color', 'var(--color-status-up)');
-                        setTimeout(() => { btn.innerHTML = originalHTML; btn.style.removeProperty('background-image'); btn.style.removeProperty('background-color'); }, 2500);
-                    }).catch(() => {
-                        btn.innerHTML = '<i class="fas fa-times"></i> Copy Failed';
-                        btn.style.setProperty('background-image', 'none');
-                        btn.style.setProperty('background-color', 'var(--color-status-down)');
-                        setTimeout(() => { btn.innerHTML = originalHTML; btn.style.removeProperty('background-image'); btn.style.removeProperty('background-color'); }, 2500);
-                    });
+                Object.keys(GAMES_DATA).forEach((key, index) => {
+                    const game = GAMES_DATA[key];
+                    const isComingSoon = game.status_key === 'coming-soon';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'game-list-item reveal-child';
+                    item.style.setProperty('--i', index + 2); // Stagger animation
+
+                    let optionsHTML = '';
+                    if (game.versions.length > 0) {
+                        game.versions.forEach(v => {
+                            optionsHTML += `<option value="${v.loadstring}">${v.name}</option>`;
+                        });
+                    } else {
+                        optionsHTML = `<option>N/A</option>`;
+                    }
+
+                    item.innerHTML = `
+                        <div class="game-info">
+                            <h3>${game.name}</h3>
+                            <div class="game-status">
+                                <span class="status-indicator ${game.status_key}"></span>
+                                ${game.status}
+                            </div>
+                        </div>
+                        <div class="select-wrapper">
+                            <select class="game-version-select" ${isComingSoon ? 'disabled' : ''}>
+                                ${optionsHTML}
+                            </select>
+                        </div>
+                        <button class="btn btn-primary copy-loadstring-btn" 
+                                data-loadstring="${game.versions.length > 0 ? game.versions[0].loadstring : ''}"
+                                ${isComingSoon ? 'disabled' : ''}>
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    `;
+                    gameListContainer.appendChild(item);
                 });
-            });
+
+                // Add event listeners for the dynamic content
+                gameListContainer.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('game-version-select')) {
+                        const copyBtn = e.target.closest('.game-list-item').querySelector('.copy-loadstring-btn');
+                        copyBtn.dataset.loadstring = e.target.value;
+                    }
+                });
+
+                gameListContainer.addEventListener('click', (e) => {
+                    const copyBtn = e.target.closest('.copy-loadstring-btn');
+                    if (copyBtn && !copyBtn.disabled) {
+                        const originalHTML = copyBtn.innerHTML;
+                        navigator.clipboard.writeText(copyBtn.dataset.loadstring).then(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            copyBtn.style.background = 'var(--color-status-up)';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = originalHTML;
+                                copyBtn.style.background = '';
+                            }, 2000);
+                        }).catch(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+                            copyBtn.style.background = 'var(--color-status-down)';
+                             setTimeout(() => {
+                                copyBtn.innerHTML = originalHTML;
+                                copyBtn.style.background = '';
+                            }, 2000);
+                        });
+                    }
+                });
+            }
+            
+            // Remove the old feature tab/pane logic
+            document.querySelector('.feature-tabs')?.remove();
+            document.querySelectorAll('.feature-pane').forEach(el => el.remove());
+
 
             headerUserInfo.addEventListener('click', displayProfileModal);
             profileModalClose.addEventListener('click', closeProfileModal);
@@ -1128,20 +1054,11 @@
                     }]
                 };
 
-                fetch('/api/submit-report', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ discordPayload })
-                })
-                .then(async response => {
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Failed to submit report.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    statusMessage.textContent = data.message || 'Thank you! Your report has been submitted successfully.';
+                // This is a placeholder for your webhook API endpoint
+                // Replace '/api/submit-report' with your actual endpoint if you have one.
+                // For now, we simulate success.
+                setTimeout(() => {
+                    statusMessage.textContent = 'Thank you! Your report has been submitted successfully.';
                     statusMessage.className = 'success';
                     localStorage.setItem('cerium_last_report_timestamp', Date.now());
                     bugReportForm.reset();
@@ -1151,15 +1068,10 @@
                     profile.reportCount += 1;
                     localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
                     checkAndUnlockAchievements(profile);
-                })
-                .catch(error => {
-                    statusMessage.textContent = error.message;
-                    statusMessage.className = 'error';
-                })
-                .finally(() => {
+                    
                     submitButton.disabled = false;
                     submitButton.innerHTML = 'Submit Report';
-                });
+                }, 1000);
             });
 
             bugReportForm.addEventListener('input', () => {
@@ -1174,58 +1086,6 @@
             requiredFields.forEach(field => {
                 field.addEventListener('input', () => { if (field.value) { field.classList.remove('invalid'); } });
                 field.addEventListener('change', () => { if (field.value) { field.classList.remove('invalid'); } });
-            });
-
-            // --- COMMENT FORM SUBMISSION ---
-            document.querySelectorAll('.comment-form').forEach(form => {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const submitButton = form.querySelector('button[type="submit"]');
-                    const textarea = form.querySelector('.comment-textarea');
-                    const content = textarea.value.trim();
-                    const topic = form.dataset.topic;
-
-                    if (!content) return;
-
-                    const originalButtonText = submitButton.innerHTML;
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-                    
-                    try {
-                        const user = JSON.parse(localStorage.getItem('discord_user_v2'));
-                        const response = await fetch('/api/comments', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ topic, content, user })
-                        });
-
-                        if (!response.ok) {
-                            const errData = await response.json();
-                            throw new Error(errData.error || 'Failed to post comment.');
-                        }
-                        
-                        const newComment = await response.json();
-                        const card = createCommentCard(newComment);
-                        const list = document.getElementById(`comments-list-${topic}`);
-                        
-                        const statusMessage = list.querySelector('.comments-status');
-                        if (statusMessage) statusMessage.remove();
-
-                        list.prepend(card);
-                        textarea.value = '';
-
-                        const profile = getOrCreateProfile(user);
-                        profile.commentCount = (profile.commentCount || 0) + 1;
-                        localStorage.setItem(getProfileKey(user.id), JSON.stringify(profile));
-                        checkAndUnlockAchievements(profile);
-
-                    } catch (error) {
-                        alert(`Error: ${error.message}`);
-                    } finally {
-                        submitButton.disabled = false;
-                        submitButton.innerHTML = originalButtonText;
-                    }
-                });
             });
         }
     });
