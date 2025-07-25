@@ -17,10 +17,12 @@
             --color-text: #E0E0E0;
             --color-card-bg: rgba(255, 255, 255, 0.05);
             --color-card-border: rgba(255, 255, 255, 0.1);
+            --color-card-border-hover: rgba(255, 255, 255, 0.2);
             --primary-gradient: linear-gradient(90deg, #FFFFFF, #888888);
             --color-glow: rgba(255, 255, 255, 0.3);
             --color-status-up: #00FF7F;
             --color-status-down: #FF3366;
+            --color-status-caution: #FFD700;
             --header-height: 80px;
             --font-family: 'Inter', sans-serif;
             --border-radius: 16px;
@@ -30,15 +32,22 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
-        body { font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text); line-height: 1.7; overflow-x: hidden; background-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 35%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%); }
+        body {
+            font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text);
+            line-height: 1.7; overflow-x: hidden;
+            background-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 35%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%);
+            position: relative;
+        }
         body.no-scroll { overflow: hidden; }
-
+        
+        /* --- Animations --- */
         @keyframes preloader-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
         @keyframes reveal-up { from { opacity: 0; transform: translateY(50px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slide-up-and-fade-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-50px); } }
         @keyframes modal-fade-in { from { opacity: 0; transform: translateY(-20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
+
+        /* --- Global Elements & States --- */
         #preloader, #login-wall, #welcome-transition { display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: var(--color-background); transition: opacity 0.5s ease, visibility 0.5s ease; }
         #login-wall, #welcome-transition, #main-content { opacity: 0; visibility: hidden; }
         body.state-preloading #preloader { opacity: 1; visibility: visible; }
@@ -46,7 +55,8 @@
         body.state-welcome #welcome-transition { opacity: 1; visibility: visible; animation: fade-in 0.5s ease forwards; }
         body.state-authenticated #main-content { opacity: 1; visibility: visible; animation: fade-in 0.5s ease forwards; }
         #preloader.hidden { opacity: 0; visibility: hidden; }
-        
+
+        /* --- Preloader, Login, Welcome --- */
         #preloader .preloader-logo { font-size: 2.5rem; font-weight: 800; color: var(--color-heading); animation: preloader-pulse 2s infinite ease-in-out; }
         #login-wall .login-container { text-align: center; max-width: 500px; padding: 20px; }
         #login-wall .login-card { padding: 50px 60px; animation: reveal-up 1s var(--transition-curve) 0.3s forwards; opacity: 0; }
@@ -55,6 +65,7 @@
         .welcome-message h2 { font-size: 3rem; color: var(--color-heading); }
         .welcome-message .username { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
+        /* --- Profile Modal & Achievements --- */
         #profile-modal { display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         #profile-modal.visible { display: flex; align-items: center; justify-content: center; animation: fade-in 0.3s ease; }
         .profile-modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 800px; width: 90%; position: relative; animation: modal-fade-in 0.5s var(--transition-curve); }
@@ -66,22 +77,26 @@
         .stat-item h4 { font-size: 0.9rem; opacity: 0.7; margin-bottom: 5px; text-transform: uppercase; }
         .stat-item p { font-size: 1.2rem; font-weight: 600; color: var(--color-heading); }
         #achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .achievement-card { background: var(--color-card-bg); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--color-card-border); }
+        .achievement-card { background: var(--color-card-bg); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--color-card-border); position: relative; }
         .achievement-card.locked { opacity: 0.4; filter: grayscale(80%); }
         .achievement-card .icon { font-size: 2.5rem; margin-bottom: 15px; }
         
-        .btn { position: relative; display: inline-block; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all var(--transition-speed) var(--transition-curve); border: 1px solid var(--color-card-border); cursor: pointer; }
+        /* --- General UI --- */
+        .btn { position: relative; display: inline-block; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all var(--transition-speed) var(--transition-curve); border: 1px solid var(--color-card-border); cursor: pointer; }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
         .btn-secondary { background-color: transparent; color: var(--color-heading); border-color: var(--color-heading); }
-        .btn-secondary:hover { background-color: var(--color-heading); color: var(--color-background); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
         .content-section { padding: 140px 5%; max-width: 1280px; margin: 0 auto; text-align: center; }
         .section-title { font-size: 3.5rem; font-weight: 800; color: var(--color-heading); margin-bottom: 20px; }
         .section-subtitle { font-size: 1.1rem; max-width: 700px; margin: 0 auto 80px auto; color: var(--color-text); }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .card { background: var(--color-card-bg); border-radius: var(--border-radius); padding: 40px; border: 1px solid var(--color-card-border); }
+        .reveal-container { opacity: 0; transition: opacity 0.8s ease; }
+        .reveal-container.is-visible { opacity: 1; }
+        .reveal-child { opacity: 0; transform: translateY(40px); transition: opacity 0.8s var(--transition-curve), transform 0.8s var(--transition-curve); transition-delay: calc(var(--i) * 100ms); }
+        .reveal-container.is-visible .reveal-child { opacity: 1; transform: translateY(0); }
         
+        /* --- Header & Navigation --- */
         .main-header { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; transition: background-color 0.3s ease; height: var(--header-height); display: flex; align-items: center; border-bottom: 1px solid transparent; }
         .main-header.scrolled { background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); border-bottom-color: var(--color-card-border); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 5%; }
@@ -89,17 +104,20 @@
         .nav-logo { font-size: 1.8rem; font-weight: 800; color: var(--color-heading); text-decoration: none; }
         .nav-menu { list-style: none; display: flex; gap: 45px; }
         .nav-link { color: var(--color-text); text-decoration: none; font-weight: 600; }
+        .nav-link.active { color: var(--color-heading); }
         .nav-actions { display: flex; align-items: center; gap: 25px; }
         .user-info-details { display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
         .user-name { font-weight: 600; color: var(--color-heading); }
 
+        /* --- Hero Section --- */
         .hero-section { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
         .hero-content { max-width: 900px; position: relative; }
         .hero-title { font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 800; color: var(--color-heading); line-height: 1.1; margin-bottom: 25px; }
         .hero-subtitle { font-size: 1.25rem; max-width: 650px; margin: 0 auto 40px; }
         .hero-buttons { display: flex; justify-content: center; gap: 20px; }
 
+        /* --- Other Sections --- */
         .timeline-container { position: relative; max-width: 900px; margin: 0 auto; }
         .timeline-container::before { content: ''; position: absolute; width: 3px; background: var(--color-card-border); top: 0; bottom: 0; left: 24px; }
         .timeline-item { position: relative; padding: 20px 0 40px 70px; }
@@ -108,17 +126,15 @@
         .staff-list { display: flex; flex-direction: column; gap: 30px; max-width: 900px; margin: 0 auto; }
         .staff-card { padding: 25px; display: grid; grid-template-columns: auto 1fr auto; gap: 25px; align-items: center; text-align: left; }
         .staff-avatar { width: 80px; height: 80px; border-radius: 50%; }
-        
         #bug-report-form { max-width: 700px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 20px; text-align: left; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-size: 1rem; }
         .form-group textarea { resize: vertical; min-height: 120px; }
         #form-status-message { margin-top: 20px; text-align: center; }
-        
         .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background-image: var(--primary-gradient); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 999; }
         .back-to-top.visible { opacity: 1; visibility: visible; }
         .mobile-nav-container { display: none; }
-        @media (max-width: 1024px) { .mobile-nav-container { display: block; } .nav-left .nav-menu-container, .nav-actions { display: none; } }
+        @media (max-width: 1024px) { .mobile-nav-container { display: block; } .nav-left .nav-menu-container, .nav-actions { display: none; } /* Simplified for brevity */ }
     </style>
 </head>
 <body class="state-preloading">
@@ -129,6 +145,7 @@
             <div class="login-card card">
                 <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 10px;">Cerium</h1>
                 <p class="section-subtitle" style="margin-bottom: 40px;">Please connect with Discord to access the Cerium Hub.</p>
+                <div id="login-status-message"></div>
                 <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
             </div>
         </div>
@@ -138,9 +155,9 @@
             <h2>Welcome, <span id="welcome-username" class="username"></span></h2>
         </div>
     </div>
-    <div id="profile-modal" role="dialog">
+    <div id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-username">
         <div class="profile-modal-content">
-            <button class="profile-modal-close">×</button>
+            <button class="profile-modal-close" aria-label="Close profile modal">×</button>
             <div class="profile-header">
                 <img src="" alt="User Avatar" id="profile-modal-avatar">
                 <h3 id="profile-modal-username"></h3>
@@ -160,11 +177,22 @@
             <nav class="navbar">
                 <div class="nav-left">
                     <a href="#welcome" class="nav-logo">Cerium</a>
-                     <ul class="nav-menu">
+                     <div class="nav-menu-container">
+                        <ul class="nav-menu">
+                            <li><a href="games.html" class="nav-link">Games</a></li>
+                            <li><a href="#updates" class="nav-link">Updates</a></li>
+                            <li><a href="#staff" class="nav-link">Team</a></li>
+                            <li><a href="#bug-report" class="nav-link">Report</a></li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="mobile-nav-container">
+                    <button class="hamburger" aria-label="Open menu"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+                    <ul class="nav-menu">
                         <li><a href="games.html" class="nav-link">Games</a></li>
                         <li><a href="#updates" class="nav-link">Updates</a></li>
                         <li><a href="#staff" class="nav-link">Team</a></li>
-                        <li><a href="#bug-report" class="nav-link">Report</a></li>
+                        <li><a href="#bug-report" class="nav-link">Report a Bug</a></li>
                     </ul>
                 </div>
                 <div class="nav-actions">
@@ -190,9 +218,11 @@
             </section>
 
             <section id="updates" class="content-section">
-                <h2 class="section-title"><span class="gradient-text">Development Roadmap</span></h2>
+                 <h2 class="section-title"><span class="gradient-text">Development Roadmap</span></h2>
+                <p class="section-subtitle">Committed to continuous improvement.</p>
                 <div class="timeline-container">
-                     <div class="timeline-item"><div class="timeline-card card">Initial Release - May 1, 2025</div></div>
+                    <div class="timeline-item"><div class="timeline-card card">Initial Release - May 1, 2025</div></div>
+                    <div class="timeline-item"><div class="timeline-card card">Security & Stability - May 8, 2025</div></div>
                 </div>
             </section>
 
@@ -202,6 +232,7 @@
                     <div class="card staff-card">
                         <img src="https://cdn.discordapp.com/avatars/1283596576983482441/20ec9f630f42a06fb355aecf91ac9b50.png?size=512" alt="Staff Avatar" class="staff-avatar">
                         <div><h3>op_eq</h3><p class="gradient-text">Owner</p></div>
+                        <div><a href="#"><i class="fab fa-discord"></i></a></div>
                     </div>
                 </div>
             </section>
@@ -217,13 +248,16 @@
                         <label for="bug-description">Bug Description</label>
                         <textarea id="bug-description" name="bug-description" placeholder="Please be as detailed as possible." required></textarea>
                     </div>
-                    <button type="submit" id="submit-bug-report" class="btn btn-primary">Submit Report</button>
-                    <p id="form-status-message"></p>
+                    <div>
+                        <button type="submit" id="submit-bug-report" class="btn btn-primary">Submit Report</button>
+                        <p id="form-status-message"></p>
+                    </div>
                 </form>
             </section>
 
             <section id="cta-section" class="content-section">
                 <h2>Ready to Redefine Your Game?</h2>
+                <p class="section-subtitle">Join our community of elite players.</p>
                 <a href="https://discord.gg/qjsGU83urz" target="_blank" class="btn btn-primary">Join the Discord Server</a>
             </section>
         </main>
@@ -234,43 +268,120 @@
     document.addEventListener("DOMContentLoaded", function() {
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
-        const BUG_REPORT_RATE_LIMIT_MS = 3600000;
+        const BUG_REPORT_RATE_LIMIT_MS = 60 * 60 * 1000;
 
         const body = document.body;
         const preloader = document.getElementById('preloader');
+        const welcomeTransition = document.getElementById('welcome-transition');
         const discordLoginBtn = document.getElementById('discord-login-btn');
-        const profileModal = document.getElementById('profile-modal');
         const bugReportForm = document.getElementById('bug-report-form');
+        const profileModal = document.getElementById('profile-modal');
+        const profileModalClose = document.querySelector('.profile-modal-close');
+        
+        const ACHIEVEMENTS = {
+            'welcome': { name: 'Welcome', description: 'Logged in for the first time.', icon: 'fas fa-door-open', condition: () => true },
+            'first_report': { name: 'Bug Squasher', description: 'Submitted your first report.', icon: 'fas fa-bug', condition: (p) => p.reportCount >= 1 },
+        };
 
         const getProfileKey = (id) => `cerium_user_profile_${id}`;
-        const getCurrentUser = () => JSON.parse(localStorage.getItem('discord_user_v2'));
+        const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch (e) { return null; } };
+
+        function getOrCreateProfile(userData) {
+            const profileKey = getProfileKey(userData.id);
+            let profile = JSON.parse(localStorage.getItem(profileKey));
+            if (!profile) {
+                profile = { discordId: userData.id, joinDate: new Date().toISOString(), reportCount: 0, commentCount: 0, unlockedAchievements: [] };
+                localStorage.setItem(profileKey, JSON.stringify(profile));
+                unlockAchievement(profile, 'welcome');
+            }
+            return profile;
+        }
+
+        function unlockAchievement(profile, achievementId) {
+            if (profile.unlockedAchievements.includes(achievementId)) return;
+            profile.unlockedAchievements.push(achievementId);
+            localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
+        }
+
+        function checkAndUnlockAchievements(profile) {
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                if (!profile.unlockedAchievements.includes(id) && ACHIEVEMENTS[id].condition(profile)) {
+                   unlockAchievement(profile, id);
+                }
+            });
+        }
+
+        function displayProfileModal() {
+            const userData = getCurrentUser();
+            if (!userData) return;
+            const profile = getOrCreateProfile(userData);
+            document.getElementById('profile-modal-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+            document.getElementById('profile-modal-username').textContent = `${userData.username}`;
+            document.getElementById('profile-modal-join-date').textContent = new Date(profile.joinDate).toLocaleDateString();
+            document.getElementById('profile-modal-report-count').textContent = profile.reportCount;
+            document.getElementById('profile-modal-comment-count').textContent = profile.commentCount || 0;
+            const grid = document.getElementById('achievements-grid');
+            grid.innerHTML = '';
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                const isUnlocked = profile.unlockedAchievements.includes(id);
+                grid.insertAdjacentHTML('beforeend', `<div class="achievement-card ${isUnlocked ? '' : 'locked'}"><i class="${ACHIEVEMENTS[id].icon} icon"></i><h5>${ACHIEVEMENTS[id].name}</h5></div>`);
+            });
+            profileModal.classList.add('visible');
+            body.classList.add('no-scroll');
+        }
+
+        function closeProfileModal() {
+            profileModal.classList.remove('visible');
+            body.classList.remove('no-scroll');
+        }
 
         const setPageState = (state) => body.className = `state-${state}`;
 
+        const showLoginWall = () => {
+            preloader.classList.add('hidden');
+            setPageState('login');
+        };
+
+        const showWelcomeTransition = async (userData) => {
+            document.getElementById('welcome-username').textContent = userData.username;
+            preloader.classList.add('hidden');
+            setPageState('welcome');
+            await loadDataForForms();
+            setTimeout(() => {
+                welcomeTransition.classList.add('exiting');
+                setTimeout(() => showMainContent(userData), 800);
+            }, 2000);
+        };
+
+        const showMainContent = (userData) => {
+            const profile = getOrCreateProfile(userData);
+            checkAndUnlockAchievements(profile);
+            setPageState('authenticated');
+            initializePageScripts(userData);
+        };
+
         const handleLogout = () => {
-            if (confirm("Are you sure you want to log out?")) {
+            if (confirm("Log out?")) {
                 localStorage.clear();
                 window.location.reload();
             }
         };
 
-        const showMainContent = (userData) => {
-            setPageState('authenticated');
-            document.getElementById('nav-user-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
-            document.getElementById('nav-user-name').textContent = userData.username;
-            document.getElementById('header-user-info').addEventListener('click', () => displayProfileModal(userData));
-            document.getElementById('discord-logout-btn-header').addEventListener('click', handleLogout);
-        };
-
-        const showWelcomeTransition = async (userData) => {
-            document.getElementById('welcome-username').textContent = userData.username;
-            setPageState('welcome');
-            await loadDataForForms();
-            setTimeout(() => {
-                document.getElementById('welcome-transition').classList.add('exiting');
-                setTimeout(() => showMainContent(userData), 800);
-            }, 2000);
-        };
+        async function loadDataForForms() {
+            const gameSelect = document.getElementById('game-select');
+            try {
+                const response = await fetch('/api/games');
+                if (!response.ok) throw new Error('Server error');
+                const games = await response.json();
+                gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
+                games.forEach(game => {
+                    gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`);
+                });
+                gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
+            } catch (error) { 
+                gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`;
+            }
+        }
 
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
@@ -282,48 +393,78 @@
                     localStorage.setItem('discord_user_v2', JSON.stringify(userData));
                     window.history.replaceState({}, document.title, window.location.pathname);
                     await showWelcomeTransition(userData);
-                } catch { setPageState('login'); }
+                } catch (error) {
+                    showLoginWall();
+                }
             } else {
                 const storedUser = getCurrentUser();
                 if (storedUser) {
-                    setTimeout(() => showMainContent(storedUser), 500);
-                    loadDataForForms();
+                    setTimeout(() => showWelcomeTransition(storedUser), 500);
                 } else {
-                    setPageState('login');
+                    showLoginWall();
                 }
             }
         };
 
-        async function loadDataForForms() {
-            const gameSelect = document.getElementById('game-select');
-            try {
-                const response = await fetch('/api/games');
-                const games = await response.json();
-                gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
-                games.forEach(game => gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`));
-                gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
-            } catch { gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`; }
-        }
+        function initializePageScripts(userData) {
+            const avatarUrl = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+            document.getElementById('nav-user-avatar').src = avatarUrl;
+            document.getElementById('nav-user-name').textContent = userData.username;
 
-        bugReportForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            const header = document.querySelector('.main-header');
+            const backToTopButton = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 50);
+                backToTopButton.classList.toggle('visible', window.scrollY > 300);
+            }, { passive: true });
+
+            document.getElementById('header-user-info').addEventListener('click', displayProfileModal);
+            profileModalClose.addEventListener('click', closeProfileModal);
+            
+            const reportSubmitBtn = document.getElementById('submit-bug-report');
+            const lastReportTime = parseInt(localStorage.getItem(`cerium_bug_report_ts_${userData.id}`), 10);
+            if (lastReportTime && (Date.now() - lastReportTime < BUG_REPORT_RATE_LIMIT_MS)) {
+                reportSubmitBtn.disabled = true;
+                const remainingTime = Math.ceil((BUG_REPORT_RATE_LIMIT_MS - (Date.now() - lastReportTime)) / 60000);
+                document.getElementById('form-status-message').textContent = `You can report again in ${remainingTime} min.`;
+            }
+        }
+        
+        bugReportForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
             const submitButton = document.getElementById('submit-bug-report');
             const statusMessage = document.getElementById('form-status-message');
-            const user = getCurrentUser();
+            const userData = getCurrentUser();
+            const reportData = {
+                userId: userData.id,
+                username: userData.username,
+                game: document.getElementById('game-select').value,
+                description: document.getElementById('bug-description').value
+            };
+            
             submitButton.disabled = true;
             statusMessage.textContent = 'Submitting...';
+
             try {
-                const response = await fetch('/api/bug-reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game: bugReportForm['game-select'].value, description: bugReportForm['bug-description'].value, user }) });
-                if (!response.ok) throw new Error('Submission failed');
+                const response = await fetch('/api/bug-reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportData }) });
+                if (!response.ok) throw new Error('Submission failed.');
                 statusMessage.textContent = 'Report submitted!';
                 bugReportForm.reset();
-            } catch (err) {
-                statusMessage.textContent = err.message;
+                
+                const profile = getOrCreateProfile(userData);
+                profile.reportCount = (profile.reportCount || 0) + 1;
+                localStorage.setItem(getProfileKey(userData.id), JSON.stringify(profile));
+                localStorage.setItem(`cerium_bug_report_ts_${userData.id}`, Date.now());
+                checkAndUnlockAchievements(profile);
+            } catch (error) {
+                statusMessage.textContent = `Error: ${error.message}`;
                 submitButton.disabled = false;
             }
         });
 
-        discordLoginBtn.addEventListener('click', () => { window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; });
+        discordLoginBtn.addEventListener('click', () => window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`);
+        document.getElementById('discord-logout-btn-header').addEventListener('click', handleLogout);
+
         handleOAuthCallback();
     });
     </script>
