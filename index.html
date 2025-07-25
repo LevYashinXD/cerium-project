@@ -947,8 +947,6 @@
         };
 
         function initializePageScripts() {
-            // ... (keep all the existing initializePageScripts code like Parallax, Scroll, Observer, Mobile Nav etc.)
-
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
             const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 
@@ -1016,17 +1014,15 @@
                 });
             }
             
-            // --- MODIFIED FEATURE TABS ---
             const featureTabButtons = document.querySelectorAll('.feature-tab-btn');
             const featurePanes = document.querySelectorAll('.feature-pane');
             const featureTriggers = document.querySelectorAll('.features-trigger');
-            let loadedComments = []; // Keep track of which topics have been loaded
+            let loadedComments = [];
             
             function switchFeatureTab(gameId) {
                 featureTabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.game === gameId));
                 featurePanes.forEach(pane => pane.classList.toggle('active', pane.id === `features-${gameId}`));
                 
-                // Fetch comments for the new tab if not already loaded
                 if (!loadedComments.includes(gameId)) {
                     fetchComments(gameId);
                     loadedComments.push(gameId);
@@ -1041,7 +1037,6 @@
                     switchFeatureTab(button.dataset.game);
                 });
             });
-            // Initial load for the default active tab
             const activeTab = document.querySelector('.feature-tab-btn.active');
             if (activeTab) {
                 const initialGameId = activeTab.dataset.game;
@@ -1066,19 +1061,121 @@
                 });
             });
 
-            // --- PROFILE MODAL LOGIC ---
             headerUserInfo.addEventListener('click', displayProfileModal);
             profileModalClose.addEventListener('click', closeProfileModal);
             window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
 
-            // --- BUG REPORT LOGIC ---
-            bugReportForm.addEventListener('submit', function(event) {
-                // ... (Keep existing bug report submission logic)
-                event.preventDefault();
-                // ... the rest of the bug report logic is unchanged ...
-            });
+            // --- Bug Report Form Logic ---
+            const reportFormStateKey = 'cerium_bug_report_draft';
+            const saveFormState = () => {
+                const state = { game: document.getElementById('game-select').value, description: document.getElementById('bug-description').value };
+                localStorage.setItem(reportFormStateKey, JSON.stringify(state));
+            };
+            const restoreFormState = () => {
+                const state = JSON.parse(localStorage.getItem(reportFormStateKey));
+                if (state) {
+                    document.getElementById('game-select').value = state.game || '';
+                    document.getElementById('bug-description').value = state.description || '';
+                }
+            };
+            const clearFormState = () => localStorage.removeItem(reportFormStateKey);
             
+            restoreFormState();
+            const requiredFields = bugReportForm.querySelectorAll('[required]');
+            
+            bugReportForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const lastSubmission = localStorage.getItem('cerium_last_report_timestamp');
+                const statusMessage = document.getElementById('form-status-message');
+                if (lastSubmission && (Date.now() - lastSubmission < RATE_LIMIT_MS)) {
+                    const timeLeft = Math.ceil((RATE_LIMIT_MS - (Date.now() - lastSubmission)) / 60000);
+                    statusMessage.textContent = `You can submit another report in ${timeLeft} minutes.`;
+                    statusMessage.className = 'error';
+                    return;
+                }
+
+                let allValid = true;
+                requiredFields.forEach(field => {
+                    if (!field.value) { allValid = false; field.classList.add('invalid'); } else { field.classList.remove('invalid'); }
+                });
+                if (!allValid) { statusMessage.textContent = 'Please fill out all required fields.'; statusMessage.className = 'error'; return; }
+
+                const submitButton = document.getElementById('submit-bug-report');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                statusMessage.textContent = ''; statusMessage.className = '';
+
+                const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
+                const game = document.getElementById('game-select').value;
+                const description = document.getElementById('bug-description').value.trim();
+
+                const discordPayload = {
+                    username: "Cerium",
+                    avatar_url: "https://i.imgur.com/g4IARd6.png",
+                    embeds: [{
+                        author: { name: `Report by ${userData.username}#${userData.discriminator}`, icon_url: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` },
+                        color: 3092790,
+                        thumbnail: { url: "https://i.imgur.com/g4IARd6.png" },
+                        fields: [
+                            { name: "Game", value: game, inline: true },
+                            { name: "Reporter ID", value: userData.id, inline: true },
+                            { name: "Description", value: "```" + description + "```" },
+                            { name: "User Agent", value: "```" + navigator.userAgent + "```" }
+                        ],
+                        footer: { text: "Cerium Bug Report System" },
+                        timestamp: new Date().toISOString()
+                    }]
+                };
+
+                fetch('/api/submit-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ discordPayload })
+                })
+                .then(async response => {
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to submit report.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    statusMessage.textContent = data.message || 'Thank you! Your report has been submitted successfully.';
+                    statusMessage.className = 'success';
+                    localStorage.setItem('cerium_last_report_timestamp', Date.now());
+                    bugReportForm.reset();
+                    clearFormState();
+
+                    const profile = getOrCreateProfile(userData);
+                    profile.reportCount += 1;
+                    localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
+                    checkAndUnlockAchievements(profile);
+                })
+                .catch(error => {
+                    statusMessage.textContent = error.message;
+                    statusMessage.className = 'error';
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Submit Report';
+                });
+            });
+
+            bugReportForm.addEventListener('input', () => {
+                saveFormState();
+                const statusMessage = document.getElementById('form-status-message');
+                if(statusMessage.textContent) {
+                    statusMessage.textContent = '';
+                    statusMessage.className = '';
+                }
+            });
+
+            requiredFields.forEach(field => {
+                field.addEventListener('input', () => { if (field.value) { field.classList.remove('invalid'); } });
+                field.addEventListener('change', () => { if (field.value) { field.classList.remove('invalid'); } });
+            });
+
             // --- COMMENT FORM SUBMISSION ---
             document.querySelectorAll('.comment-form').forEach(form => {
                 form.addEventListener('submit', async (e) => {
@@ -1111,14 +1208,12 @@
                         const card = createCommentCard(newComment);
                         const list = document.getElementById(`comments-list-${topic}`);
                         
-                        // If it was the first comment, clear the "Be the first" message
                         const statusMessage = list.querySelector('.comments-status');
                         if (statusMessage) statusMessage.remove();
 
                         list.prepend(card);
                         textarea.value = '';
 
-                        // Check for first comment achievement
                         const profile = getOrCreateProfile(user);
                         profile.commentCount = (profile.commentCount || 0) + 1;
                         localStorage.setItem(getProfileKey(user.id), JSON.stringify(profile));
