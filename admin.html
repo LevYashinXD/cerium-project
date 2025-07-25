@@ -90,6 +90,23 @@
         #admin-main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 40px 50px; }
         .admin-tab-pane { display: none; animation: fadeIn 0.4s ease; }
         .admin-tab-pane.active { display: block; }
+
+        /* --- NEW: Shahada Header --- */
+        .shahada-header {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .shahada-header h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--color-heading);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
         
         /* --- Content Elements --- */
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
@@ -219,6 +236,10 @@
         </aside>
 
         <main id="admin-main-content">
+            <div class="shahada-header">
+                <h2>لا إله إلا الله محمد رسول الله</h2>
+            </div>
+
             <div class="dashboard-stats">
                 <div class="stat-card"><h4>Total Games</h4><p id="total-games">--</p></div>
                 <div class="stat-card"><h4>Total Users</h4><p id="total-users">--</p></div>
