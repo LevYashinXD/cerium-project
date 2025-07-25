@@ -5,11 +5,19 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  // Check if the environment variable is even set. This is a common mistake.
+  if (!process.env.POSTGRES_URL) {
+    console.error("FATAL: POSTGRES_URL environment variable is not set.");
+    return res.status(500).json({ 
+        error: 'Server configuration error.',
+        details: 'The database connection string is missing from the server environment.'
+    });
+  }
+
   try {
     const sql = neon(process.env.POSTGRES_URL);
 
-    // UPDATED: Added 'thumbnail_url' to the query.
-    // This is the cleanest approach. Store the full image URL in your database.
+    // This query asks for specific columns. A typo or missing column here will cause a crash.
     const games = await sql`
         SELECT 
             id, 
@@ -19,7 +27,9 @@ export default async function handler(req, res) {
             topic_id, 
             roblox_url, 
             features_html,
-            thumbnail_url 
+            thumbnail_url,
+            is_published,
+            display_order
         FROM games 
         WHERE is_published = true 
         ORDER BY display_order ASC, name ASC`;
@@ -27,9 +37,11 @@ export default async function handler(req, res) {
     return res.status(200).json(games);
 
   } catch (error) {
-    console.error('Fetch Public Games API Error:', error);
+    // This will now catch the specific database error and send it to the frontend.
+    console.error('Database Query Error:', error.message);
     return res.status(500).json({ 
-        error: 'An internal server error occurred while fetching games.',
+        error: 'An error occurred while fetching data from the database.',
+        // The 'details' field is the key for debugging!
         details: error.message 
     });
   }
