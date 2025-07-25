@@ -2,74 +2,71 @@
 
 import { neon } from '@neondatabase/serverless';
 
+// This function will be your handler for all /api/comments requests
 export default async function handler(req, res) {
-  try {
-    const sql = neon(process.env.POSTGRES_URL);
+  // Initialize the database connection.
+  // The 'POSTGRES_URL' is automatically set by the Vercel-Neon integration.
+  const sql = neon(process.env.POSTGRES_URL);
 
-    // --- HANDLE GETTING COMMENTS ---
-    if (req.method === 'GET') {
+  // --- HANDLE GETTING COMMENTS ---
+  if (req.method === 'GET') {
+    try {
       const { topic } = req.query;
       if (!topic) {
         return res.status(400).json({ error: 'Topic is required' });
       }
 
-      // 1. Fetch ALL comments for the topic, including the new parent_id column.
-      const allComments = await sql`
-        SELECT id, topic_id, parent_id, user_id, user_name, user_avatar, content, created_at 
+      // Fetch comments for a specific topic, newest first
+      const comments = await sql`
+        SELECT id, topic_id, user_id, user_name, user_avatar, content, created_at 
         FROM comments 
         WHERE topic_id = ${topic} 
-        ORDER BY created_at ASC
+        ORDER BY created_at DESC
       `;
       
-      // 2. Process the flat list into a nested structure (a tree)
-      const commentsById = {};
-      const rootComments = [];
+      return res.status(200).json(comments);
 
-      allComments.forEach(comment => {
-        commentsById[comment.id] = { ...comment, replies: [] };
-      });
-
-      allComments.forEach(comment => {
-        if (comment.parent_id && commentsById[comment.parent_id]) {
-          commentsById[comment.parent_id].replies.push(commentsById[comment.id]);
-        } else {
-          rootComments.push(commentsById[comment.id]);
-        }
-      });
-      
-      // 3. Return the nested structure, reversing the root comments to show newest first.
-      return res.status(200).json(rootComments.reverse());
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return res.status(500).json({ error: 'Failed to fetch comments' });
     }
+  }
 
-    // --- HANDLE POSTING A NEW COMMENT OR REPLY ---
-    if (req.method === 'POST') {
-      const { topic, content, user, parentId } = req.body;
+  // --- HANDLE POSTING A NEW COMMENT ---
+  if (req.method === 'POST') {
+    try {
+      // Get the data sent from the front-end
+      const { topic, content, user } = req.body;
       
+      // Basic validation
       if (!topic || !content || !user || !user.id || !user.username) {
         return res.status(400).json({ error: 'Missing required fields for comment.' });
       }
       
+      // IMPORTANT SECURITY NOTE: In a real-world, high-security application, 
+      // you would not trust the 'user' object sent from the client.
+      // You would require an Authorization token, verify it with Discord's API on the server,
+      // and then get the user info. For this project's scope, we are trusting the 
+      // logged-in user data stored in the client's localStorage.
+
       const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null;
 
-      // FIX: Ensure parentId is an integer or null
-      const parentIdInt = parentId ? parseInt(parentId, 10) : null;
-
+      // Insert the new comment into the database
       const [newComment] = await sql`
-        INSERT INTO comments (topic_id, user_id, user_name, user_avatar, content, parent_id) 
-        VALUES (${topic}, ${user.id}, ${user.username}, ${avatarUrl}, ${content}, ${parentIdInt})
+        INSERT INTO comments (topic_id, user_id, user_name, user_avatar, content) 
+        VALUES (${topic}, ${user.id}, ${user.username}, ${avatarUrl}, ${content})
         RETURNING *
       `;
 
       return res.status(201).json(newComment);
+
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      return res.status(500).json({ error: 'Failed to post comment' });
     }
-
-    // If the method is not GET or POST
-    res.setHeader('Allow', ['GET', 'POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-
-  } catch (error) {
-    // This will catch database errors (like missing columns) and other unexpected issues.
-    console.error('API Error:', error);
-    return res.status(500).json({ error: 'An internal server error occurred.' });
   }
+
+  // If the request is not GET or POST, return Method Not Allowed
+  res.setHeader('Allow', ['GET', 'POST']);
+  return res.status(405).end(`Method ${req.method} Not Allowed`);
 }
