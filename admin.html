@@ -178,6 +178,7 @@
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
+        
         const discordLoginBtn = document.getElementById('discord-login-btn');
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
         const logoutBtnDenied = document.getElementById('logout-btn-denied');
@@ -248,7 +249,7 @@
             if (!user) { setPageState('login'); return; }
             authStatus.textContent = 'Verifying permissions...';
             try {
-                const response = await fetch(`/api/auth?action=check_admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id }) });
+                const response = await fetch(`/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Could not connect.'); }
                 const data = await response.json();
                 if (data.isAdmin) { showAdminPanel(user); } else { showAccessDenied(user); }
@@ -364,7 +365,7 @@
             usersContainer.innerHTML = '<p style="text-align:center;">Loading users...</p>';
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin?action=get_all_users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch users.');
                 allUsersData = await response.json(); renderUsers(allUsersData); updateDashboardStats();
@@ -397,12 +398,13 @@
             });
         };
         const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
+            const endpoint = (action === 'warn') ? '/api/admin-warn-user' : '/api/admin-moderate-user';
             try {
-                const response = await fetch('/api/admin?action=moderate_user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, sub_action: action, reason, duration_hours }) });
+                const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json();
                 showToast(result.message);
-                await fetchAndRenderUsers(); await fetchAndRenderAuditLog();
+                await fetchAndRenderUsers();
             } catch (error) { showToast(error.message, true); }
         };
         const openModerateModal = (user, action) => {
@@ -417,59 +419,14 @@
             moderateModal.classList.add('visible');
         };
         const closeModerateModal = () => moderateModal.classList.remove('visible');
-        const fetchAndRenderBugReports = async () => {
-            bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
-            try {
-                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin?action=get_bug_reports', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) throw new Error('Authorization failed.');
-                if (!response.ok) throw new Error('Failed to fetch bug reports.');
-                allBugReports = await response.json(); renderBugReports(allBugReports);
-            } catch (error) { bugReportsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
-        };
-        const renderBugReports = (reports) => {
-            bugReportsTableBody.innerHTML = '';
-            if (!reports || reports.length === 0) { bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No bug reports found.</td></tr>'; return; }
-            reports.forEach(report => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${report.reporter_username}</td><td>${report.game_name}</td><td style="white-space: pre-wrap; word-break: break-word;">${report.description}</td><td><select class="status-select" data-id="${report.id}"><option value="new" ${report.status === 'new' ? 'selected' : ''}>New</option><option value="in_progress" ${report.status === 'in_progress' ? 'selected' : ''}>In Progress</option><option value="resolved" ${report.status === 'resolved' ? 'selected' : ''}>Resolved</option><option value="invalid" ${report.status === 'invalid' ? 'selected' : ''}>Invalid</option></select></td><td>${timeAgo(report.timestamp)}</td>`;
-                bugReportsTableBody.appendChild(row);
-            });
-        };
-        const updateBugReportStatus = async (reportId, newStatus) => {
-            try {
-                const response = await fetch('/api/admin?action=update_bug_report_status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportId, newStatus, user: getCurrentUser() }) });
-                if (!response.ok) throw new Error("Failed to update status.");
-                showToast('Status updated.'); await fetchAndRenderAuditLog();
-            } catch(error) { showToast(error.message, true); }
-        };
-        const fetchAndRenderAuditLog = async () => {
-            auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
-            try {
-                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin?action=get_audit_log', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) throw new Error('Authorization failed.');
-                if (!response.ok) throw new Error('Failed to fetch audit log.');
-                allAuditLogs = await response.json(); renderAuditLog(allAuditLogs);
-            } catch (error) { auditLogTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
-        };
-        const renderAuditLog = (logs) => {
-            auditLogTableBody.innerHTML = '';
-            if (!logs || logs.length === 0) { auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No audit logs found.</td></tr>'; return; }
-            logs.forEach(log => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${log.admin_username}</td><td>${log.action_type.replace(/_/g, ' ')}</td><td>${log.target_id || 'N/A'}</td><td style="white-space: pre-wrap; word-break: break-word;">${log.reason || ''}</td><td>${timeAgo(log.timestamp)}</td>`;
-                auditLogTableBody.appendChild(row);
-            });
-        };
         const openUserDetailsModal = async (user) => {
             userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>';
             userDetailsModal.classList.add('visible');
             try {
-                const response = await fetch(`/api/admin?action=get_user_details&userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
+                const response = await fetch(`/api/admin-user-details?userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
                 if (!response.ok) throw new Error("Failed to load details.");
                 const data = await response.json();
-                let commentsHTML = '<h4>Comment History</h4><p>No comments found.</p>';
+                let commentsHTML = '<h4>Comment History</h4><p>No comments found for this user.</p>';
                 if (data.comments && data.comments.length > 0) {
                     commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
                 }
@@ -543,11 +500,6 @@
                 closeFormModal();
                 await fetchAndRenderGames();
             } catch (error) { formError.textContent = error.message; } finally { submitButton.disabled = false; submitButton.innerHTML = 'Save Game'; }
-        });
-        bugReportsTableBody.addEventListener('change', (e) => {
-            if (e.target.classList.contains('status-select')) {
-                updateBugReportStatus(e.target.dataset.id, e.target.value);
-            }
         });
         
         handleOAuthCallback();
