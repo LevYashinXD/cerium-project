@@ -128,7 +128,7 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+       document.addEventListener("DOMContentLoaded", function() {
     // --- CONFIGURATION ---
     const DISCORD_CLIENT_ID = "1397805094854197280";
     const REDIRECT_URI = window.location.origin + window.location.pathname.replace('games.html', '');
@@ -238,6 +238,17 @@
         }
         if (preloader) preloader.classList.add('hidden');
         setPageState('login');
+    };
+    
+    // THIS FUNCTION IS NOW IN THE CORRECT SCOPE
+    const handleLogout = () => {
+        if (window.confirm("Are you sure you want to log out?")) {
+            localStorage.removeItem('discord_user_v2');
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('cerium_')) localStorage.removeItem(key);
+            });
+            window.location.href = 'index.html';
+        }
     };
 
     const showMainContent = (userData) => {
@@ -349,7 +360,6 @@
     
     // --- PAGE INITIALIZATION & EVENT LISTENERS ---
     async function initializePageScripts(userData) {
-        // Update user-specific elements
         const avatarUrl = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
         const userDisplay = `${userData.username}#${userData.discriminator}`;
         ['nav-user-avatar', 'mobile-nav-user-avatar'].forEach(id => {
@@ -363,7 +373,6 @@
 
         const gamesData = await loadGamesData();
 
-        // Games Page specific initialization
         if (gameGrid) {
             const statuses = ['All', ...new Set(gamesData.map(g => g.status).filter(Boolean))];
             filterButtonsContainer.innerHTML = statuses.map(status => 
@@ -380,7 +389,6 @@
             });
         }
         
-        // Bug Report Form specific initialization
         if (bugReportForm) {
             const gameSelect = document.getElementById('game-select');
             gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
@@ -390,7 +398,6 @@
             gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
         }
 
-        // Common UI Enhancements
         const backToTopButton = document.querySelector('.back-to-top');
         if (backToTopButton) {
             window.addEventListener('scroll', () => {
@@ -408,14 +415,13 @@
             document.querySelectorAll('.reveal-container').forEach(el => el.classList.add('is-visible'));
         }
 
-        // Mobile Navigation
         const hamburger = document.querySelector('.hamburger');
         const mobileNavMenu = document.querySelector('.mobile-nav-container .nav-menu');
         if (hamburger && mobileNavMenu) {
             const toggleMenu = () => {
-                const isActive = hamburger.classList.toggle('active');
+                hamburger.classList.toggle('active');
                 mobileNavMenu.classList.toggle('active');
-                body.classList.toggle('no-scroll', isActive);
+                body.classList.toggle('no-scroll', hamburger.classList.contains('active'));
             };
             hamburger.addEventListener('click', toggleMenu);
             mobileNavMenu.querySelectorAll('a, button').forEach(el => el.addEventListener('click', () => {
@@ -423,7 +429,6 @@
             }));
         }
 
-        // Profile Modal Listeners
         ['header-user-info', 'mobile-user-info'].forEach(id => {
             const el = document.getElementById(id);
             if(el) el.addEventListener('click', displayProfileModal);
@@ -432,7 +437,6 @@
         window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal && profileModal.classList.contains('visible')) closeProfileModal(); });
 
-        // Bug Report Rate Limiting Check
         if (bugReportForm) {
             const reportSubmitBtn = document.getElementById('submit-bug-report');
             const reportStatusMsg = document.getElementById('form-status-message');
@@ -506,7 +510,6 @@
 
     handleOAuthCallback();
 });
-</script>
     </script>
 </body>
 </html>
