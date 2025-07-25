@@ -607,66 +607,53 @@
             }
         };
 
-              const handleOAuthCallback = async () => {
+        const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
             
             const checkAndRedirect = async (user) => {
                 try {
-                    // Check for warnings first
-                    const warnRes = await fetch(`/api/check-user-warns?userId=${user.id}`);
-                    const warnData = await warnRes.json();
-                    if (warnData.has_warning) {
-                        // --- THIS IS THE KEY CHANGE ---
-                        // Log the user out before redirecting to the warning page.
-                        localStorage.removeItem('discord_user_v2');
-                        // --- END OF CHANGE ---
-                        window.location.href = `/warned.html`;
-                        return false; // Stop processing
-                    }
-
-                    // Then check for bans/suspensions
                     const statusRes = await fetch(`/api/check-user-status?userId=${user.id}`);
                     const statusData = await statusRes.json();
-                    if (statusData.status === 'banned') { window.location.href = `/banned.html?reason=${encodeURIComponent(statusData.reason || 'N/A')}`; return false; }
-                    if (statusData.status === 'suspended') { window.location.href = `/suspended.html?expires=${encodeURIComponent(statusData.expires)}&reason=${encodeURIComponent(statusData.reason || 'N/A')}`; return false; }
-                    
+                    if (statusData.status === 'banned') {
+                        window.location.href = `/banned.html?reason=${encodeURIComponent(statusData.reason || 'No reason specified.')}`;
+                        return false;
+                    }
+                    if (statusData.status === 'suspended') {
+                        window.location.href = `/suspended.html?expires=${encodeURIComponent(statusData.expires)}&reason=${encodeURIComponent(statusData.reason || 'No reason specified.')}`;
+                        return false;
+                    }
                     return true;
-                } catch (error) { console.error("Status check failed", error); return true; }
+                } catch (error) { console.error("Status check failed:", error); return true; }
             };
 
             if (accessToken) {
                 try {
-                    const res = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
-                    if (!res.ok) throw new Error('Failed to fetch user data.');
-                    const userData = await res.json(); 
+                    const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
+                    if (!response.ok) throw new Error('Failed to fetch user data.');
+                    const userData = await response.json();
                     
-                    localStorage.setItem('discord_user_v2', JSON.stringify(userData));
-                    window.history.replaceState({}, document.title, window.location.pathname);
-
                     if (!await checkAndRedirect(userData)) return;
 
+                    localStorage.setItem('discord_user_v2', JSON.stringify(userData));
+                    window.history.replaceState({}, document.title, window.location.pathname);
                     fetch('/api/record-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: userData }) });
                     await showWelcomeTransition(userData);
-                } catch (error) { showLoginWall('Login failed.'); window.history.replaceState({}, document.title, window.location.pathname); }
+                } catch (error) {
+                    showLoginWall('Login failed. Please try again.');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
             } else {
                 const storedUser = getCurrentUser();
                 if (storedUser) {
                     if (!await checkAndRedirect(storedUser)) return;
-
-                    const existsRes = await fetch(`/api/check-user-exists?userId=${storedUser.id}`);
-                    const existsData = await existsRes.json();
-                    if (!existsData.exists) {
-                        localStorage.removeItem('discord_user_v2');
-                        window.location.href = `/datalost.html?username=${encodeURIComponent(storedUser.username)}`;
-                        return;
-                    }
                     setTimeout(async () => { await showWelcomeTransition(storedUser); }, 500);
                 } else {
                     showLoginWall();
                 }
             }
         };
+
         async function loadAndDisplayGames() {
             const gameGrid = document.querySelector('#supported-games .game-grid');
             const featureTabs = document.querySelector('#features .feature-tabs');
