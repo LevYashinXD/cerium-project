@@ -57,25 +57,41 @@
 
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { font-size: 2.5rem; }
+
+        /* --- Games Table Styles (unchanged) --- */
         .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 15px; border-bottom: 1px solid var(--color-card-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-heading); opacity: 0.8; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        
-        /* THIS IS THE FIX */
-        .table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
+        .table tbody tr:last-child td { border-bottom: none; }
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 6px 14px; font-size: 0.9rem; border-radius: 8px; }
         .status-indicator { font-size: 1.2rem; }
         .status-indicator.published { color: var(--color-status-up); }
         .status-indicator.unpublished { color: var(--color-status-down); }
-        .comment-content-cell { max-width: 400px; white-space: pre-wrap; word-break: break-word; font-size: 0.95rem; }
-        .comment-author-cell { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-        .comment-author-cell img { width: 32px; height: 32px; border-radius: 50%; }
 
-        /* Modal Styles */
+        /* --- NEW: Message Card Styles --- */
+        .comments-list-admin { display: flex; flex-direction: column; gap: 15px; }
+        .comment-card-admin {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--color-card-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        .comment-card-admin-avatar { width: 40px; height: 40px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .comment-card-admin-content { flex-grow: 1; }
+        .comment-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: var(--color-text); font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
+        .comment-card-admin-author { font-weight: 700; color: var(--color-heading); font-size: 1rem; }
+        .comment-card-admin-meta span { margin-left: 15px; opacity: 0.7; }
+        .comment-card-admin-meta strong { color: var(--color-heading); opacity: 1; }
+        .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; }
+        .comment-card-admin-actions { margin-left: auto; padding-left: 20px; }
+        .comment-card-admin-actions .btn { padding: 8px; width: 40px; height: 40px; } /* Makes it a circle */
+
+
+        /* --- Modal Styles (unchanged) --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -143,19 +159,16 @@
                 <div class="content-header">
                     <h1>Comments</h1>
                 </div>
-                <div class="card" style="padding: 20px; overflow-x: auto;">
-                    <table class="table comments-table">
-                        <thead>
-                            <tr><th>Author</th><th>Comment</th><th>Topic</th><th>Posted</th><th>Actions</th></tr>
-                        </thead>
-                        <tbody id="comments-table-body"></tbody>
-                    </table>
+                <!-- NEW STRUCTURE: A simple div container instead of a card/table -->
+                <div id="comments-container" class="comments-list-admin">
+                    <!-- JS will populate this with message cards -->
                 </div>
             </div>
         </main>
     </div>
 
     <div id="game-form-modal" class="modal">
+        <!-- Game Form Modal remains the same -->
         <div class="modal-content">
             <span class="modal-close">×</span>
             <h2 id="modal-title" style="margin-bottom: 30px;"></h2>
@@ -225,7 +238,7 @@
         const gamesTableBody = document.getElementById('games-table-body');
         const addNewGameBtn = document.getElementById('add-new-game-btn');
         
-        const commentsTableBody = document.getElementById('comments-table-body');
+        const commentsContainer = document.getElementById('comments-container');
 
         const gameFormModal = document.getElementById('game-form-modal');
         const gameForm = document.getElementById('game-form');
@@ -239,8 +252,8 @@
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
         const timeAgo = (date) => {
             const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-            const intervals = { d: 86400, h: 3600, m: 60 };
             if (seconds < 60) return "Just now";
+            const intervals = { d: 86400, h: 3600, m: 60 };
             for (let unit in intervals) {
                 let interval = seconds / intervals[unit];
                 if (interval > 1) return Math.floor(interval) + `${unit} ago`;
@@ -393,7 +406,6 @@
             const gameId = e.currentTarget.dataset.id;
             const game = allGamesData.find(g => g.id == gameId);
             if (!game || !confirm(`Are you sure you want to delete "${game.name}"? This action cannot be undone.`)) return;
-
             try {
                 const response = await fetch('/api/admin', {
                     method: 'DELETE',
@@ -412,7 +424,7 @@
         
         // --- COMMENT MANAGEMENT ---
         const fetchAndRenderComments = async () => {
-            commentsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">Loading comments...</td></tr>';
+            commentsContainer.innerHTML = '<p style="text-align:center; padding: 40px;">Loading comments...</p>';
             try {
                 const currentUser = getCurrentUser();
                 if (!currentUser) throw new Error("Not logged in.");
@@ -420,22 +432,38 @@
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch comments.');
                 const comments = await response.json();
-                renderCommentsTable(comments);
+                renderComments(comments);
             } catch (error) {
-                commentsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down); padding: 40px;">${error.message}</td></tr>`;
+                commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down); padding: 40px;">${error.message}</p>`;
             }
         };
 
-        const renderCommentsTable = (comments) => {
-            commentsTableBody.innerHTML = '';
+        const renderComments = (comments) => {
+            commentsContainer.innerHTML = '';
             if (!comments || comments.length === 0) {
-                 commentsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">No comments found.</td></tr>';
+                 commentsContainer.innerHTML = '<p style="text-align:center; padding: 40px;">No comments found.</p>';
                  return;
             }
             comments.forEach(comment => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td class="comment-author-cell"><img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar"><span>${comment.user_name}</span></td><td class="comment-content-cell">${comment.content}</td><td>${comment.topic_id}</td><td>${timeAgo(comment.created_at)}</td><td class="actions"><button class="btn btn-danger delete-comment-btn" data-id="${comment.id}"><i class="fas fa-trash"></i></button></td>`;
-                commentsTableBody.appendChild(row);
+                const card = document.createElement('div');
+                card.className = 'comment-card-admin';
+                card.innerHTML = `
+                    <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar">
+                    <div class="comment-card-admin-content">
+                        <div class="comment-card-admin-header">
+                            <span class="comment-card-admin-author">${comment.user_name}</span>
+                            <div class="comment-card-admin-meta">
+                                <span>Topic: <strong>${comment.topic_id}</strong></span>
+                                <span>${timeAgo(comment.created_at)}</span>
+                            </div>
+                        </div>
+                        <p class="comment-card-admin-body"></p>
+                    </div>
+                    <div class="comment-card-admin-actions">
+                        <button class="btn btn-danger delete-comment-btn" data-id="${comment.id}"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                card.querySelector('.comment-card-admin-body').textContent = comment.content;
+                commentsContainer.appendChild(card);
             });
         };
 
@@ -452,7 +480,7 @@
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Failed to delete comment.');
                 }
-                e.currentTarget.closest('tr').remove();
+                e.currentTarget.closest('.comment-card-admin').remove();
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }
@@ -483,7 +511,7 @@
             }
         });
 
-        commentsTableBody.addEventListener('click', (e) => {
+        commentsContainer.addEventListener('click', (e) => {
             const deleteBtn = e.target.closest('.delete-comment-btn');
             if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn });
         });
