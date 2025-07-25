@@ -126,7 +126,7 @@
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 5%; }
         .nav-left { display: flex; align-items: center; gap: 60px; }
         .nav-actions { display: flex; align-items: center; gap: 25px; }
-        .nav-actions .user-info-details { cursor: pointer; } /* Make clickable for profile */
+        .nav-actions .user-info-details { cursor: pointer; }
         .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .nav-logo { font-size: 1.8rem; font-weight: 800; color: var(--color-heading); text-decoration: none; }
         .nav-menu { list-style: none; display: flex; gap: 45px; align-items: center; }
@@ -184,106 +184,23 @@
             border-top: 1px solid var(--color-card-border);
             text-align: left;
         }
-        .comments-section h3 {
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .comment-form {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            margin-bottom: 40px;
-        }
-        .comment-form-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .comment-form-input-wrapper {
-            flex-grow: 1;
-        }
-        .comment-textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--color-card-border);
-            background: var(--color-card-bg);
-            color: var(--color-text);
-            font-family: var(--font-family);
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            resize: vertical;
-            min-height: 80px;
-        }
-        .comment-textarea:focus {
-            outline: none;
-            border-color: var(--color-heading);
-            box-shadow: 0 0 10px var(--color-glow);
-        }
-        .comment-form-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-        .comments-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
-            padding-right: 10px; /* For scrollbar */
-        }
-        .comment-card {
-            display: flex;
-            gap: 15px;
-            padding: 20px;
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-card-border);
-            border-radius: var(--border-radius);
-            animation: fade-in 0.5s ease;
-        }
-        .comment-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .comment-content {
-            flex-grow: 1;
-        }
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .comment-user {
-            font-weight: 700;
-            color: var(--color-heading);
-        }
-        .comment-time {
-            font-size: 0.85rem;
-            color: var(--color-text);
-            opacity: 0.6;
-        }
-        .comment-body {
-            line-height: 1.6;
-            white-space: pre-wrap; /* Preserve line breaks */
-            word-break: break-word;
-        }
-        .comments-status, .api-status {
-            text-align: center;
-            padding: 40px;
-            font-style: italic;
-            opacity: 0.7;
-        }
-        .api-status.error {
-            color: var(--color-status-down);
-            opacity: 1;
-            font-weight: 600;
-        }
-
+        .comments-section h3 { font-size: 2rem; text-align: center; margin-bottom: 40px; }
+        .comment-form { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 40px; }
+        .comment-form-avatar { width: 40px; height: 40px; border-radius: 50%; }
+        .comment-form-input-wrapper { flex-grow: 1; }
+        .comment-textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-family: var(--font-family); font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; resize: vertical; min-height: 80px; }
+        .comment-textarea:focus { outline: none; border-color: var(--color-heading); box-shadow: 0 0 10px var(--color-glow); }
+        .comment-form-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .comments-list { display: flex; flex-direction: column; gap: 20px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+        .comment-card { display: flex; gap: 15px; padding: 20px; background: var(--color-card-bg); border: 1px solid var(--color-card-border); border-radius: var(--border-radius); animation: fade-in 0.5s ease; }
+        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+        .comment-content { flex-grow: 1; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .comment-user { font-weight: 700; color: var(--color-heading); }
+        .comment-time { font-size: 0.85rem; color: var(--color-text); opacity: 0.6; }
+        .comment-body { line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+        .comments-status, .api-status { text-align: center; padding: 40px; font-style: italic; opacity: 0.7; }
+        .api-status.error { color: var(--color-status-down); opacity: 1; font-weight: 600; }
 
         .timeline-container { position: relative; max-width: 900px; margin: 0 auto; }
         .timeline-container::before { content: ''; position: absolute; width: 3px; background: var(--color-card-border); top: 0; bottom: 0; left: 24px; border-radius: 3px; }
@@ -381,7 +298,6 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
     <div id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-username">
         <div class="profile-modal-content">
             <button class="profile-modal-close" aria-label="Close profile modal">×</button>
@@ -390,23 +306,12 @@
                 <h3 id="profile-modal-username"></h3>
             </div>
             <div class="profile-stats">
-                <div class="stat-item">
-                    <h4>Member Since</h4>
-                    <p id="profile-modal-join-date"></p>
-                </div>
-                <div class="stat-item">
-                    <h4>Reports Submitted</h4>
-                    <p id="profile-modal-report-count"></p>
-                </div>
-                 <div class="stat-item">
-                    <h4>Comments Posted</h4>
-                    <p id="profile-modal-comment-count"></p>
-                </div>
+                <div class="stat-item"><h4>Member Since</h4><p id="profile-modal-join-date"></p></div>
+                <div class="stat-item"><h4>Reports Submitted</h4><p id="profile-modal-report-count"></p></div>
+                <div class="stat-item"><h4>Comments Posted</h4><p id="profile-modal-comment-count"></p></div>
             </div>
             <h3 style="margin-bottom: 20px;">Achievements</h3>
-            <div id="achievements-grid">
-                <!-- Achievements will be populated by JS -->
-            </div>
+            <div id="achievements-grid"></div>
         </div>
     </div>
 
@@ -436,18 +341,14 @@
                     <button id="discord-logout-btn-header" class="btn btn-secondary">Logout</button>
                 </div>
                 <div class="mobile-nav-container">
-                    <button class="hamburger" aria-label="Open menu">
-                        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-                    </button>
+                    <button class="hamburger" aria-label="Open menu"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
                     <ul class="nav-menu">
                         <li><a href="#supported-games" class="nav-link">Games</a></li>
                         <li><a href="#features" class="nav-link">Features</a></li>
                         <li><a href="#updates" class="nav-link">Updates</a></li>
                         <li><a href="#staff" class="nav-link">Team</a></li>
                         <li><a href="#bug-report" class="nav-link">Report a Bug</a></li>
-                        <li class="mobile-actions">
-                            <a href="https://discord.gg/qjsGU83urz" target="_blank" class="btn btn-primary">Join Discord</a>
-                        </li>
+                        <li class="mobile-actions"><a href="https://discord.gg/qjsGU83urz" target="_blank" class="btn btn-primary">Join Discord</a></li>
                     </ul>
                 </div>
             </nav>
@@ -468,40 +369,32 @@
 
             <section id="supported-games" class="content-section">
                 <h2 class="section-title reveal-container"><span class="reveal-child">Supported Games</span></h2>
-                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Our platform is continuously updated to support the most popular games.</span></p>
+                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Our platform is continuously updated.</span></p>
                 <div class="game-grid reveal-container" data-stagger-container></div>
             </section>
 
             <section id="features" class="content-section">
                 <h2 class="section-title reveal-container"><span class="reveal-child"><span class="gradient-text">Engineered for Dominance</span></span></h2>
-                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Explore the comprehensive feature set for each supported game.</span></p>
+                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Explore the feature set for each game.</span></p>
                 <div class="feature-tabs reveal-container" data-stagger-container></div>
                 <div id="feature-panes-container"></div>
             </section>
 
             <section id="updates" class="content-section">
-                <h2 class="section-title reveal-container"><span class="reveal-child"><span class="gradient-text">Development Roadmap</span></span></h2>
-                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">We are committed to continuous improvement and transparency.</span></p>
+                 <h2 class="section-title reveal-container"><span class="reveal-child"><span class="gradient-text">Development Roadmap</span></span></h2>
+                <p class="section-subtitle reveal-container"><span class="reveal-child" style="--i: 1;">Committed to continuous improvement.</p>
                 <div class="timeline-container reveal-container">
                     <div class="timeline-line"></div>
                     <div class="timeline-item reveal-child" style="--i: 2;">
                          <div class="timeline-card card card-glow">
-                            <div class="timeline-card-header">
-                                <i class="fas fa-shield-alt icon gradient-text"></i><h3>Security & Stability</h3><span class="update-date">May 8, 2025</span>
-                            </div>
-                            <p>Enhanced core anti-cheat bypasses and fixed various minor bugs for a smoother experience.</p>
+                            <div class="timeline-card-header"><i class="fas fa-shield-alt icon gradient-text"></i><h3>Security & Stability</h3><span class="update-date">May 8, 2025</span></div>
+                            <p>Enhanced anti-cheat bypasses and fixed minor bugs.</p>
                          </div>
                     </div>
                      <div class="timeline-item reveal-child" style="--i: 3;">
                          <div class="timeline-card card card-glow">
-                            <div class="timeline-card-header">
-                                <i class="fas fa-rocket icon gradient-text"></i><h3>Initial Release</h3><span class="update-date">May 1, 2025</span>
-                            </div>
-                            <ul>
-                                <li>Core script framework and UI established.</li>
-                                <li>Initial free script for Realistic Street Soccer released.</li>
-                                <li>Security and anti-cheat bypasses implemented.</li>
-                            </ul>
+                            <div class="timeline-card-header"><i class="fas fa-rocket icon gradient-text"></i><h3>Initial Release</h3><span class="update-date">May 1, 2025</span></div>
+                            <ul><li>Core script framework established.</li><li>Initial free script for RSS released.</li></ul>
                          </div>
                     </div>
                 </div>
@@ -515,16 +408,6 @@
                         <img src="https://cdn.discordapp.com/avatars/1283596576983482441/20ec9f630f42a06fb355aecf91ac9b50.png?size=512" alt="Staff Avatar" class="staff-avatar">
                         <div class="staff-info"><h3>op_eq</h3><p class="staff-role">Owner</p></div>
                         <div class="staff-socials"><a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a><a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a></div>
-                    </div>
-                    <div class="card card-glow staff-card reveal-child" style="--i: 3;">
-                        <img src="https://cdn.discordapp.com/avatars/1298551167088988197/7f8c0b11d8a9d4ff7ae726ec5d185829.webp?size=128" alt="Staff Avatar" class="staff-avatar">
-                        <div class="staff-info"><h3>40rty</h3><p class="staff-role">Founder</p></div>
-                        <div class="staff-socials"><a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a><a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a></div>
-                    </div>
-                    <div class="card card-glow staff-card reveal-child" style="--i: 4;">
-                        <img src="https://cdn.discordapp.com/avatars/1231512616636125256/9b970ed51902c4b17d4c8c5272c8e68f.webp?size=128" alt="Staff Avatar" class="staff-avatar">
-                        <div class="staff-info"><h3>Aiden!</h3><p class="staff-role">Community Manager</p></div>
-                        <div class="staff-socials"><a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a><a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a></div>
                     </div>
                 </div>
             </section>
@@ -563,7 +446,7 @@
         <a href="#welcome" class="back-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></a>
     </div>
 
-        <script>
+    <script>
     document.addEventListener("DOMContentLoaded", function() {
         // --- CONFIGURATION ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
@@ -600,9 +483,7 @@
                 let interval = seconds / intervals[unit];
                 if (interval > 1) return `${Math.floor(interval)} ${unit} ago`;
             }
-            return "Just now";
         };
-
         const getCurrentUser = () => {
             try {
                 const user = localStorage.getItem('discord_user_v2');
@@ -618,10 +499,7 @@
             const profileKey = getProfileKey(userData.id);
             let profile = JSON.parse(localStorage.getItem(profileKey));
             if (!profile) {
-                profile = {
-                    discordId: userData.id, joinDate: new Date().toISOString(), reportCount: 0,
-                    commentCount: 0, unlockedAchievements: []
-                };
+                profile = { discordId: userData.id, joinDate: new Date().toISOString(), reportCount: 0, commentCount: 0, unlockedAchievements: [] };
                 localStorage.setItem(profileKey, JSON.stringify(profile));
                 unlockAchievement(profile, 'welcome');
             }
@@ -655,14 +533,11 @@
             const profile = getOrCreateProfile(userData);
             const newKey = getNewAchievementsKey(profile.discordId);
             const newAchievements = JSON.parse(sessionStorage.getItem(newKey)) || [];
-
             document.getElementById('profile-modal-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
             document.getElementById('profile-modal-username').textContent = `${userData.username}#${userData.discriminator}`;
             document.getElementById('profile-modal-join-date').textContent = new Date(profile.joinDate).toLocaleDateString();
             document.getElementById('profile-modal-report-count').textContent = profile.reportCount;
             document.getElementById('profile-modal-comment-count').textContent = profile.commentCount || 0;
-
-
             const grid = document.getElementById('achievements-grid');
             grid.innerHTML = '';
             for (const id in ACHIEVEMENTS) {
@@ -683,7 +558,7 @@
             profileModal.classList.remove('visible');
             body.classList.remove('no-scroll');
             const userData = getCurrentUser();
-            if(userData) sessionStorage.removeItem(getNewAchievementsKey(userData.id));
+            if (userData) sessionStorage.removeItem(getNewAchievementsKey(userData.id));
         }
 
         // --- PAGE STATE MANAGEMENT ---
@@ -692,10 +567,7 @@
         const showLoginWall = (message = null) => {
             if (message) {
                 const statusMsg = document.getElementById('login-status-message');
-                if (statusMsg) {
-                    statusMsg.textContent = message;
-                    statusMsg.className = 'error';
-                }
+                if (statusMsg) { statusMsg.textContent = message; statusMsg.className = 'error'; }
             }
             preloader.classList.add('hidden');
             setPageState('login');
@@ -735,51 +607,53 @@
             }
         };
 
-        // Find this function in your index.html script
-const handleOAuthCallback = async () => {
-    const fragment = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = fragment.get('access_token');
-    if (accessToken) {
-        try {
-            const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
-            if (!response.ok) throw new Error('Failed to fetch user data.');
-            const userData = await response.json();
+        const handleOAuthCallback = async () => {
+            const fragment = new URLSearchParams(window.location.hash.substring(1));
+            const accessToken = fragment.get('access_token');
             
-            const statusRes = await fetch(`/api/check-user-status?userId=${userData.id}`);
-            const statusData = await statusRes.json();
+            const checkAndRedirect = async (user) => {
+                try {
+                    const statusRes = await fetch(`/api/check-user-status?userId=${user.id}`);
+                    const statusData = await statusRes.json();
+                    if (statusData.status === 'banned') {
+                        window.location.href = `/banned.html?reason=${encodeURIComponent(statusData.reason || 'No reason specified.')}`;
+                        return false;
+                    }
+                    if (statusData.status === 'suspended') {
+                        window.location.href = `/suspended.html?expires=${encodeURIComponent(statusData.expires)}&reason=${encodeURIComponent(statusData.reason || 'No reason specified.')}`;
+                        return false;
+                    }
+                    return true;
+                } catch (error) { console.error("Status check failed:", error); return true; }
+            };
 
-            // Pass the reason as a URL parameter
-            if (statusData.status === 'banned') {
-                window.location.href = `/banned.html?reason=${encodeURIComponent(statusData.reason || 'No reason specified.')}`;
-                return;
+            if (accessToken) {
+                try {
+                    const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
+                    if (!response.ok) throw new Error('Failed to fetch user data.');
+                    const userData = await response.json();
+                    
+                    if (!await checkAndRedirect(userData)) return;
+
+                    localStorage.setItem('discord_user_v2', JSON.stringify(userData));
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    fetch('/api/record-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: userData }) });
+                    await showWelcomeTransition(userData);
+                } catch (error) {
+                    showLoginWall('Login failed. Please try again.');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } else {
+                const storedUser = getCurrentUser();
+                if (storedUser) {
+                    if (!await checkAndRedirect(storedUser)) return;
+                    setTimeout(async () => { await showWelcomeTransition(storedUser); }, 500);
+                } else {
+                    showLoginWall();
+                }
             }
-            if (statusData.status === 'suspended') {
-                window.location.href = `/suspended.html?expires=${encodeURIComponent(statusData.expires)}&reason=${encodeURIComponent(statusData.reason || 'No reason specified.')}`;
-                return;
-            }
+        };
 
-            localStorage.setItem('discord_user_v2', JSON.stringify(userData));
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            fetch('/api/record-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user: userData })
-            });
-            
-            await showWelcomeTransition(userData);
-        } catch (error) {
-            showLoginWall('Login failed. Please try again.');
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    } else {
-        const storedUser = getCurrentUser();
-        if (storedUser) await showWelcomeTransition(storedUser);
-        else showLoginWall();
-    }
-};
-
-        // --- DYNAMIC CONTENT LOADER ---
         async function loadAndDisplayGames() {
             const gameGrid = document.querySelector('#supported-games .game-grid');
             const featureTabs = document.querySelector('#features .feature-tabs');
@@ -792,60 +666,27 @@ const handleOAuthCallback = async () => {
 
             try {
                 const response = await fetch('/api/games');
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.details || 'Failed to load game data.');
-                }
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to load game data.'); }
                 const games = await response.json();
                 
                 gameGrid.innerHTML = '';
                 gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
                 let isFirstActive = true;
-
                 games.forEach((game, index) => {
                     const isComingSoon = game.status?.trim().toLowerCase() === 'coming soon';
-                    gameGrid.insertAdjacentHTML('beforeend', `
-                        <div class="game-card ${isComingSoon ? 'coming-soon' : ''} reveal-child" style="--i: ${index + 2};">
-                            <div class="game-card-thumbnail">
-                                <img src="${game.thumbnail_url || ''}" alt="${game.name} Thumbnail" onerror="this.style.display='none'">
-                                ${isComingSoon ? '<div class="coming-soon-overlay">COMING SOON</div>' : ''}
-                            </div>
-                            <div class="game-card-info"><h3>${game.name}</h3><p>${game.status}</p></div>
-                            <div class="game-card-actions">
-                                ${isComingSoon ? '<button class="btn btn-secondary" disabled>Features</button>' : `<a href="#features" class="btn btn-primary features-trigger" data-game="${game.topic_id}">Features</a>`}
-                            </div>
-                        </div>`);
-                    
+                    gameGrid.insertAdjacentHTML('beforeend', `<div class="game-card ${isComingSoon ? 'coming-soon' : ''} reveal-child" style="--i: ${index + 2};"><div class="game-card-thumbnail"><img src="${game.thumbnail_url || ''}" alt="${game.name} Thumbnail" onerror="this.style.display='none'">${isComingSoon ? '<div class="coming-soon-overlay">COMING SOON</div>' : ''}</div><div class="game-card-info"><h3>${game.name}</h3><p>${game.status}</p></div><div class="game-card-actions">${isComingSoon ? '<button class="btn btn-secondary" disabled>Features</button>' : `<a href="#features" class="btn btn-primary features-trigger" data-game="${game.topic_id}">Features</a>`}</div></div>`);
                     gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`);
-
                     if (!isComingSoon) {
                         const activeClass = isFirstActive ? 'active' : '';
                         featureTabs.insertAdjacentHTML('beforeend', `<button class="feature-tab-btn ${activeClass}" data-game="${game.topic_id}">${game.name}</button>`);
-                        featurePanesContainer.insertAdjacentHTML('beforeend', `
-                            <div id="features-${game.topic_id}" class="feature-pane ${activeClass}">
-                                ${game.features_html || `<div class="card"><p>Features for this game are being documented. Check back soon!</p></div>`}
-                                <div class="comments-section card-glow">
-                                    <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
-                                    <form class="comment-form" data-topic="${game.topic_id}">
-                                        <img src="" alt="Your avatar" class="comment-form-avatar">
-                                        <div class="comment-form-input-wrapper">
-                                            <textarea class="comment-textarea" placeholder="Share your thoughts..." required></textarea>
-                                            <div class="comment-form-actions"><button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Post</button></div>
-                                        </div>
-                                    </form>
-                                    <div class="comments-list" id="comments-list-${game.topic_id}"><p class="comments-status">Loading comments...</p></div>
-                                </div>
-                            </div>`);
+                        featurePanesContainer.insertAdjacentHTML('beforeend', `<div id="features-${game.topic_id}" class="feature-pane ${activeClass}">${game.features_html || `<div class="card"><p>Features are being documented.</p></div>`}<div class="comments-section card-glow"><h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3><form class="comment-form" data-topic="${game.topic_id}"><img src="" alt="Your avatar" class="comment-form-avatar"><div class="comment-form-input-wrapper"><textarea class="comment-textarea" placeholder="Share your thoughts..." required></textarea><div class="comment-form-actions"><button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Post</button></div></div></form><div class="comments-list" id="comments-list-${game.topic_id}"><p class="comments-status">Loading...</p></div></div></div>`);
                         isFirstActive = false;
                     }
                 });
                 gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
-            } catch (error) {
-                gameGrid.innerHTML = `<p class="api-status error">Could not load games: ${error.message}</p>`;
-            }
+            } catch (error) { gameGrid.innerHTML = `<p class="api-status error">Could not load games: ${error.message}</p>`; }
         }
 
-        // --- COMMENTS LOGIC ---
         const renderComments = (comments, topicId) => {
             const list = document.getElementById(`comments-list-${topicId}`);
             if (!list) return;
@@ -856,15 +697,7 @@ const handleOAuthCallback = async () => {
         const createCommentCard = (comment) => {
             const card = document.createElement('div');
             card.className = 'comment-card';
-            card.innerHTML = `
-                <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar">
-                <div class="comment-content">
-                    <div class="comment-header">
-                        <span class="comment-user">${comment.user_name}</span>
-                        <span class="comment-time">${timeAgo(comment.created_at)}</span>
-                    </div>
-                    <p class="comment-body"></p>
-                </div>`;
+            card.innerHTML = `<img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar"><div class="comment-content"><div class="comment-header"><span class="comment-user">${comment.user_name}</span><span class="comment-time">${timeAgo(comment.created_at)}</span></div><p class="comment-body"></p></div>`;
             card.querySelector('.comment-body').textContent = comment.content;
             return card;
         };
@@ -878,39 +711,16 @@ const handleOAuthCallback = async () => {
                 if (!response.ok) throw new Error('Failed to load comments.');
                 const comments = await response.json();
                 renderComments(comments, topicId);
-            } catch (error) {
-                list.innerHTML = `<p class="comments-status error">${error.message}</p>`;
-            }
+            } catch (error) { list.innerHTML = `<p class="comments-status error">${error.message}</p>`; }
         };
 
-        // --- MAIN PAGE SCRIPT INITIALIZATION ---
         function initializePageScripts() {
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
-            const isFinePointer = window.matchMedia('(pointer: fine)').matches;
-
-            if (isFinePointer && !isReducedMotion) {
+            if (!isReducedMotion && window.matchMedia('(pointer: fine)').matches) {
                 const glow = document.getElementById('cursor-glow');
                 document.addEventListener('mousemove', (e) => requestAnimationFrame(() => glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`));
                 document.addEventListener('mousedown', () => glow.classList.add('clicking'));
                 document.addEventListener('mouseup', () => glow.classList.remove('clicking'));
-
-                const heroContent = document.querySelector('.hero-content');
-                document.addEventListener('mousemove', (e) => {
-                    const { clientX, clientY } = e;
-                    const x = (clientX / window.innerWidth - 0.5) * 30;
-                    const y = (clientY / window.innerHeight - 0.5) * 30;
-                    requestAnimationFrame(() => heroContent.style.transform = `translateX(${-x}px) translateY(${-y}px)`);
-                });
-                document.querySelectorAll('.card-glow, .game-card').forEach(card => {
-                    const intensity = 15;
-                    card.addEventListener('mousemove', (e) => {
-                        const rect = card.getBoundingClientRect();
-                        const x = e.clientX - rect.left; const y = e.clientY - rect.top; const { width, height } = rect;
-                        const rotateX = (y / height - 0.5) * intensity * -1; const rotateY = (x / width - 0.5) * intensity;
-                        requestAnimationFrame(() => card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
-                    });
-                    card.addEventListener('mouseleave', () => requestAnimationFrame(() => card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)'));
-                });
             }
 
             const header = document.querySelector('.main-header');
@@ -925,9 +735,7 @@ const handleOAuthCallback = async () => {
                     entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); obs.unobserve(entry.target); } });
                 }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
                 document.querySelectorAll('.reveal-container').forEach(el => observer.observe(el));
-            } else {
-                document.querySelectorAll('.reveal-container').forEach(el => el.classList.add('is-visible'));
-            }
+            } else { document.querySelectorAll('.reveal-container').forEach(el => el.classList.add('is-visible')); }
 
             const hamburger = document.querySelector('.hamburger');
             const mobileNavMenu = document.querySelector('.mobile-nav-container .nav-menu');
@@ -943,18 +751,13 @@ const handleOAuthCallback = async () => {
             function switchFeatureTab(gameId) {
                 document.querySelectorAll('.feature-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.game === gameId));
                 document.querySelectorAll('.feature-pane').forEach(pane => pane.classList.toggle('active', pane.id === `features-${gameId}`));
-                if (!loadedComments.includes(gameId)) {
-                    fetchComments(gameId);
-                    loadedComments.push(gameId);
-                }
+                if (!loadedComments.includes(gameId)) { fetchComments(gameId); loadedComments.push(gameId); }
             }
             
-            // Event delegation for dynamically added elements
             const mainContent = document.getElementById('main-content');
             mainContent.addEventListener('click', (e) => {
                 const featureTabBtn = e.target.closest('.feature-tab-btn');
                 if (featureTabBtn) { switchFeatureTab(featureTabBtn.dataset.game); return; }
-                
                 const featureTrigger = e.target.closest('.features-trigger:not(:disabled)');
                 if (featureTrigger) {
                     e.preventDefault();
@@ -962,7 +765,6 @@ const handleOAuthCallback = async () => {
                     switchFeatureTab(featureTrigger.dataset.game);
                     return;
                 }
-                
                 const scriptBtn = e.target.closest('.get-script-btn');
                 if (scriptBtn) {
                     const originalHTML = scriptBtn.innerHTML;
@@ -974,40 +776,14 @@ const handleOAuthCallback = async () => {
             });
 
             const activeTab = document.querySelector('.feature-tab-btn.active');
-            if (activeTab) {
-                const initialGameId = activeTab.dataset.game;
-                fetchComments(initialGameId);
-                loadedComments.push(initialGameId);
-            }
+            if (activeTab) { const initialGameId = activeTab.dataset.game; fetchComments(initialGameId); loadedComments.push(initialGameId); }
 
             headerUserInfo.addEventListener('click', displayProfileModal);
             profileModalClose.addEventListener('click', closeProfileModal);
             window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
-
-            const reportFormStateKey = 'cerium_bug_report_draft';
-            const saveFormState = () => localStorage.setItem(reportFormStateKey, JSON.stringify({ game: document.getElementById('game-select').value, description: document.getElementById('bug-description').value }));
-            const restoreFormState = () => {
-                const state = JSON.parse(localStorage.getItem(reportFormStateKey));
-                if (state) {
-                    const gameSelect = document.getElementById('game-select');
-                    const observer = new MutationObserver(() => {
-                        if (gameSelect.options.length > 1) { gameSelect.value = state.game || ''; observer.disconnect(); }
-                    });
-                    observer.observe(gameSelect, { childList: true });
-                    document.getElementById('bug-description').value = state.description || '';
-                }
-            };
-            restoreFormState();
-            
-            bugReportForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                // Bug report logic is complex and assumed to be working, remains unchanged for brevity
-            });
-            bugReportForm.addEventListener('input', saveFormState);
         }
 
-        // --- EVENT LISTENERS ---
         discordLoginBtn.addEventListener('click', () => {
             const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
             window.location.href = authUrl;
@@ -1022,7 +798,6 @@ const handleOAuthCallback = async () => {
             const textarea = form.querySelector('.comment-textarea');
             const content = textarea.value.trim();
             const topic = form.dataset.topic;
-
             if (!content) return;
 
             const originalButtonHTML = submitButton.innerHTML;
@@ -1031,24 +806,14 @@ const handleOAuthCallback = async () => {
             
             try {
                 const user = getCurrentUser();
-                const response = await fetch('/api/comments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topic, content, user })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error || 'Failed to post comment.');
-                }
+                const response = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, content, user }) });
+                if (!response.ok) { const errData = await response.json(); throw new Error(errData.error || 'Failed to post comment.'); }
                 
                 const newComment = await response.json();
                 const card = createCommentCard(newComment);
                 const list = document.getElementById(`comments-list-${topic}`);
-                
                 const statusMessage = list.querySelector('.comments-status');
                 if (statusMessage) statusMessage.remove();
-
                 list.prepend(card);
                 textarea.value = '';
 
@@ -1056,7 +821,6 @@ const handleOAuthCallback = async () => {
                 profile.commentCount = (profile.commentCount || 0) + 1;
                 localStorage.setItem(getProfileKey(user.id), JSON.stringify(profile));
                 checkAndUnlockAchievements(profile);
-
             } catch (error) {
                 alert(`Error: ${error.message}`);
             } finally {
@@ -1065,7 +829,6 @@ const handleOAuthCallback = async () => {
             }
         });
         
-        // --- INITIALIZATION ---
         handleOAuthCallback();
     });
     </script>
