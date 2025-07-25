@@ -108,8 +108,8 @@
 
     <div id="admin-auth-wall">
         <div class="card auth-container">
-            <div id="login-prompt"><h1 class="gradient-text">Admin Panel</h1><p style="margin: 20px 0 30px;">Please connect with an authorized Discord account.</p><button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button></div>
-            <div id="denied-message"><h1 style="color: var(--color-status-down);">Access Denied</h1><p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized.</p><button id="logout-btn-denied" class="btn btn-secondary">Logout and Try Again</button></div>
+            <div id="login-prompt"><h1 class="gradient-text">Admin Panel</h1><p style="margin: 20px 0 30px;">Connect with an authorized Discord account.</p><button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect</button></div>
+            <div id="denied-message"><h1 style="color: var(--color-status-down);">Access Denied</h1><p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized.</p><button id="logout-btn-denied" class="btn btn-secondary">Logout</button></div>
             <p id="auth-status" style="margin-top: 20px; min-height: 20px;"></p>
         </div>
     </div>
@@ -153,11 +153,11 @@
     </div>
 
     <div id="game-form-modal" class="modal">
-        <div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title" style="margin-bottom: 30px;"></h2><form id="game-form"><input type="hidden" id="game-id" name="gameId"><div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div><div class="form-group"><label for="game-status">Status</label><input type="text" id="game-status" required></div><div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div><div class="form-group"><label for="loadstring">Loadstring (Optional)</label><textarea id="loadstring" rows="2"></textarea></div><div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div><div style="display: flex; gap: 20px;"><div class="form-group" style="flex: 1;"><label for="display-order">Display Order</label><input type="number" id="display-order" value="99" required></div><div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div></div><div class="form-group"><label for="features-html">Features HTML (Optional)</label><textarea id="features-html" rows="8"></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Save Game</button></div><p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p></form></div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title" style="margin-bottom: 30px;"></h2><form id="game-form"><input type="hidden" id="game-id"><div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div><div class="form-group"><label for="game-status">Status</label><input type="text" id="game-status" required></div><div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div><div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div><div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div><div style="display: flex; gap: 20px;"><div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div><div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div></div><div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8"></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Save Game</button></div><p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p></form></div>
     </div>
     
     <div id="moderate-modal" class="modal">
-        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (in hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason (optional, will be shown to user)</label><textarea id="moderate-reason" rows="4" placeholder="e.g., Spamming, inappropriate behavior..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm Action</button></div></form></div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div>
     </div>
 
     <div id="toast-container"></div>
@@ -388,7 +388,29 @@
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json();
                 showToast(result.message);
-                await fetchAndRenderUsers();
+                
+                // OPTIMISTIC UPDATE LOGIC
+                const userIndex = allUsersData.findIndex(u => u.discord_id === target_discord_id);
+                if (userIndex !== -1) {
+                    const user = allUsersData[userIndex];
+                    const finalReason = reason || 'No reason provided.';
+                    if (action === 'ban') {
+                        user.is_banned = true;
+                        user.suspension_expires_at = null;
+                        user.moderation_reason = finalReason;
+                    } else if (action === 'suspend') {
+                        const expiry = new Date();
+                        expiry.setHours(expiry.getHours() + duration_hours);
+                        user.suspension_expires_at = expiry.toISOString();
+                        user.is_banned = false;
+                        user.moderation_reason = finalReason;
+                    } else if (action === 'unban') {
+                        user.is_banned = false;
+                        user.suspension_expires_at = null;
+                        user.moderation_reason = null;
+                    }
+                }
+                renderUsers(allUsersData); // Re-render from local data
             } catch (error) { showToast(error.message, true); }
         };
         const openModerateModal = (userId, action) => {
