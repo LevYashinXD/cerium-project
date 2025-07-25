@@ -37,6 +37,8 @@
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 1px solid var(--color-card-border); cursor: pointer; }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
         .btn-secondary { background-color: transparent; color: var(--color-heading); border-color: var(--color-heading); }
+        .btn-secondary:hover { background-color: var(--color-heading); color: var(--color-background); }
+
         .main-header { position: sticky; top: 0; z-index: 1000; height: var(--header-height); display: flex; align-items: center; background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-card-border); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 5%; }
         .nav-left { display: flex; align-items: center; gap: 60px; }
@@ -45,6 +47,7 @@
         .nav-link { color: var(--color-text); text-decoration: none; font-weight: 600; }
         .nav-link.active { color: var(--color-heading); }
         .nav-actions { display: flex; align-items: center; gap: 25px; }
+        .user-info-details { display: flex; align-items: center; gap: 15px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
         .user-name { font-weight: 600; color: var(--color-heading); }
         .api-status { padding: 40px; font-style: italic; opacity: 0.7; text-align: center; }
@@ -87,7 +90,6 @@
         .comment-form-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
         .comments-list { display: flex; flex-direction: column; gap: 20px; }
         .comment-card { display: flex; gap: 15px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--color-card-border); border-radius: var(--border-radius); }
-        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; }
         .comment-user { font-weight: 700; color: var(--color-heading); }
         .comment-body { margin-top: 5px; }
 
@@ -96,7 +98,6 @@
     </style>
 </head>
 <body>
-
     <div id="main-content" style="opacity:1; visibility: visible;">
          <header class="main-header">
             <nav class="navbar">
@@ -183,7 +184,6 @@
             return;
         }
 
-        // --- DOM ELEMENT REFERENCES ---
         const browserView = document.getElementById('games-browser-view');
         const detailView = document.getElementById('game-detail-view');
         const gameGrid = document.querySelector('.game-grid');
@@ -191,7 +191,6 @@
         const filterButtonsContainer = document.querySelector('.filter-buttons');
         const noResultsMessage = document.getElementById('no-results-message');
         
-        // --- INITIALIZE USER INFO ---
         const avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
         document.getElementById('nav-user-avatar').src = avatarUrl;
         document.getElementById('nav-user-name').textContent = user.username;
@@ -200,22 +199,16 @@
              if (window.confirm("Are you sure you want to log out?")) { localStorage.clear(); window.location.href = 'index.html'; }
         });
 
-        // --- STATE MANAGEMENT ---
         let allGames = [];
         let currentFilter = 'all';
         let currentSearchTerm = '';
 
-        // --- VIEW SWITCHING FUNCTIONS ---
         const showGridView = () => {
             browserView.style.display = 'block';
             detailView.style.display = 'none';
         };
 
         const showDetailView = (game) => {
-            if (!game) {
-                console.error("showDetailView was called with an invalid game object.");
-                return;
-            }
             document.getElementById('detail-thumbnail').src = game.thumbnail_url || '';
             document.getElementById('detail-title').textContent = game.name;
             const statusEl = document.getElementById('detail-status');
@@ -232,9 +225,8 @@
             fetchComments(game.topic_id);
         };
 
-        // --- DATA RENDERING FUNCTIONS ---
         const renderGames = () => {
-            let filteredGames = allGames.filter(game => {
+            const filteredGames = allGames.filter(game => {
                 const matchesFilter = currentFilter === 'all' || (game.status && game.status.toLowerCase() === currentFilter.toLowerCase());
                 const matchesSearch = !currentSearchTerm || (game.name && game.name.toLowerCase().includes(currentSearchTerm));
                 return matchesFilter && matchesSearch;
@@ -265,7 +257,6 @@
             }
         };
 
-        // --- COMMENT FUNCTIONS ---
         const fetchComments = async (topicId) => {
             const list = document.querySelector('#game-detail-view .comments-list');
             list.innerHTML = `<p class="api-status">Loading comments...</p>`;
@@ -277,31 +268,20 @@
             } catch (e) { list.innerHTML = `<p class="api-status" style="color:red;">Could not load comments.</p>`; }
         };
         
-        // ** SIMPLIFIED & MORE ROBUST **
         const createCommentCardHTML = (comment) => {
-            // Basic sanitization by creating text nodes
             const tempDiv = document.createElement('div');
             const userStrong = document.createElement('strong');
             userStrong.className = 'comment-user';
             userStrong.textContent = comment.user_name || 'Anonymous';
-            
             const contentP = document.createElement('p');
             contentP.className = 'comment-body';
             contentP.textContent = comment.content || '';
-
             tempDiv.appendChild(userStrong);
             tempDiv.appendChild(contentP);
             
-            return `
-            <div class="comment-card">
-                <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar">
-                <div class="comment-content">
-                    ${tempDiv.innerHTML}
-                </div>
-            </div>`;
+            return `<div class="comment-card"><img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar"><div class="comment-content">${tempDiv.innerHTML}</div></div>`;
         };
 
-        // --- EVENT LISTENERS ---
         document.getElementById('back-to-grid-btn').addEventListener('click', showGridView);
         searchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value.toLowerCase(); renderGames(); });
         filterButtonsContainer.addEventListener('click', (e) => {
@@ -313,22 +293,13 @@
             renderGames();
         });
 
-        // ** CORRECTED CLICK HANDLER **
         gameGrid.addEventListener('click', (e) => {
             const card = e.target.closest('.game-card:not(.coming-soon)');
             if (!card) return;
-
             const gameId = card.dataset.id;
-            console.log("Card clicked! Game ID:", gameId); // For debugging
-            
-            // Using == for type coercion safety (string vs number)
             const selectedGame = allGames.find(g => g.topic_id == gameId); 
-            
             if (selectedGame) {
-                console.log("Found game data:", selectedGame); // For debugging
                 showDetailView(selectedGame);
-            } else {
-                console.error("Could not find game data for ID:", gameId);
             }
         });
 
@@ -366,7 +337,6 @@
             });
         });
 
-        // --- INITIALIZATION ---
         loadGames();
     });
     </script>
