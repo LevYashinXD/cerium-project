@@ -24,8 +24,6 @@
             --font-family: 'Inter', sans-serif;
             --transition-speed: 0.3s;
         }
-
-        /* --- Base & Aurora Background --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: var(--font-family);
@@ -40,13 +38,10 @@
                 radial-gradient(at 80% 85%, hsla(180,80%,40%,0.3) 0px, transparent 50%);
             background-attachment: fixed;
         }
-
         h1, h2, h3, h4, h5, h6 { color: var(--color-heading); font-weight: 700; }
         h1 { font-size: 2.5rem; letter-spacing: -1px; }
         p { color: var(--color-text-muted); }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* --- Glassmorphism Element Base --- */
         .glass-ui {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--glass-blur));
@@ -55,16 +50,12 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             border-radius: var(--border-radius);
         }
-
-        /* --- Animations & Page States --- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         #admin-auth-wall, #admin-panel { display: none; }
         body.state-loading #admin-auth-wall, body.state-login #admin-auth-wall, body.state-denied #admin-auth-wall {
             display: flex; align-items: center; justify-content: center; min-height: 100vh; animation: fadeInUp 0.6s ease-out;
         }
         body.state-admin #admin-panel { display: block; animation: fadeInUp 0.6s ease-out; }
-
-        /* --- Buttons --- */
         .btn {
             position: relative; display: inline-flex; align-items: center; justify-content: center;
             gap: 10px; padding: 12px 28px; border-radius: 50px; text-decoration: none;
@@ -79,9 +70,7 @@
         .btn-danger:hover { background-color: rgba(255, 51, 102, 0.25); border-color: var(--color-status-down); transform: translateY(-2px); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         .btn .fa-spinner { animation: fa-spin 1s linear infinite; }
-        .card { padding: 40px; } /* Use .card for padding, .glass-ui for styling */
-
-        /* --- Auth & Main Layout --- */
+        .card { padding: 40px; }
         .auth-container { text-align: center; max-width: 500px; }
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
@@ -97,8 +86,6 @@
         .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
         .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-
-        /* --- Tabs --- */
         .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--glass-border); margin-bottom: 40px; }
         .admin-tab-btn {
             background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px;
@@ -114,8 +101,6 @@
         .admin-tab-btn.active::after { width: 50%; }
         .admin-tab-pane { display: none; animation: fadeInUp 0.5s ease-out; }
         .admin-tab-pane.active { display: block; }
-
-        /* --- Special Headers & Stats --- */
         .shahada-header { padding: 25px; margin-bottom: 40px; text-align: center; }
         .shahada-header h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 15px var(--color-glow); }
         .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
@@ -123,8 +108,6 @@
         .stat-card:hover { transform: translateY(-5px) scale(1.02); border-color: rgba(255, 255, 255, 0.3); }
         .stat-card h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 500; }
         .stat-card p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; }
-
-        /* --- Search & Tables --- */
         .search-bar { position: relative; width: 100%; max-width: 400px; margin-bottom: 30px; }
         .search-bar input {
             width: 100%; padding: 12px 15px 12px 45px; border-radius: var(--border-radius-sm);
@@ -150,8 +133,6 @@
         .status-indicator { font-size: 1.2rem; }
         .status-indicator.published { color: var(--color-status-up); }
         .status-indicator.unpublished { color: var(--color-status-down); }
-
-        /* --- Comments & Users Lists --- */
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
         .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; transition: all var(--transition-speed) ease; }
         .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.5); }
@@ -167,8 +148,6 @@
         .comment-card-admin-meta strong, .user-card-admin-meta strong { color: var(--color-text); font-weight: 500; }
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
         .comment-card-admin-actions, .user-card-admin .actions { margin-left: auto; padding-left: 20px; align-self: center; }
-
-        /* --- Modals --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.4s 0.1s both; }
         @keyframes slideInUpModal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -187,8 +166,6 @@
         .details-header img { width: 60px; height: 60px; border-radius: 50%; }
         .details-header h3 { font-size: 1.8rem; }
         .details-body { max-height: 60vh; overflow-y: auto; padding-right: 15px; }
-
-        /* --- Forms --- */
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-text); font-size: 0.9rem; }
         .form-group input, .form-group textarea, .form-group select {
@@ -205,8 +182,6 @@
         .form-group-checkbox { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
         .form-group-checkbox input { width: auto; }
         .form-actions { display:flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
-
-        /* --- Toast Notifications --- */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
         .toast {
@@ -218,8 +193,6 @@
         }
         .toast.success { background: rgba(0, 255, 127, 0.7); }
         .toast.error { background: rgba(255, 51, 102, 0.7); color: #fff; }
-
-        /* --- Confirmation Modal --- */
         .confirm-modal-content { max-width: 500px; text-align: center; }
         .confirm-modal-content p { font-size: 1.1rem; margin: 20px 0 30px; color: var(--color-text); }
         .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
@@ -328,50 +301,12 @@
         </div>
     </div>
     
-    <div id="moderate-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">×</span>
-            <h2 id="moderate-title"></h2>
-            <form id="moderate-form">
-                <input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action">
-                <div class="form-group" id="duration-group" style="display: none;">
-                    <label for="moderate-duration">Duration (hours)</label>
-                    <input type="number" id="moderate-duration" min="1" value="24" required>
-                </div>
-                <div class="form-group">
-                    <label for="moderate-reason">Reason</label>
-                    <textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Confirm</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <div id="user-details-modal" class="modal">
-        <div class="modal-content details-modal-content">
-            <span class="modal-close">×</span>
-            <div id="user-details-content"></div>
-        </div>
-    </div>
-
-    <div id="confirm-modal" class="modal">
-        <div class="modal-content confirm-modal-content">
-            <h2 id="confirm-title">Are you sure?</h2>
-            <p id="confirm-text">This action cannot be undone.</p>
-            <div class="confirm-modal-actions">
-                <button id="confirm-cancel-btn" class="btn btn-secondary">Cancel</button>
-                <button id="confirm-ok-btn" class="btn btn-danger">Confirm</button>
-            </div>
-        </div>
-    </div>
-
+    <div id="moderate-modal" class="modal"><div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div class="form-actions"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div></div>
+    <div id="user-details-modal" class="modal"><div class="modal-content details-modal-content"><span class="modal-close">×</span><div id="user-details-content"></div></div></div>
+    <div id="confirm-modal" class="modal"><div class="modal-content confirm-modal-content"><h2 id="confirm-title">Are you sure?</h2><p id="confirm-text">This action cannot be undone.</p><div class="confirm-modal-actions"><button id="confirm-cancel-btn" class="btn btn-secondary">Cancel</button><button id="confirm-ok-btn" class="btn btn-danger">Confirm</button></div></div></div>
     <div id="toast-container"></div>
 
     <script>
-    // The JavaScript logic remains unchanged as it is already functional and robust.
     document.addEventListener("DOMContentLoaded", () => {
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
@@ -515,7 +450,6 @@
             }
             gameFormModal.classList.add('visible');
         };
-
         const closeFormModal = () => gameFormModal.classList.remove('visible');
         const handleDeleteGameClick = async (e) => {
             const gameId = e.currentTarget.dataset.id; const game = allGamesData.find(g => g.id == gameId); if (!game) return;
@@ -660,23 +594,62 @@
             closeModerateModal();
         });
 
+        // ===================================================================
+        // ===== CORRECTED FORM SUBMISSION LOGIC (Create vs. Update) =====
+        // ===================================================================
         gameForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); const submitButton = e.currentTarget.querySelector('button[type="submit"]');
-            submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; formError.textContent = '';
-            const gameId = document.getElementById('game-id').value; const isEditing = !!gameId;
+            e.preventDefault();
+            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            formError.textContent = '';
+
+            const gameId = document.getElementById('game-id').value;
+            const isEditing = !!gameId;
+
+            // Determine the correct HTTP method based on whether we are editing or creating
+            const method = isEditing ? 'PUT' : 'POST';
+
             const gameData = {
-                name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value,
-                thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(),
-                topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
-                is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim(),
+                name: document.getElementById('game-name').value.trim(),
+                status: document.getElementById('game-status').value,
+                thumbnail_url: document.getElementById('thumbnail-url').value.trim(),
+                loadstring: document.getElementById('loadstring').value.trim(),
+                topic_id: document.getElementById('topic-id').value.trim(),
+                display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
+                is_published: document.getElementById('is-published').checked,
+                features_html: document.getElementById('features-html').value.trim(),
             };
-            const bodyPayload = { gameData, user: getCurrentUser() }; if (isEditing) bodyPayload.gameId = gameId;
+
+            const bodyPayload = { gameData, user: getCurrentUser() };
+            // For updates (PUT), we need to include the gameId in the payload
+            if (isEditing) {
+                bodyPayload.gameId = gameId;
+            }
+
             try {
-                const response = await fetch('/api/admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
-                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`); closeFormModal(); await fetchAndRenderGames();
-            } catch (error) { formError.textContent = error.message;
-            } finally { submitButton.disabled = false; submitButton.innerHTML = 'Save Game'; }
+                // Use the dynamically determined method in the fetch request
+                const response = await fetch('/api/admin', {
+                    method: method, // <-- THIS IS THE FIX
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Failed to save.');
+                }
+
+                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
+                closeFormModal();
+                await fetchAndRenderGames();
+
+            } catch (error) {
+                formError.textContent = error.message;
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Save Game';
+            }
         });
         
         handleOAuthCallback();
