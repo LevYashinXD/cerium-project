@@ -165,13 +165,13 @@
     </div>
     
     <div id="moderate-modal" class="modal">
-        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-user-name"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div>
     </div>
 
     <div id="user-details-modal" class="modal">
         <div class="modal-content details-modal-content"><span class="modal-close">×</span><div id="user-details-content"></div></div>
     </div>
-
+    
     <div id="toast-container"></div>
 
     <script>
@@ -220,10 +220,7 @@
             const seconds = Math.floor((new Date() - new Date(date)) / 1000);
             const intervals = { d: 86400, h: 3600, m: 60 };
             if (seconds < 60) return "Just now";
-            for (let unit in intervals) {
-                let interval = seconds / intervals[unit];
-                if (interval > 1) return Math.floor(interval) + `${unit} ago`;
-            } return "Just now";
+            for (let unit in intervals) { let interval = seconds / intervals[unit]; if (interval > 1) return Math.floor(interval) + `${unit} ago`; } return "Just now";
         };
         const showToast = (message, isError = false) => {
             const toastContainer = document.getElementById('toast-container');
@@ -247,11 +244,11 @@
         };
         const showAdminPanel = (user) => {
             document.getElementById('admin-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-            document.getElementById('admin-username').textContent = `${user.username}#${user.discriminator}`;
+            document.getElementById('admin-username').textContent = `${user.username}`;
             setPageState('admin');
             fetchAndRenderGames(); fetchAndRenderComments(); fetchAndRenderUsers(); fetchAndRenderBugReports(); fetchAndRenderAuditLog();
         };
-        const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}#${user.discriminator}`; setPageState('denied'); };
+        const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}`; setPageState('denied'); };
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
@@ -377,7 +374,7 @@
                     actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unsuspend</button>`;
                 } else {
                     statusHTML = `<span>Status: <strong style="color:var(--color-status-up)">Active</strong></span>`;
-                    actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
+                    actionsHTML = `<button class="btn btn-secondary warn-btn" data-id="${user.discord_id}">Warn</button><button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                 }
                 card.className = cardClass;
                 card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Reason: ${user.moderation_reason}</div>` : ''}</div><div class="actions" style="margin-left: auto; align-items: center;">${actionsHTML}</div>`;
@@ -385,8 +382,9 @@
             });
         };
         const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
+            const endpoint = (action === 'warn') ? '/api/admin-warn-user' : '/api/admin-moderate-user';
             try {
-                const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
+                const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json();
                 showToast(result.message);
@@ -395,32 +393,17 @@
         };
         const openModerateModal = (user, action) => {
             document.getElementById('moderate-user-id').value = user.discord_id;
-            document.getElementById('moderate-user-name').value = user.username;
             document.getElementById('moderate-action').value = action;
             document.getElementById('moderate-reason').value = '';
             const title = document.getElementById('moderate-title');
             const durationGroup = document.getElementById('duration-group');
-            if (action === 'ban') {
-                title.textContent = `Ban ${user.username}`;
-                durationGroup.style.display = 'none';
-            } else {
-                title.textContent = `Suspend ${user.username}`;
-                durationGroup.style.display = 'block';
-            }
+            if (action === 'ban') { title.textContent = `Ban ${user.username}`; durationGroup.style.display = 'none'; }
+            else if (action === 'suspend') { title.textContent = `Suspend ${user.username}`; durationGroup.style.display = 'block'; }
+            else if (action === 'warn') { title.textContent = `Warn ${user.username}`; durationGroup.style.display = 'none'; }
             moderateModal.classList.add('visible');
         };
         const closeModerateModal = () => moderateModal.classList.remove('visible');
-
-        const fetchAndRenderBugReports = async () => { /* ... see full implementation below ... */ };
-        const renderBugReports = (reports) => { /* ... see full implementation below ... */ };
-        const updateBugReportStatus = async (reportId, newStatus) => { /* ... see full implementation below ... */ };
-        const fetchAndRenderAuditLog = async () => { /* ... see full implementation below ... */ };
-        const renderAuditLog = (logs) => { /* ... see full implementation below ... */ };
-        const openUserDetailsModal = async (user) => { /* ... see full implementation below ... */ };
-        const closeUserDetailsModal = () => userDetailsModal.classList.remove('visible');
-
-        // FULL IMPLEMENTATIONS
-        fetchAndRenderBugReports = async () => {
+        const fetchAndRenderBugReports = async () => {
             bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
@@ -430,7 +413,7 @@
                 allBugReports = await response.json(); renderBugReports(allBugReports);
             } catch (error) { bugReportsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
         };
-        renderBugReports = (reports) => {
+        const renderBugReports = (reports) => {
             bugReportsTableBody.innerHTML = '';
             if (!reports || reports.length === 0) { bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No bug reports found.</td></tr>'; return; }
             reports.forEach(report => {
@@ -439,14 +422,14 @@
                 bugReportsTableBody.appendChild(row);
             });
         };
-        updateBugReportStatus = async (reportId, newStatus) => {
+        const updateBugReportStatus = async (reportId, newStatus) => {
             try {
                 const response = await fetch('/api/bug-reports', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportId, newStatus, user: getCurrentUser() }) });
                 if (!response.ok) throw new Error("Failed to update status.");
                 showToast('Status updated.');
             } catch(error) { showToast(error.message, true); }
         };
-        fetchAndRenderAuditLog = async () => {
+        const fetchAndRenderAuditLog = async () => {
             auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
@@ -456,7 +439,7 @@
                 allAuditLogs = await response.json(); renderAuditLog(allAuditLogs);
             } catch (error) { auditLogTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
         };
-        renderAuditLog = (logs) => {
+        const renderAuditLog = (logs) => {
             auditLogTableBody.innerHTML = '';
             if (!logs || logs.length === 0) { auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No audit logs found.</td></tr>'; return; }
             logs.forEach(log => {
@@ -465,20 +448,21 @@
                 auditLogTableBody.appendChild(row);
             });
         };
-        openUserDetailsModal = async (user) => {
+        const openUserDetailsModal = async (user) => {
             userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>';
             userDetailsModal.classList.add('visible');
             try {
                 const response = await fetch(`/api/admin-user-details?userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
                 if (!response.ok) throw new Error("Failed to load details.");
                 const data = await response.json();
-                let commentsHTML = '<h4>Comment History</h4><p>No comments found.</p>';
+                let commentsHTML = '<h4>Comment History</h4><p>No comments found for this user.</p>';
                 if (data.comments && data.comments.length > 0) {
-                    commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0;">...</div>`).join('');
+                    commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
                 }
-                userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url}"><div class="details-header-info"><h3>${user.username}</h3><p>${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
+                userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"><div class="details-header-info"><h3>${user.username}</h3><p style="opacity: 0.7;">${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
             } catch (error) { userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`; }
         };
+        const closeUserDetailsModal = () => userDetailsModal.classList.remove('visible');
 
         discordLoginBtn.addEventListener('click', () => { const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; window.location.href = authUrl; });
         logoutBtnAdmin.addEventListener('click', handleLogout);
@@ -501,13 +485,12 @@
             const userId = userCard.querySelector('[data-id]')?.dataset.id;
             const userToModerate = allUsersData.find(u => u.discord_id === userId);
             if (!userToModerate) return;
-            if (target) { // If a button was clicked
-                if (target.classList.contains('ban-btn')) { openModerateModal(userToModerate, 'ban'); }
+            if (target) {
+                if (target.classList.contains('warn-btn')) { openModerateModal(userToModerate, 'warn'); }
+                else if (target.classList.contains('ban-btn')) { openModerateModal(userToModerate, 'ban'); }
                 else if (target.classList.contains('suspend-btn')) { openModerateModal(userToModerate, 'suspend'); }
                 else if (target.classList.contains('unban-btn')) { if (confirm(`Remove restrictions for this user?`)) { moderateUser(userToModerate, 'unban'); } }
-            } else { // If the card itself was clicked
-                openUserDetailsModal(userToModerate);
-            }
+            } else { openUserDetailsModal(userToModerate); }
         });
         commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
         usersSearch.addEventListener('input', () => { const searchTerm = usersSearch.value.toLowerCase().trim(); const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm)); renderUsers(filtered); });
@@ -517,11 +500,11 @@
         moderateForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const userId = document.getElementById('moderate-user-id').value;
-            const userName = allUsersData.find(u => u.discord_id === userId).username;
             const action = document.getElementById('moderate-action').value;
             const reason = document.getElementById('moderate-reason').value;
             const duration = document.getElementById('moderate-duration').value;
-            const targetUser = { discord_id: userId, username: userName };
+            const targetUser = allUsersData.find(u => u.discord_id === userId);
+            if (!targetUser) return showToast('User not found.', true);
             moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
             closeModerateModal();
         });
