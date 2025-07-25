@@ -2,130 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access Denied | Cerium</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Access Restricted</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --color-background: #050505;
-            --color-heading: #FFFFFF;
-            --color-text: #E0E0E0;
-            --color-status-down: #FF3366;
-            --glass-bg: rgba(25, 25, 30, 0.4);
-            --glass-border: rgba(255, 51, 102, 0.2);
-            --glass-blur: 12px;
-            --font-family: 'Inter', sans-serif;
-            --border-radius: 16px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        @keyframes fadeInSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--color-background);
-            color: var(--color-text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            padding: 20px;
-            overflow: hidden;
-            background-image:
-                radial-gradient(at 15% 20%, hsla(343,80%,50%,0.15) 0px, transparent 50%),
-                radial-gradient(at 80% 25%, hsla(212,80%,30%,0.15) 0px, transparent 50%),
-                radial-gradient(at 50% 90%, hsla(288,80%,40%,0.1) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-        
-        .card {
-            max-width: 650px;
-            padding: 50px 60px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--glass-border);
-            border-radius: var(--border-radius);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .icon {
-            font-size: 4rem;
-            color: var(--color-status-down);
-            margin-bottom: 25px;
-            text-shadow: 0 0 25px rgba(255, 51, 102, 0.5);
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: var(--color-heading);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
-
-        p {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            color: var(--color-text);
-            opacity: 0.9;
-        }
-
-        .reason-box {
-            margin-top: 40px;
-            padding: 20px 25px;
-            background: rgba(255, 51, 102, 0.08);
-            border: 1px solid rgba(255, 51, 102, 0.15);
-            border-left: 4px solid var(--color-status-down);
-            border-radius: 8px;
-            text-align: left;
-        }
-
-        .reason-box strong {
-            font-weight: 700;
-            color: var(--color-heading);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .reason-box p {
-            font-size: 1rem;
-            opacity: 1;
-            color: var(--color-text);
-        }
-
+        :root { --color-background: #050505; --color-heading: #FFFFFF; --color-text: #E0E0E0; --color-status-down: #FF3366; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--color-background); color: var(--color-text); display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
+        .container { max-width: 600px; padding: 40px; }
+        h1 { font-size: 3rem; font-weight: 800; color: var(--color-status-down); margin-bottom: 20px; }
+        p { font-size: 1.2rem; line-height: 1.6; }
+        .reason-box { margin-top: 30px; padding: 20px; background: rgba(255, 51, 102, 0.1); border-left: 4px solid var(--color-status-down); text-align: left; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <i class="fas fa-ban icon"></i>
+    <div class="container">
         <h1>Access Denied</h1>
-        <p>
-            Your account has been permanently banned from accessing this service due to a violation of our terms of service. This action is final and not subject to appeal.
-        </p>
+        <p>Your account has been permanently banned from accessing this service. This decision is final.</p>
         <div id="reason-container" style="display: none;">
             <div class="reason-box">
-                <strong>Stated Reason:</strong>
+                <strong>Reason:</strong>
                 <p id="ban-reason"></p>
             </div>
         </div>
@@ -134,7 +28,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const reason = params.get('reason');
-            if (reason && reason.trim() !== '') {
+            if (reason) {
                 document.getElementById('ban-reason').textContent = reason;
                 document.getElementById('reason-container').style.display = 'block';
             }
