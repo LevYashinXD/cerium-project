@@ -8,8 +8,8 @@ export default async function handler(req, res) {
   try {
     const sql = neon(process.env.POSTGRES_URL);
 
-    // This query ONLY selects columns that the front-end now uses.
-    // Ensure your database 'games' table has these columns.
+    // UPDATED: Added 'thumbnail_url' to the query.
+    // This is the cleanest approach. Store the full image URL in your database.
     const games = await sql`
         SELECT 
             id, 
@@ -18,7 +18,8 @@ export default async function handler(req, res) {
             loadstring, 
             topic_id, 
             roblox_url, 
-            features_html 
+            features_html,
+            thumbnail_url 
         FROM games 
         WHERE is_published = true 
         ORDER BY display_order ASC, name ASC`;
@@ -27,7 +28,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Fetch Public Games API Error:', error);
-    // This provides a more detailed error for easier debugging in the future.
     return res.status(500).json({ 
         error: 'An internal server error occurred while fetching games.',
         details: error.message 
