@@ -2,35 +2,189 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access Restricted</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --color-background: #050505; --color-heading: #FFFFFF; --color-text: #E0E0E0; --color-status-down: #FF3366; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--color-background); color: var(--color-text); display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
-        .container { max-width: 600px; padding: 40px; }
-        h1 { font-size: 3rem; font-weight: 800; color: var(--color-status-down); margin-bottom: 20px; }
-        p { font-size: 1.2rem; line-height: 1.6; }
-        .reason-box { margin-top: 30px; padding: 20px; background: rgba(255, 51, 102, 0.1); border-left: 4px solid var(--color-status-down); text-align: left; }
+        :root {
+            --color-background: #0D1117;
+            --color-surface: #161B22;
+            --color-heading: #FFFFFF;
+            --color-text: #C9D1D9;
+            --color-border: #30363D;
+            --color-status-down: #F85149;
+            --color-status-down-glow: rgba(248, 81, 73, 0.5);
+            --color-status-down-bg: rgba(248, 81, 73, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--color-background);
+            background-image: radial-gradient(circle at center, #1a1a1a, var(--color-background) 75%);
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .icon {
+            color: var(--color-status-down);
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            stroke-width: 1.5;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-status-down);
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            text-shadow: 0 0 20px var(--color-status-down-glow);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .reason-box {
+            margin-top: 40px;
+            padding: 24px;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-left: 4px solid var(--color-status-down);
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .reason-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .reason-header strong {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-heading);
+        }
+
+        #ban-reason {
+            font-size: 1rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        #copy-button {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: var(--color-border);
+            color: var(--color-text);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        #copy-button:hover {
+            background-color: #3e444d;
+            color: var(--color-heading);
+        }
+        
+        #copy-button:active {
+            transform: scale(0.98);
+        }
+
+        #copy-button.copied {
+            background-color: #2ea043;
+            color: white;
+            cursor: default;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+
         <h1>Access Denied</h1>
-        <p>Your account has been permanently banned from accessing this service. This decision is final.</p>
+        <p>Your account has been permanently banned from accessing this service. This decision is final and not subject to appeal.</p>
+
         <div id="reason-container" style="display: none;">
             <div class="reason-box">
-                <strong>Reason:</strong>
+                <div class="reason-header">
+                    <strong>Reason for Ban:</strong>
+                    <button id="copy-button">Copy</button>
+                </div>
                 <p id="ban-reason"></p>
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-            const reason = params.get('reason');
+            const reason = params.get('reason')?.trim();
+
             if (reason) {
-                document.getElementById('ban-reason').textContent = reason;
-                document.getElementById('reason-container').style.display = 'block';
+                const reasonContainer = document.getElementById('reason-container');
+                const banReasonEl = document.getElementById('ban-reason');
+                const copyButton = document.getElementById('copy-button');
+
+                banReasonEl.textContent = reason;
+                reasonContainer.style.display = 'block';
+
+                copyButton.addEventListener('click', () => {
+                    navigator.clipboard.writeText(reason).then(() => {
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copied');
+                        copyButton.disabled = true;
+
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                            copyButton.classList.remove('copied');
+                            copyButton.disabled = false;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy reason: ', err);
+                        copyButton.textContent = 'Failed';
+                    });
+                });
             }
         });
     </script>
