@@ -563,7 +563,7 @@
         <a href="#welcome" class="back-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></a>
     </div>
 
-    <script>
+        <script>
     document.addEventListener("DOMContentLoaded", function() {
         // --- CONFIGURATION ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
@@ -599,6 +599,17 @@
             for (let unit in intervals) {
                 let interval = seconds / intervals[unit];
                 if (interval > 1) return `${Math.floor(interval)} ${unit} ago`;
+            }
+            return "Just now";
+        };
+
+        const getCurrentUser = () => {
+            try {
+                const user = localStorage.getItem('discord_user_v2');
+                return user ? JSON.parse(user) : null;
+            } catch (e) {
+                localStorage.removeItem('discord_user_v2');
+                return null;
             }
         };
 
@@ -639,7 +650,8 @@
         }
 
         function displayProfileModal() {
-            const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
+            const userData = getCurrentUser();
+            if (!userData) return;
             const profile = getOrCreateProfile(userData);
             const newKey = getNewAchievementsKey(profile.discordId);
             const newAchievements = JSON.parse(sessionStorage.getItem(newKey)) || [];
@@ -665,14 +677,12 @@
             }
             profileModal.classList.add('visible');
             body.classList.add('no-scroll');
-            profileModalClose.focus();
         }
 
         function closeProfileModal() {
             profileModal.classList.remove('visible');
             body.classList.remove('no-scroll');
-            headerUserInfo.focus();
-            const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
+            const userData = getCurrentUser();
             if(userData) sessionStorage.removeItem(getNewAchievementsKey(userData.id));
         }
 
@@ -741,9 +751,9 @@
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             } else {
-                const storedUser = localStorage.getItem('discord_user_v2');
+                const storedUser = getCurrentUser();
                 setTimeout(async () => {
-                    if (storedUser) await showWelcomeTransition(JSON.parse(storedUser));
+                    if (storedUser) await showWelcomeTransition(storedUser);
                     else showLoginWall();
                 }, 500);
             }
@@ -855,7 +865,6 @@
 
         // --- MAIN PAGE SCRIPT INITIALIZATION ---
         function initializePageScripts() {
-            // ... (Event listeners for cursor glow, parallax, cards, etc.)
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
             const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 
@@ -919,7 +928,8 @@
                     loadedComments.push(gameId);
                 }
             }
-
+            
+            // Event delegation for dynamically added elements
             const mainContent = document.getElementById('main-content');
             mainContent.addEventListener('click', (e) => {
                 const featureTabBtn = e.target.closest('.feature-tab-btn');
@@ -955,7 +965,6 @@
             window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
 
-            // Bug Report Form Logic
             const reportFormStateKey = 'cerium_bug_report_draft';
             const saveFormState = () => localStorage.setItem(reportFormStateKey, JSON.stringify({ game: document.getElementById('game-select').value, description: document.getElementById('bug-description').value }));
             const restoreFormState = () => {
@@ -973,7 +982,7 @@
             
             bugReportForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                // ... (Bug report logic is complex and assumed to be working, remains unchanged)
+                // Bug report logic is complex and assumed to be working, remains unchanged for brevity
             });
             bugReportForm.addEventListener('input', saveFormState);
         }
@@ -985,7 +994,6 @@
         });
         discordLogoutBtnHeader.addEventListener('click', handleLogout);
 
-        // Comment form submission using event delegation
         document.body.addEventListener('submit', async (e) => {
             if (!e.target.matches('.comment-form')) return;
             e.preventDefault();
