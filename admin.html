@@ -60,6 +60,12 @@
         .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 15px; border-bottom: 1px solid var(--color-card-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-heading); opacity: 0.8; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        
+        /* THIS IS THE FIX */
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 6px 14px; font-size: 0.9rem; border-radius: 8px; }
         .status-indicator { font-size: 1.2rem; }
@@ -339,7 +345,7 @@
                 allGamesData = await response.json();
                 renderGamesTable(allGamesData);
             } catch (error) {
-                gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`;
+                gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down); padding: 40px;">${error.message}</td></tr>`;
             }
         };
 
@@ -352,7 +358,7 @@
             games.sort((a, b) => a.display_order - b.display_order);
             games.forEach(game => {
                 const row = document.createElement('tr');
-                const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished"></i>';
+                const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published" title="Published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished" title="Not Published"></i>';
                 row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td>${game.status}</td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i></button><button class="btn btn-danger delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i></button></td>`;
                 gamesTableBody.appendChild(row);
             });
@@ -382,6 +388,27 @@
         };
 
         const closeFormModal = () => gameFormModal.classList.remove('visible');
+
+        const handleDeleteGameClick = async (e) => {
+            const gameId = e.currentTarget.dataset.id;
+            const game = allGamesData.find(g => g.id == gameId);
+            if (!game || !confirm(`Are you sure you want to delete "${game.name}"? This action cannot be undone.`)) return;
+
+            try {
+                const response = await fetch('/api/admin', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameId, user: getCurrentUser() })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Failed to delete game.');
+                }
+                await fetchAndRenderGames();
+            } catch (error) {
+                alert(`Error deleting game: ${error.message}`);
+            }
+        };
         
         // --- COMMENT MANAGEMENT ---
         const fetchAndRenderComments = async () => {
@@ -395,7 +422,7 @@
                 const comments = await response.json();
                 renderCommentsTable(comments);
             } catch (error) {
-                commentsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`;
+                commentsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down); padding: 40px;">${error.message}</td></tr>`;
             }
         };
 
@@ -446,13 +473,13 @@
 
         gamesTableBody.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
-            if (editBtn) openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id));
+            if (editBtn) {
+                openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id));
+                return;
+            }
             const deleteBtn = e.target.closest('.delete-btn');
             if (deleteBtn) {
-                const game = allGamesData.find(g => g.id == deleteBtn.dataset.id);
-                if (game && confirm(`Delete "${game.name}"?`)) {
-                    // Similar logic to handleDeleteCommentClick can be implemented here for games
-                }
+                handleDeleteGameClick({ currentTarget: deleteBtn });
             }
         });
 
