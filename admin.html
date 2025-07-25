@@ -178,7 +178,6 @@
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
-        
         const discordLoginBtn = document.getElementById('discord-login-btn');
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
         const logoutBtnDenied = document.getElementById('logout-btn-denied');
@@ -398,9 +397,8 @@
             });
         };
         const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
-            const endpoint = (action === 'warn') ? '/api/admin-warn-user' : '/api/admin-moderate-user';
             try {
-                const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
+                const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json();
                 showToast(result.message);
@@ -419,6 +417,7 @@
             moderateModal.classList.add('visible');
         };
         const closeModerateModal = () => moderateModal.classList.remove('visible');
+        
         const openUserDetailsModal = async (user) => {
             userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>';
             userDetailsModal.classList.add('visible');
@@ -444,7 +443,7 @@
         userDetailsModalClose.addEventListener('click', closeUserDetailsModal);
         moderateModalClose.addEventListener('click', closeModerateModal);
         moderateModalCancel.addEventListener('click', closeModerateModal);
-        document.addEventListener('keydown', (e) => { if (e.key === "Escape" && (gameFormModal.classList.contains('visible') || moderateModal.classList.contains('visible') || userDetailsModal.classList.contains('visible'))) { closeFormModal(); closeModerateModal(); closeUserDetailsModal(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === "Escape") { closeFormModal(); closeModerateModal(); closeUserDetailsModal(); } });
         
         gamesTableBody.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');

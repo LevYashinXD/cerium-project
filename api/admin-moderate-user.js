@@ -6,6 +6,17 @@ function isAdmin(user) {
   return adminIds.includes(user.id);
 }
 
+async function logAction(sql, adminUser, action_type, target_id, reason) {
+  try {
+    await sql`
+      INSERT INTO audit_log (admin_discord_id, admin_username, action_type, target_id, reason)
+      VALUES (${adminUser.id}, ${adminUser.username}, ${action_type}, ${target_id}, ${reason})
+    `;
+  } catch (error) {
+    console.error("Audit logging failed:", error);
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -26,41 +37,45 @@ export default async function handler(req, res) {
 
     switch (action) {
       case 'ban':
-        // UPSERT: Inserts a user if they don't exist, then bans them. Updates if they do.
         await sql`
           INSERT INTO users (discord_id, username, is_banned, moderation_reason)
           VALUES (${targetUser.discord_id}, ${targetUser.username}, true, ${finalReason})
           ON CONFLICT (discord_id) DO UPDATE SET
-            is_banned = true,
-            suspension_expires_at = NULL,
-            moderation_reason = EXCLUDED.moderation_reason,
-            username = EXCLUDED.username;
+            is_banned = true, suspension_expires_at = NULL,
+            moderation_reason = EXCLUDED.moderation_reason, username = EXCLUDED.username;
         `;
+        await logAction(sql, user, 'ban_user', targetUser.discord_id, finalReason);
         return res.status(200).json({ message: 'User has been banned.' });
       
       case 'suspend':
         if (!duration_hours || duration_hours <= 0) {
             return res.status(400).json({ error: 'A positive duration is required.' });
         }
-        // UPSERT: Inserts a user if they don't exist, then suspends them.
         await sql`
           INSERT INTO users (discord_id, username, suspension_expires_at, is_banned, moderation_reason)
           VALUES (${targetUser.discord_id}, ${targetUser.username}, NOW() + (interval '1 hour' * ${duration_hours}), false, ${finalReason})
           ON CONFLICT (discord_id) DO UPDATE SET
-            suspension_expires_at = NOW() + (interval '1 hour' * ${duration_hours}),
-            is_banned = false,
-            moderation_reason = EXCLUDED.moderation_reason,
-            username = EXCLUDED.username;
+            suspension_expires_at = NOW() + (interval '1 hour' * ${duration_hours}), is_banned = false,
+            moderation_reason = EXCLUDED.moderation_reason, username = EXCLUDED.username;
         `;
+        await logAction(sql, user, 'suspend_user', targetUser.discord_id, `Suspended for ${duration_hours}h. Reason: ${finalReason}`);
         return res.status(200).json({ message: `User suspended for ${duration_hours} hours.` });
 
       case 'unban':
-        // Unbanning can be a simple UPDATE, as the user must exist to be banned/suspended.
         await sql`
-          UPDATE users 
-          SET is_banned = false, suspension_expires_at = NULL, moderation_reason = NULL 
+          UPDATE users SET is_banned = false, suspension_expires_at = NULL, moderation_reason = NULL 
           WHERE discord_id = ${targetUser.discord_id}`;
+        await logAction(sql, user, 'unban_user', targetUser.discord_id, 'Restrictions removed');
         return res.status(200).json({ message: 'User restrictions have been removed.' });
+
+      case 'warn':
+        // This is the new action handler
+        await sql`
+          INSERT INTO warns (user_id, admin_id, admin_username, reason)
+          VALUES (${targetUser.discord_id}, ${user.id}, ${user.username}, ${finalReason})
+        `;
+        await logAction(sql, user, 'warn_user', targetUser.discord_id, `Warned user. Reason: ${finalReason}`);
+        return res.status(200).json({ message: 'User has been warned.' });
 
       default:
         return res.status(400).json({ error: 'Invalid action specified.' });
