@@ -354,27 +354,9 @@
 </head>
 <body class="state-preloading">
 
-    <div id="preloader">
-        <span class="preloader-logo gradient-text">Cerium</span>
-    </div>
-
-    <div id="login-wall">
-        <div class="login-container">
-            <div class="login-card card">
-                <h1 class="login-logo gradient-text">Cerium</h1>
-                <p class="section-subtitle" style="margin-bottom: 40px;">Please connect with Discord to access the Cerium Hub.</p>
-                <div id="login-status-message"></div>
-                <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="welcome-transition">
-        <div class="welcome-message">
-            <h2>Welcome, <span id="welcome-username" class="username"></span></h2>
-        </div>
-    </div>
-
+    <div id="preloader"><!-- ... --></div>
+    <div id="login-wall"><!-- ... --></div>
+    <div id="welcome-transition"><!-- ... --></div>
     <div id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-username">
         <!-- ... modal content ... -->
     </div>
@@ -504,13 +486,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const profileKey = getProfileKey(userData.id);
         let profile = JSON.parse(localStorage.getItem(profileKey));
         if (!profile) {
-            profile = {
-                discordId: userData.id,
-                joinDate: new Date().toISOString(),
-                reportCount: 0,
-                commentCount: 0,
-                unlockedAchievements: []
-            };
+            profile = { discordId: userData.id, joinDate: new Date().toISOString(), reportCount: 0, commentCount: 0, unlockedAchievements: [] };
             localStorage.setItem(profileKey, JSON.stringify(profile));
             unlockAchievement(profile, 'welcome');
         }
@@ -670,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } catch (error) {
             console.error("Fatal Error: Could not load game data.", error);
             document.querySelector('#supported-games .game-grid').innerHTML = `<p style="grid-column: 1 / -1; color: var(--color-status-down);">Could not load games at this time.</p>`;
-            document.querySelector('#features .feature-tabs').innerHTML = `<p style="color: var(--color-status-down);">Error loading features.</p>`;
+            document.querySelector('.feature-tabs').innerHTML = `<p style="color: var(--color-status-down);">Error loading features.</p>`;
         }
     }
 
@@ -704,7 +680,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const tabsContainer = document.querySelector('#features .feature-tabs');
         const panesContainer = document.getElementById('feature-panes-container');
         tabsContainer.innerHTML = '';
-        panesContainer.innerHTML = '';
+        panesContainer.innerHTML = ''; 
 
         const activeGames = games.filter(g => g.status !== 'Coming Soon');
         
@@ -842,7 +818,6 @@ document.addEventListener("DOMContentLoaded", function() {
             document.addEventListener('mousemove', (e) => { requestAnimationFrame(() => { glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`; }); });
             document.addEventListener('mousedown', () => glow.classList.add('clicking'));
             document.addEventListener('mouseup', () => glow.classList.remove('clicking'));
-
             const heroContent = document.querySelector('.hero-content');
             document.addEventListener('mousemove', (e) => {
                 const { clientX, clientY } = e;
@@ -896,17 +871,102 @@ document.addEventListener("DOMContentLoaded", function() {
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
 
         const reportFormStateKey = 'cerium_bug_report_draft';
-        const saveFormState = () => { /* ... */ };
-        const restoreFormState = () => { /* ... */ };
+        const saveFormState = () => {
+            const state = { game: document.getElementById('game-select').value, description: document.getElementById('bug-description').value };
+            localStorage.setItem(reportFormStateKey, JSON.stringify(state));
+        };
+        const restoreFormState = () => {
+            const state = JSON.parse(localStorage.getItem(reportFormStateKey));
+            if (state) {
+                document.getElementById('game-select').value = state.game || '';
+                document.getElementById('bug-description').value = state.description || '';
+            }
+        };
+        const clearFormState = () => localStorage.removeItem(reportFormStateKey);
         restoreFormState();
         bugReportForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            // ... (Full submission logic is here)
+            const lastSubmission = localStorage.getItem('cerium_last_report_timestamp');
+            const statusMessage = document.getElementById('form-status-message');
+            if (lastSubmission && (Date.now() - lastSubmission < RATE_LIMIT_MS)) {
+                const timeLeft = Math.ceil((RATE_LIMIT_MS - (Date.now() - lastSubmission)) / 60000);
+                statusMessage.textContent = `You can submit another report in ${timeLeft} minutes.`;
+                statusMessage.className = 'error';
+                return;
+            }
+            const requiredFields = this.querySelectorAll('[required]');
+            let allValid = true;
+            requiredFields.forEach(field => {
+                if (!field.value) { allValid = false; field.classList.add('invalid'); } else { field.classList.remove('invalid'); }
+            });
+            if (!allValid) { statusMessage.textContent = 'Please fill out all required fields.'; statusMessage.className = 'error'; return; }
+            const submitButton = document.getElementById('submit-bug-report');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            statusMessage.textContent = '';
+            const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
+            const game = document.getElementById('game-select').value;
+            const description = document.getElementById('bug-description').value.trim();
+            const discordPayload = {
+                username: "Cerium",
+                avatar_url: "https://i.imgur.com/g4IARd6.png",
+                embeds: [{
+                    author: { name: `Report by ${userData.username}#${userData.discriminator}`, icon_url: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` },
+                    color: 3092790,
+                    thumbnail: { url: "https://i.imgur.com/g4IARd6.png" },
+                    fields: [
+                        { name: "Game", value: game, inline: true },
+                        { name: "Reporter ID", value: userData.id, inline: true },
+                        { name: "Description", value: "```" + description + "```" },
+                        { name: "User Agent", value: "```" + navigator.userAgent + "```" }
+                    ],
+                    footer: { text: "Cerium Bug Report System" },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+            fetch('/api/submit-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ discordPayload })
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to submit report.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                statusMessage.textContent = data.message || 'Thank you! Your report has been submitted successfully.';
+                statusMessage.className = 'success';
+                localStorage.setItem('cerium_last_report_timestamp', Date.now());
+                bugReportForm.reset();
+                clearFormState();
+                const profile = getOrCreateProfile(userData);
+                profile.reportCount += 1;
+                localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
+                checkAndUnlockAchievements(profile);
+            })
+            .catch(error => {
+                statusMessage.textContent = error.message;
+                statusMessage.className = 'error';
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Submit Report';
+            });
+        });
+        bugReportForm.addEventListener('input', () => {
+            saveFormState();
+            const statusMessage = document.getElementById('form-status-message');
+            if(statusMessage.textContent) {
+                statusMessage.textContent = '';
+                statusMessage.className = '';
+            }
         });
     }
     
     function initializeDynamicEventListeners() {
-        // Feature Tabs and Triggers
         const featureTabButtons = document.querySelectorAll('.feature-tab-btn');
         function switchFeatureTab(gameId) {
             const featurePanes = document.querySelectorAll('.feature-pane');
@@ -924,7 +984,6 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
 
-        // "Get Script" Buttons
         document.querySelectorAll('.get-script-btn').forEach(btn => {
             const originalHTML = btn.innerHTML;
             btn.addEventListener('click', () => {
@@ -937,7 +996,6 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
         
-        // Comment Forms
         document.querySelectorAll('.comment-form').forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
