@@ -21,7 +21,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text); line-height: 1.7; }
-        .btn { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 1px solid var(--color-card-border); cursor: pointer; white-space: nowrap; }
+        .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 1px solid var(--color-card-border); cursor: pointer; white-space: nowrap; }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
         .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 20px -5px var(--color-glow); }
         .btn-secondary { background-color: var(--color-card-bg); color: var(--color-heading); }
@@ -58,28 +58,22 @@
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { font-size: 2.5rem; }
 
-        /* --- Games Table Styles (unchanged) --- */
+        /* --- Games Table Styles --- */
         .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 15px; border-bottom: 1px solid var(--color-card-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-heading); opacity: 0.8; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .table tbody tr:last-child td { border-bottom: none; }
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 6px 14px; font-size: 0.9rem; border-radius: 8px; }
+        /* NEW RULE FOR THE CIRCULAR DELETE BUTTON */
+        .table .delete-btn { width: 36px; height: 36px; padding: 0; }
         .status-indicator { font-size: 1.2rem; }
         .status-indicator.published { color: var(--color-status-up); }
         .status-indicator.unpublished { color: var(--color-status-down); }
 
-        /* --- NEW: Message Card Styles --- */
+        /* --- Message Card Styles --- */
         .comments-list-admin { display: flex; flex-direction: column; gap: 15px; }
-        .comment-card-admin {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--color-card-border);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
+        .comment-card-admin { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-card-border); border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: flex-start; }
         .comment-card-admin-avatar { width: 40px; height: 40px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content { flex-grow: 1; }
         .comment-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: var(--color-text); font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
@@ -88,10 +82,9 @@
         .comment-card-admin-meta strong { color: var(--color-heading); opacity: 1; }
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; }
         .comment-card-admin-actions { margin-left: auto; padding-left: 20px; }
-        .comment-card-admin-actions .btn { padding: 8px; width: 40px; height: 40px; } /* Makes it a circle */
+        .comment-card-admin-actions .btn { width: 40px; height: 40px; padding: 0; }
 
-
-        /* --- Modal Styles (unchanged) --- */
+        /* --- Modal Styles --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -159,16 +152,12 @@
                 <div class="content-header">
                     <h1>Comments</h1>
                 </div>
-                <!-- NEW STRUCTURE: A simple div container instead of a card/table -->
-                <div id="comments-container" class="comments-list-admin">
-                    <!-- JS will populate this with message cards -->
-                </div>
+                <div id="comments-container" class="comments-list-admin"></div>
             </div>
         </main>
     </div>
 
     <div id="game-form-modal" class="modal">
-        <!-- Game Form Modal remains the same -->
         <div class="modal-content">
             <span class="modal-close">×</span>
             <h2 id="modal-title" style="margin-bottom: 30px;"></h2>
@@ -219,7 +208,6 @@
         </div>
     </div>
 
-
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         // --- CONFIG & DOM ELEMENTS ---
@@ -252,8 +240,8 @@
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
         const timeAgo = (date) => {
             const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-            if (seconds < 60) return "Just now";
             const intervals = { d: 86400, h: 3600, m: 60 };
+            if (seconds < 60) return "Just now";
             for (let unit in intervals) {
                 let interval = seconds / intervals[unit];
                 if (interval > 1) return Math.floor(interval) + `${unit} ago`;
@@ -372,7 +360,7 @@
             games.forEach(game => {
                 const row = document.createElement('tr');
                 const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published" title="Published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished" title="Not Published"></i>';
-                row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td>${game.status}</td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i></button><button class="btn btn-danger delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i></button></td>`;
+                row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td>${game.status}</td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i></button><button class="btn btn-danger delete-btn" data-id="${game.id}"></button></td>`;
                 gamesTableBody.appendChild(row);
             });
         };
@@ -460,7 +448,7 @@
                         <p class="comment-card-admin-body"></p>
                     </div>
                     <div class="comment-card-admin-actions">
-                        <button class="btn btn-danger delete-comment-btn" data-id="${comment.id}"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-danger delete-comment-btn" data-id="${comment.id}"></button>
                     </div>`;
                 card.querySelector('.comment-card-admin-body').textContent = comment.content;
                 commentsContainer.appendChild(card);
