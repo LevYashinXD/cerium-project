@@ -105,6 +105,9 @@
         .toast { padding: 15px 25px; border-radius: 8px; font-weight: 600; color: black; animation: toast-in-out 4s ease forwards; }
         .toast.success { background-color: var(--color-status-up); }
         .toast.error { background-color: var(--color-status-down); }
+        .confirm-modal-content { max-width: 500px; text-align: center; }
+        .confirm-modal-content p { font-size: 1.1rem; margin: 20px 0 30px; }
+        .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
     </style>
 </head>
 <body class="state-loading">
@@ -172,6 +175,17 @@
         <div class="modal-content details-modal-content"><span class="modal-close">×</span><div id="user-details-content"></div></div>
     </div>
     
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content confirm-modal-content">
+            <h2 id="confirm-title">Are you sure?</h2>
+            <p id="confirm-text">This action cannot be undone.</p>
+            <div class="confirm-modal-actions">
+                <button id="confirm-cancel-btn" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-ok-btn" class="btn btn-danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <script>
@@ -179,7 +193,6 @@
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
-        
         const discordLoginBtn = document.getElementById('discord-login-btn');
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
         const logoutBtnDenied = document.getElementById('logout-btn-denied');
@@ -210,6 +223,11 @@
         const userDetailsModal = document.getElementById('user-details-modal');
         const userDetailsContent = document.getElementById('user-details-content');
         const userDetailsModalClose = userDetailsModal.querySelector('.modal-close');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmTitle = document.getElementById('confirm-title');
+        const confirmText = document.getElementById('confirm-text');
+        const confirmOkBtn = document.getElementById('confirm-ok-btn');
+        const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
 
         let allGamesData = [], allUsersData = [], allCommentsData = [], allBugReports = [], allAuditLogs = [];
 
@@ -230,7 +248,18 @@
             toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         };
-        
+        const showConfirmModal = (title, text) => {
+            return new Promise((resolve) => {
+                confirmTitle.textContent = title;
+                confirmText.textContent = text;
+                confirmModal.classList.add('visible');
+                const cleanup = () => { confirmOkBtn.removeEventListener('click', handleConfirm); confirmCancelBtn.removeEventListener('click', handleCancel); };
+                const handleConfirm = () => { confirmModal.classList.remove('visible'); resolve(true); cleanup(); };
+                const handleCancel = () => { confirmModal.classList.remove('visible'); resolve(false); cleanup(); };
+                confirmOkBtn.addEventListener('click', handleConfirm);
+                confirmCancelBtn.addEventListener('click', handleCancel);
+            });
+        };
         const handleLogout = () => { localStorage.removeItem('discord_user_v2'); setPageState('login'); };
         const verifyAdminStatus = async (user) => {
             if (!user) { setPageState('login'); return; }
@@ -266,7 +295,6 @@
         };
         
         const updateDashboardStats = () => { totalGamesEl.textContent = allGamesData.length; totalUsersEl.textContent = allUsersData.length; totalCommentsEl.textContent = allCommentsData.length; };
-
         tabButtons.forEach(button => { button.addEventListener('click', () => { const targetTab = button.dataset.tab; tabButtons.forEach(btn => btn.classList.remove('active')); tabPanes.forEach(pane => pane.classList.remove('active')); button.classList.add('active'); document.getElementById(`${targetTab}-view`).classList.add('active'); }); });
         
         const fetchAndRenderGames = async () => {
@@ -306,11 +334,13 @@
         const handleDeleteGameClick = async (e) => {
             const gameId = e.currentTarget.dataset.id;
             const game = allGamesData.find(g => g.id == gameId);
-            if (!game || !confirm(`Delete "${game.name}"?`)) return;
+            if (!game) return;
+            const confirmed = await showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "${game.name}"?`);
+            if (!confirmed) return;
             try {
                 const response = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId, gameName: game.name, user: getCurrentUser() }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to delete.'); }
-                showToast('Game deleted successfully.'); await fetchAndRenderGames();
+                showToast('Game deleted successfully.'); await fetchAndRenderGames(); await fetchAndRenderAuditLog();
             } catch (error) { showToast(error.message, true); }
         };
         
@@ -337,11 +367,13 @@
         };
         const handleDeleteCommentClick = async (e) => {
             const commentId = e.currentTarget.dataset.id;
-            if (!commentId || !confirm('Permanently delete this comment?')) return;
+            if (!commentId) return;
+            const confirmed = await showConfirmModal('Delete Comment?', 'Are you sure you want to permanently delete this comment?');
+            if (!confirmed) return;
             try {
                 const response = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId, user: getCurrentUser() }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Failed to delete.'); }
-                showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove();
+                showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove(); await fetchAndRenderAuditLog();
             } catch (error) { showToast(error.message, true); }
         };
 
@@ -478,7 +510,7 @@
             if (deleteBtn) { handleDeleteGameClick({ currentTarget: deleteBtn }); }
         });
         commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn }); });
-        usersContainer.addEventListener('click', (e) => {
+        usersContainer.addEventListener('click', async (e) => {
             const target = e.target.closest('button');
             const userCard = e.target.closest('.user-card-admin');
             if (!userCard) return;
@@ -489,7 +521,10 @@
                 if (target.classList.contains('warn-btn')) { openModerateModal(userToModerate, 'warn'); }
                 else if (target.classList.contains('ban-btn')) { openModerateModal(userToModerate, 'ban'); }
                 else if (target.classList.contains('suspend-btn')) { openModerateModal(userToModerate, 'suspend'); }
-                else if (target.classList.contains('unban-btn')) { if (confirm(`Remove restrictions for this user?`)) { moderateUser(userToModerate, 'unban'); } }
+                else if (target.classList.contains('unban-btn')) {
+                    const confirmed = await showConfirmModal('Remove Restrictions?', `Are you sure you want to unban/unsuspend ${userToModerate.username}?`);
+                    if (confirmed) { moderateUser(userToModerate, 'unban'); }
+                }
             } else { openUserDetailsModal(userToModerate); }
         });
         commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
