@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- Copied all styles from your index.html for consistency --- */
+        /* --- Base Styles for Consistency --- */
         :root {
             --color-background: #050505;
             --color-heading: #FFFFFF;
@@ -35,48 +35,57 @@
             line-height: 1.7; overflow-x: hidden;
             background-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 35%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%);
         }
-        .btn { position: relative; display: inline-block; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 1px solid var(--color-card-border); cursor: pointer; white-space: nowrap; overflow: hidden; backdrop-filter: blur(5px); }
+        .btn { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 1px solid var(--color-card-border); cursor: pointer; white-space: nowrap; overflow: hidden; backdrop-filter: blur(5px); }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
-        .btn-primary:hover { transform: translateY(-2px) scale(1.02); }
+        .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 20px -5px var(--color-glow); }
         .btn-secondary { background-color: var(--color-card-bg); color: var(--color-heading); }
-        .btn-secondary:hover { background-color: var(--color-card-border); }
-        .btn-danger { background-color: rgba(255, 51, 102, 0.1); color: var(--color-status-down); border-color: var(--color-status-down); }
-        .btn-danger:hover { background-color: rgba(255, 51, 102, 0.2); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-        .card { background: var(--color-card-bg); border-radius: var(--border-radius); padding: 40px; border: 1px solid var(--color-card-border); }
+        .btn-secondary:hover { background-color: var(--color-card-border); transform: translateY(-2px); }
+        .btn-danger { background-color: transparent; color: var(--color-status-down); border-color: rgba(255, 51, 102, 0.4); }
+        .btn-danger:hover { background-color: rgba(255, 51, 102, 0.15); border-color: var(--color-status-down); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .card { background: var(--color-card-bg); border-radius: var(--border-radius); padding: 40px; border: 1px solid var(--color-card-border); backdrop-filter: blur(10px); }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
         /* --- Admin-Specific Styles --- */
         #admin-auth-wall, #admin-panel { display: none; }
-        body.state-login #admin-auth-wall, body.state-denied #admin-auth-wall { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        body.state-admin #admin-panel { display: block; }
+        body.state-loading #admin-auth-wall, body.state-login #admin-auth-wall, body.state-denied #admin-auth-wall { 
+            display: flex; align-items: center; justify-content: center; min-height: 100vh; animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        body.state-admin #admin-panel { display: block; animation: fadeIn 0.5s ease; }
         .auth-container, .denied-container { text-align: center; max-width: 500px; padding: 20px; }
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
         body.state-denied #login-prompt { display: none; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; border-bottom: 1px solid var(--color-card-border); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; border-bottom: 1px solid var(--color-card-border); background: rgba(5,5,5,0.5); backdrop-filter: blur(10px); }
         .admin-user-info { display: flex; align-items: center; gap: 15px; }
         .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
         .admin-content { max-width: 1280px; margin: 40px auto; padding: 0 5%; }
-        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;}
         .content-header h1 { font-size: 2.5rem; }
         .games-table { width: 100%; border-collapse: collapse; text-align: left; }
         .games-table th, .games-table td { padding: 15px; border-bottom: 1px solid var(--color-card-border); }
-        .games-table th { font-weight: 600; color: var(--color-heading); opacity: 0.8; }
+        .games-table th { font-weight: 600; color: var(--color-heading); opacity: 0.8; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .games-table td { vertical-align: middle; }
         .games-table .actions { display: flex; gap: 10px; }
         .games-table .btn { padding: 6px 14px; font-size: 0.9rem; border-radius: 8px; }
 
         /* Form & Modal Styles */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
-        .modal.visible { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 600px; width: 90%; position: relative; }
+        .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+        .modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%; position: relative; animation: slideInUp 0.4s ease; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .modal-close { color: var(--color-text); float: right; font-size: 28px; font-weight: bold; position: absolute; top: 15px; right: 25px; transition: color 0.3s; cursor: pointer; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-heading); }
-        .form-group input[type="text"], .form-group input[type="url"], .form-group input[type="number"], .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-family: var(--font-family); font-size: 1rem; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--color-heading); }
-        .form-group-checkbox { display: flex; align-items: center; gap: 10px; }
+        .form-group input[type="text"], .form-group input[type="url"], .form-group input[type="number"], .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-family: var(--font-family); font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; }
+        .form-group textarea { resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--color-heading); box-shadow: 0 0 10px var(--color-glow); }
+        .form-group-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .form-group-checkbox input { width: 18px; height: 18px; }
+        .status-indicator { font-size: 1.2rem; }
+        .status-indicator.published { color: var(--color-status-up); }
+        .status-indicator.unpublished { color: var(--color-status-down); }
     </style>
 </head>
 <body class="state-loading">
@@ -91,9 +100,9 @@
             <div id="denied-message">
                 <h1 style="color: var(--color-status-down);">Access Denied</h1>
                 <p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized to access this panel.</p>
-                <button id="logout-btn-denied" class="btn btn-secondary">Logout</button>
+                <button id="logout-btn-denied" class="btn btn-secondary">Logout and Try Again</button>
             </div>
-            <p id="auth-status" style="margin-top: 20px;"></p>
+            <p id="auth-status" style="margin-top: 20px; min-height: 20px;"></p>
         </div>
     </div>
 
@@ -112,7 +121,7 @@
                 <h1>Game Management</h1>
                 <button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button>
             </div>
-            <div class="card" style="padding: 20px;">
+            <div class="card" style="padding: 20px; overflow-x: auto;">
                 <table class="games-table">
                     <thead>
                         <tr>
@@ -125,7 +134,6 @@
                     </thead>
                     <tbody id="games-table-body">
                         <!-- JS will populate this -->
-                        <tr><td colspan="5" style="text-align:center; padding: 40px;">Loading games...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -141,23 +149,23 @@
                 <input type="hidden" id="game-id" name="gameId">
                 <div class="form-group">
                     <label for="game-name">Game Name</label>
-                    <input type="text" id="game-name" required>
+                    <input type="text" id="game-name" placeholder="e.g., Realistic Street Soccer" required>
                 </div>
                 <div class="form-group">
                     <label for="game-status">Status</label>
-                    <input type="text" id="game-status" placeholder="e.g., Operational, Maintenance" required>
+                    <input type="text" id="game-status" placeholder="e.g., Operational, Maintenance, Coming Soon" required>
                 </div>
                 <div class="form-group">
                     <label for="thumbnail-url">Thumbnail URL</label>
                     <input type="url" id="thumbnail-url" placeholder="https://tr.rbxcdn.com/...">
                 </div>
                 <div class="form-group">
-                    <label for="loadstring">Loadstring (optional)</label>
-                    <textarea id="loadstring" rows="3"></textarea>
+                    <label for="loadstring">Loadstring (Optional)</label>
+                    <textarea id="loadstring" rows="2"></textarea>
                 </div>
                  <div class="form-group">
-                    <label for="topic-id">Topic ID</label>
-                    <input type="text" id="topic-id" placeholder="Unique ID for comments, e.g., 'rss'" required>
+                    <label for="topic-id">Topic ID (for comments, must be unique)</label>
+                    <input type="text" id="topic-id" placeholder="e.g., 'rss', 'tps_soccer'" required>
                 </div>
                 <div style="display: flex; gap: 20px;">
                     <div class="form-group" style="flex: 1;">
@@ -171,10 +179,15 @@
                         </label>
                     </div>
                 </div>
+                 <div class="form-group">
+                    <label for="features-html">Features HTML (Optional, leave blank if Coming Soon)</label>
+                    <textarea id="features-html" rows="8" placeholder="Paste the full HTML for the feature pane here..."></textarea>
+                </div>
                 <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
                     <button type="button" id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Game</button>
                 </div>
+                <p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p>
             </form>
         </div>
     </div>
@@ -194,14 +207,13 @@
         const authStatus = document.getElementById('auth-status');
         const gamesTableBody = document.getElementById('games-table-body');
         
-        // Modal Elements
         const gameFormModal = document.getElementById('game-form-modal');
         const gameForm = document.getElementById('game-form');
         const modalTitle = document.getElementById('modal-title');
         const addNewGameBtn = document.getElementById('add-new-game-btn');
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
-
+        const formError = document.getElementById('form-error');
 
         // --- STATE MANAGEMENT ---
         const setPageState = (state) => {
@@ -210,8 +222,13 @@
         };
 
         const getCurrentUser = () => {
-            const user = localStorage.getItem('discord_user_v2');
-            return user ? JSON.parse(user) : null;
+            try {
+                const user = localStorage.getItem('discord_user_v2');
+                return user ? JSON.parse(user) : null;
+            } catch (e) {
+                localStorage.removeItem('discord_user_v2');
+                return null;
+            }
         };
 
         // --- AUTHENTICATION FLOW ---
@@ -234,13 +251,16 @@
             }
             authStatus.textContent = 'Verifying permissions...';
             try {
-                const response = await fetch('/api/check-admin', {
+                const response = await fetch(`/api/check-admin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: user.id })
                 });
 
-                if (!response.ok) throw new Error('Could not connect to verification service.');
+                if (!response.ok) {
+                     const errorData = await response.json();
+                     throw new Error(errorData.error || 'Could not connect to verification service.');
+                }
                 const data = await response.json();
 
                 if (data.isAdmin) {
@@ -251,7 +271,6 @@
 
             } catch (error) {
                 authStatus.textContent = `Error: ${error.message}`;
-                setPageState('login');
             }
         };
 
@@ -283,7 +302,6 @@
                 } catch (error) {
                     authStatus.textContent = `Login failed: ${error.message}`;
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    setPageState('login');
                 }
             } else {
                 await verifyAdminStatus(getCurrentUser());
@@ -297,17 +315,23 @@
         const fetchAndRenderGames = async () => {
             gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">Loading games...</td></tr>';
             try {
-                const user = getCurrentUser();
+                const currentUser = getCurrentUser();
+                if (!currentUser) throw new Error("Not logged in.");
+
                 const response = await fetch('/api/admin', {
-                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
-                        // The backend needs to know who is asking
-                        'X-User-Data': JSON.stringify(user) 
-                    },
+                        'X-User-Data': JSON.stringify(currentUser)
+                    }
                 });
-                if (response.status === 403) throw new Error('Forbidden. You do not have permission.');
-                if (!response.ok) throw new Error('Failed to fetch games.');
+
+                if (response.status === 403) {
+                     await verifyAdminStatus(currentUser); // Re-verify auth on failure
+                     throw new Error('Authorization failed. Please log in again.');
+                }
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Failed to fetch games.');
+                }
 
                 allGamesData = await response.json();
                 renderGamesTable(allGamesData);
@@ -318,18 +342,23 @@
 
         const renderGamesTable = (games) => {
             gamesTableBody.innerHTML = '';
-            if (games.length === 0) {
-                 gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">No games found. Add one!</td></tr>';
+            if (!games || games.length === 0) {
+                 gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">No games found. Click "Add New Game" to start.</td></tr>';
                  return;
             }
 
+            games.sort((a, b) => a.display_order - b.display_order);
+
             games.forEach(game => {
                 const row = document.createElement('tr');
+                const publishedIcon = game.is_published 
+                    ? '<i class="fas fa-check-circle status-indicator published" title="Published"></i>' 
+                    : '<i class="fas fa-times-circle status-indicator unpublished" title="Not Published"></i>';
                 row.innerHTML = `
                     <td>${game.display_order}</td>
                     <td>${game.name}</td>
                     <td>${game.status}</td>
-                    <td>${game.is_published ? '<i class="fas fa-check-circle" style="color: var(--color-status-up);"></i>' : '<i class="fas fa-times-circle" style="color: var(--color-status-down);"></i>'}</td>
+                    <td>${publishedIcon}</td>
                     <td class="actions">
                         <button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i> Edit</button>
                         <button class="btn btn-danger delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i> Delete</button>
@@ -337,27 +366,28 @@
                 `;
                 gamesTableBody.appendChild(row);
             });
-
-            // Add event listeners to the new buttons
-            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleEditClick));
-            document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteClick));
         };
         
         const openFormModal = (game = null) => {
             gameForm.reset();
+            formError.textContent = '';
             if (game) { // Editing existing game
                 modalTitle.textContent = "Edit Game";
                 document.getElementById('game-id').value = game.id;
-                document.getElementById('game-name').value = game.name;
-                document.getElementById('game-status').value = game.status;
-                document.getElementById('thumbnail-url').value = game.thumbnail_url;
-                document.getElementById('loadstring').value = game.loadstring;
-                document.getElementById('topic-id').value = game.topic_id;
-                document.getElementById('display-order').value = game.display_order;
+                document.getElementById('game-name').value = game.name || '';
+                document.getElementById('game-status').value = game.status || '';
+                document.getElementById('thumbnail-url').value = game.thumbnail_url || '';
+                document.getElementById('loadstring').value = game.loadstring || '';
+                document.getElementById('topic-id').value = game.topic_id || '';
+                document.getElementById('display-order').value = game.display_order || 99;
                 document.getElementById('is-published').checked = game.is_published;
+                document.getElementById('features-html').value = game.features_html || '';
             } else { // Adding new game
                 modalTitle.textContent = "Add New Game";
                 document.getElementById('game-id').value = '';
+                // Set defaults for new game
+                document.getElementById('display-order').value = 99;
+                document.getElementById('is-published').checked = false;
             }
             gameFormModal.classList.add('visible');
         };
@@ -375,7 +405,7 @@
         const handleDeleteClick = async (e) => {
             const gameId = e.currentTarget.dataset.id;
             const game = allGamesData.find(g => g.id == gameId);
-            if (!confirm(`Are you sure you want to delete "${game.name}"?`)) return;
+            if (!game || !confirm(`Are you sure you want to delete "${game.name}"? This action cannot be undone.`)) return;
 
             try {
                 const response = await fetch('/api/admin', {
@@ -383,10 +413,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ gameId, user: getCurrentUser() })
                 });
-                if (!response.ok) throw new Error('Failed to delete game.');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Failed to delete game.');
+                }
                 await fetchAndRenderGames(); // Refresh list
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                alert(`Error deleting game: ${error.message}`);
             }
         };
 
@@ -394,50 +427,74 @@
             e.preventDefault();
             const submitButton = e.currentTarget.querySelector('button[type="submit"]');
             submitButton.disabled = true;
-            submitButton.textContent = 'Saving...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            formError.textContent = '';
 
             const gameId = document.getElementById('game-id').value;
             const gameData = {
-                name: document.getElementById('game-name').value,
-                status: document.getElementById('game-status').value,
-                thumbnail_url: document.getElementById('thumbnail-url').value,
-                loadstring: document.getElementById('loadstring').value,
-                topic_id: document.getElementById('topic-id').value,
-                display_order: parseInt(document.getElementById('display-order').value, 10),
+                name: document.getElementById('game-name').value.trim(),
+                status: document.getElementById('game-status').value.trim(),
+                thumbnail_url: document.getElementById('thumbnail-url').value.trim(),
+                loadstring: document.getElementById('loadstring').value.trim(),
+                topic_id: document.getElementById('topic-id').value.trim(),
+                display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
                 is_published: document.getElementById('is-published').checked,
+                features_html: document.getElementById('features-html').value.trim(),
             };
 
             const isEditing = !!gameId;
             const url = '/api/admin';
             const method = isEditing ? 'PUT' : 'POST';
-            const body = { gameData, user: getCurrentUser() };
+            
+            const bodyPayload = {
+                gameData,
+                user: getCurrentUser()
+            };
             if (isEditing) {
-                body.gameId = gameId;
+                bodyPayload.gameId = gameId;
             }
 
             try {
                 const response = await fetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(bodyPayload)
                 });
-                if (!response.ok) throw new Error('Failed to save game data.');
-
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Failed to save game data.');
+                }
                 closeFormModal();
                 await fetchAndRenderGames();
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                formError.textContent = error.message;
             } finally {
                 submitButton.disabled = false;
-                submitButton.textContent = 'Save Game';
+                submitButton.innerHTML = 'Save Game';
             }
         });
 
         addNewGameBtn.addEventListener('click', () => openFormModal());
         modalCloseBtn.addEventListener('click', closeFormModal);
         modalCancelBtn.addEventListener('click', closeFormModal);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape" && gameFormModal.classList.contains('visible')) {
+                closeFormModal();
+            }
+        });
+
+        gamesTableBody.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-btn');
+            if (editBtn) {
+                handleEditClick({ currentTarget: editBtn });
+                return;
+            }
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                handleDeleteClick({ currentTarget: deleteBtn });
+            }
+        });
         
-        // --- INITIALIZATION ---
         handleOAuthCallback();
     });
     </script>
