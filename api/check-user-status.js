@@ -12,8 +12,6 @@ export default async function handler(req, res) {
     }
 
     const sql = neon(process.env.POSTGRES_URL);
-    
-    // Fetch the new moderation_reason column
     const [user] = await sql`SELECT is_banned, suspension_expires_at, moderation_reason FROM users WHERE discord_id = ${userId}`;
 
     if (!user) {
@@ -23,13 +21,12 @@ export default async function handler(req, res) {
     if (user.is_banned) {
       return res.status(200).json({ status: 'banned', reason: user.moderation_reason });
     }
-    
+
     if (user.suspension_expires_at && new Date(user.suspension_expires_at) > new Date()) {
       return res.status(200).json({ status: 'suspended', expires: user.suspension_expires_at, reason: user.moderation_reason });
     }
 
     return res.status(200).json({ status: 'ok' });
-
   } catch (error) {
     console.error('Check User Status API Error:', error);
     return res.status(200).json({ status: 'ok' });

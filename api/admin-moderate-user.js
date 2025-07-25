@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Forbidden: Admin access required.' });
     }
     if (!targetUser || !targetUser.discord_id || !targetUser.username || !action) {
-        return res.status(400).json({ error: 'Target user object and action are required.' });
+      return res.status(400).json({ error: 'Target user object and action are required.' });
     }
 
     const sql = neon(process.env.POSTGRES_URL);
@@ -46,10 +46,10 @@ export default async function handler(req, res) {
         `;
         await logAction(sql, user, 'ban_user', targetUser.discord_id, finalReason);
         return res.status(200).json({ message: 'User has been banned.' });
-      
+
       case 'suspend':
         if (!duration_hours || duration_hours <= 0) {
-            return res.status(400).json({ error: 'A positive duration is required.' });
+          return res.status(400).json({ error: 'A positive duration is required.' });
         }
         await sql`
           INSERT INTO users (discord_id, username, suspension_expires_at, is_banned, moderation_reason)
@@ -69,7 +69,6 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'User restrictions have been removed.' });
 
       case 'warn':
-        // This is the new action handler
         await sql`
           INSERT INTO warns (user_id, admin_id, admin_username, reason)
           VALUES (${targetUser.discord_id}, ${user.id}, ${user.username}, ${finalReason})
