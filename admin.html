@@ -46,7 +46,6 @@
         .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
         .admin-content { max-width: 1280px; margin: 40px auto; padding: 0 5%; }
         
-        /* --- Tab System --- */
         .admin-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--color-card-border); margin-bottom: 30px; }
         .admin-tab-btn { background: transparent; border: none; color: var(--color-text); padding: 15px 25px; font-size: 1rem; font-weight: 600; cursor: pointer; position: relative; transition: color 0.3s; }
         .admin-tab-btn::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 2px; background: var(--primary-gradient); transition: width 0.3s ease; }
@@ -54,37 +53,32 @@
         .admin-tab-btn.active::after { width: 100%; }
         .admin-tab-pane { display: none; animation: fadeIn 0.4s ease; }
         .admin-tab-pane.active { display: block; }
-
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { font-size: 2.5rem; }
 
-        /* --- Games Table Styles --- */
         .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 15px; border-bottom: 1px solid var(--color-card-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-heading); opacity: 0.8; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .table tbody tr:last-child td { border-bottom: none; }
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 6px 14px; font-size: 0.9rem; border-radius: 8px; }
-        /* NEW RULE FOR THE CIRCULAR DELETE BUTTON */
         .table .delete-btn { width: 36px; height: 36px; padding: 0; }
-        .status-indicator { font-size: 1.2rem; }
         .status-indicator.published { color: var(--color-status-up); }
         .status-indicator.unpublished { color: var(--color-status-down); }
-
-        /* --- Message Card Styles --- */
-        .comments-list-admin { display: flex; flex-direction: column; gap: 15px; }
-        .comment-card-admin { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-card-border); border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: flex-start; }
-        .comment-card-admin-avatar { width: 40px; height: 40px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-        .comment-card-admin-content { flex-grow: 1; }
-        .comment-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: var(--color-text); font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
-        .comment-card-admin-author { font-weight: 700; color: var(--color-heading); font-size: 1rem; }
-        .comment-card-admin-meta span { margin-left: 15px; opacity: 0.7; }
-        .comment-card-admin-meta strong { color: var(--color-heading); opacity: 1; }
+        
+        .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 15px; }
+        .comment-card-admin, .user-card-admin { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-card-border); border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: flex-start; }
+        .comment-card-admin-avatar, .user-card-admin-avatar { width: 40px; height: 40px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
+        .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: var(--color-text); font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
+        .comment-card-admin-author, .user-card-admin-author { font-weight: 700; color: var(--color-heading); font-size: 1rem; }
+        .comment-card-admin-meta span, .user-card-admin-meta span { margin-left: 15px; opacity: 0.7; }
+        .user-card-admin-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+        .comment-card-admin-meta strong, .user-card-admin-meta strong { color: var(--color-heading); opacity: 1; }
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; }
         .comment-card-admin-actions { margin-left: auto; padding-left: 20px; }
         .comment-card-admin-actions .btn { width: 40px; height: 40px; padding: 0; }
 
-        /* --- Modal Styles --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -110,7 +104,7 @@
             </div>
             <div id="denied-message">
                 <h1 style="color: var(--color-status-down);">Access Denied</h1>
-                <p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized to access this panel.</p>
+                <p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized.</p>
                 <button id="logout-btn-denied" class="btn btn-secondary">Logout and Try Again</button>
             </div>
             <p id="auth-status" style="margin-top: 20px; min-height: 20px;"></p>
@@ -131,6 +125,7 @@
             <div class="admin-tabs">
                 <button class="admin-tab-btn active" data-tab="games">Game Management</button>
                 <button class="admin-tab-btn" data-tab="messages">Message Manager</button>
+                <button class="admin-tab-btn" data-tab="users">User Management</button>
             </div>
 
             <div id="games-view" class="admin-tab-pane active">
@@ -149,10 +144,13 @@
             </div>
 
             <div id="messages-view" class="admin-tab-pane">
-                <div class="content-header">
-                    <h1>Comments</h1>
-                </div>
+                <div class="content-header"><h1>Comments</h1></div>
                 <div id="comments-container" class="comments-list-admin"></div>
+            </div>
+            
+            <div id="users-view" class="admin-tab-pane">
+                <div class="content-header"><h1>Users</h1></div>
+                <div id="users-container" class="users-list-admin"></div>
             </div>
         </main>
     </div>
@@ -165,15 +163,15 @@
                  <input type="hidden" id="game-id" name="gameId">
                 <div class="form-group">
                     <label for="game-name">Game Name</label>
-                    <input type="text" id="game-name" placeholder="e.g., Realistic Street Soccer" required>
+                    <input type="text" id="game-name" required>
                 </div>
                 <div class="form-group">
                     <label for="game-status">Status</label>
-                    <input type="text" id="game-status" placeholder="e.g., Operational, Maintenance, Coming Soon" required>
+                    <input type="text" id="game-status" required>
                 </div>
                 <div class="form-group">
                     <label for="thumbnail-url">Thumbnail URL</label>
-                    <input type="url" id="thumbnail-url" placeholder="https://tr.rbxcdn.com/...">
+                    <input type="url" id="thumbnail-url">
                 </div>
                 <div class="form-group">
                     <label for="loadstring">Loadstring (Optional)</label>
@@ -181,7 +179,7 @@
                 </div>
                  <div class="form-group">
                     <label for="topic-id">Topic ID (for comments, must be unique)</label>
-                    <input type="text" id="topic-id" placeholder="e.g., 'rss', 'tps_soccer'" required>
+                    <input type="text" id="topic-id" required>
                 </div>
                 <div style="display: flex; gap: 20px;">
                     <div class="form-group" style="flex: 1;">
@@ -191,13 +189,13 @@
                     <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;">
                         <label class="form-group-checkbox">
                             <input type="checkbox" id="is-published">
-                            Published (Visible on main site)
+                            Published
                         </label>
                     </div>
                 </div>
                  <div class="form-group">
-                    <label for="features-html">Features HTML (Optional, leave blank if Coming Soon)</label>
-                    <textarea id="features-html" rows="8" placeholder="Paste the full HTML for the feature pane here..."></textarea>
+                    <label for="features-html">Features HTML (Optional)</label>
+                    <textarea id="features-html" rows="8"></textarea>
                 </div>
                 <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
                     <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
@@ -208,9 +206,9 @@
         </div>
     </div>
 
+
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // --- CONFIG & DOM ELEMENTS ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
@@ -227,6 +225,7 @@
         const addNewGameBtn = document.getElementById('add-new-game-btn');
         
         const commentsContainer = document.getElementById('comments-container');
+        const usersContainer = document.getElementById('users-container');
 
         const gameFormModal = document.getElementById('game-form-modal');
         const gameForm = document.getElementById('game-form');
@@ -235,10 +234,10 @@
         const modalCancelBtn = gameFormModal.querySelector('.modal-cancel-btn');
         const formError = document.getElementById('form-error');
 
-        // --- HELPER & STATE FUNCTIONS ---
         const setPageState = (state) => body.className = `state-${state}`;
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
         const timeAgo = (date) => {
+            if (!date) return 'Never';
             const seconds = Math.floor((new Date() - new Date(date)) / 1000);
             const intervals = { d: 86400, h: 3600, m: 60 };
             if (seconds < 60) return "Just now";
@@ -249,37 +248,17 @@
             return "Just now";
         };
 
-        // --- AUTHENTICATION FLOW ---
-        const handleLogout = () => {
-            localStorage.removeItem('discord_user_v2');
-            setPageState('login');
-        };
+        const handleLogout = () => { localStorage.removeItem('discord_user_v2'); setPageState('login'); };
 
         const verifyAdminStatus = async (user) => {
-            if (!user) {
-                setPageState('login');
-                return;
-            }
+            if (!user) { setPageState('login'); return; }
             authStatus.textContent = 'Verifying permissions...';
             try {
-                const response = await fetch(`/api/check-admin`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.id })
-                });
-                if (!response.ok) {
-                     const errorData = await response.json();
-                     throw new Error(errorData.error || 'Could not connect to verification service.');
-                }
+                const response = await fetch(`/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id }) });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Could not connect.'); }
                 const data = await response.json();
-                if (data.isAdmin) {
-                    showAdminPanel(user);
-                } else {
-                    showAccessDenied(user);
-                }
-            } catch (error) {
-                authStatus.textContent = `Error: ${error.message}`;
-            }
+                if (data.isAdmin) { showAdminPanel(user); } else { showAccessDenied(user); }
+            } catch (error) { authStatus.textContent = `Error: ${error.message}`; }
         };
 
         const showAdminPanel = (user) => {
@@ -288,12 +267,10 @@
             setPageState('admin');
             fetchAndRenderGames();
             fetchAndRenderComments();
+            fetchAndRenderUsers();
         };
 
-        const showAccessDenied = (user) => {
-            document.getElementById('denied-username').textContent = `${user.username}#${user.discriminator}`;
-            setPageState('denied');
-        };
+        const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}#${user.discriminator}`; setPageState('denied'); };
 
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
@@ -307,16 +284,10 @@
                     localStorage.setItem('discord_user_v2', JSON.stringify(userData));
                     window.history.replaceState({}, document.title, window.location.pathname);
                     await verifyAdminStatus(userData);
-                } catch (error) {
-                    authStatus.textContent = `Login failed: ${error.message}`;
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            } else {
-                await verifyAdminStatus(getCurrentUser());
-            }
+                } catch (error) { authStatus.textContent = `Login failed: ${error.message}`; window.history.replaceState({}, document.title, window.location.pathname); }
+            } else { await verifyAdminStatus(getCurrentUser()); }
         };
 
-        // --- TAB SWITCHING LOGIC ---
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const targetTab = button.dataset.tab;
@@ -327,39 +298,27 @@
             });
         });
         
-        // --- GAME MANAGEMENT (CRUD) ---
         let allGamesData = [];
         const fetchAndRenderGames = async () => {
-            gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">Loading games...</td></tr>';
+            gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">Loading...</td></tr>';
             try {
                 const currentUser = getCurrentUser();
                 if (!currentUser) throw new Error("Not logged in.");
                 const response = await fetch('/api/admin', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) {
-                     await verifyAdminStatus(currentUser);
-                     throw new Error('Authorization failed. Please log in again.');
-                }
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.details || 'Failed to fetch games.');
-                }
+                if (response.status === 403) { await verifyAdminStatus(currentUser); throw new Error('Authorization failed.'); }
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to fetch games.'); }
                 allGamesData = await response.json();
                 renderGamesTable(allGamesData);
-            } catch (error) {
-                gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down); padding: 40px;">${error.message}</td></tr>`;
-            }
+            } catch (error) { gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
         };
 
         const renderGamesTable = (games) => {
             gamesTableBody.innerHTML = '';
-            if (!games || games.length === 0) {
-                 gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">No games found.</td></tr>';
-                 return;
-            }
+            if (!games || games.length === 0) { gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No games found.</td></tr>'; return; }
             games.sort((a, b) => a.display_order - b.display_order);
             games.forEach(game => {
                 const row = document.createElement('tr');
-                const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published" title="Published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished" title="Not Published"></i>';
+                const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished"></i>';
                 row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td>${game.status}</td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i></button><button class="btn btn-danger delete-btn" data-id="${game.id}"></button></td>`;
                 gamesTableBody.appendChild(row);
             });
@@ -370,20 +329,14 @@
             formError.textContent = '';
             if (game) {
                 modalTitle.textContent = "Edit Game";
-                document.getElementById('game-id').value = game.id;
-                document.getElementById('game-name').value = game.name || '';
-                document.getElementById('game-status').value = game.status || '';
-                document.getElementById('thumbnail-url').value = game.thumbnail_url || '';
-                document.getElementById('loadstring').value = game.loadstring || '';
-                document.getElementById('topic-id').value = game.topic_id || '';
-                document.getElementById('display-order').value = game.display_order || 99;
+                ['id', 'name', 'status', 'thumbnail_url', 'loadstring', 'topic_id', 'display_order', 'features_html'].forEach(field => {
+                    const el = document.getElementById(field.replace('_', '-'));
+                    if (el) el.value = game[field] || (field === 'display-order' ? 99 : '');
+                });
                 document.getElementById('is-published').checked = game.is_published;
-                document.getElementById('features-html').value = game.features_html || '';
             } else {
                 modalTitle.textContent = "Add New Game";
-                document.getElementById('game-id').value = '';
                 document.getElementById('display-order').value = 99;
-                document.getElementById('is-published').checked = false;
             }
             gameFormModal.classList.add('visible');
         };
@@ -393,24 +346,14 @@
         const handleDeleteGameClick = async (e) => {
             const gameId = e.currentTarget.dataset.id;
             const game = allGamesData.find(g => g.id == gameId);
-            if (!game || !confirm(`Are you sure you want to delete "${game.name}"? This action cannot be undone.`)) return;
+            if (!game || !confirm(`Delete "${game.name}"?`)) return;
             try {
-                const response = await fetch('/api/admin', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ gameId, user: getCurrentUser() })
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.details || 'Failed to delete game.');
-                }
+                const response = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId, user: getCurrentUser() }) });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to delete.'); }
                 await fetchAndRenderGames();
-            } catch (error) {
-                alert(`Error deleting game: ${error.message}`);
-            }
+            } catch (error) { alert(`Error: ${error.message}`); }
         };
         
-        // --- COMMENT MANAGEMENT ---
         const fetchAndRenderComments = async () => {
             commentsContainer.innerHTML = '<p style="text-align:center; padding: 40px;">Loading comments...</p>';
             try {
@@ -421,35 +364,16 @@
                 if (!response.ok) throw new Error('Failed to fetch comments.');
                 const comments = await response.json();
                 renderComments(comments);
-            } catch (error) {
-                commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down); padding: 40px;">${error.message}</p>`;
-            }
+            } catch (error) { commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
 
         const renderComments = (comments) => {
             commentsContainer.innerHTML = '';
-            if (!comments || comments.length === 0) {
-                 commentsContainer.innerHTML = '<p style="text-align:center; padding: 40px;">No comments found.</p>';
-                 return;
-            }
+            if (!comments || comments.length === 0) { commentsContainer.innerHTML = '<p style="text-align:center;">No comments found.</p>'; return; }
             comments.forEach(comment => {
                 const card = document.createElement('div');
                 card.className = 'comment-card-admin';
-                card.innerHTML = `
-                    <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar">
-                    <div class="comment-card-admin-content">
-                        <div class="comment-card-admin-header">
-                            <span class="comment-card-admin-author">${comment.user_name}</span>
-                            <div class="comment-card-admin-meta">
-                                <span>Topic: <strong>${comment.topic_id}</strong></span>
-                                <span>${timeAgo(comment.created_at)}</span>
-                            </div>
-                        </div>
-                        <p class="comment-card-admin-body"></p>
-                    </div>
-                    <div class="comment-card-admin-actions">
-                        <button class="btn btn-danger delete-comment-btn" data-id="${comment.id}"></button>
-                    </div>`;
+                card.innerHTML = `<img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${comment.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${comment.topic_id}</strong></span><span>${timeAgo(comment.created_at)}</span></div></div><p class="comment-card-admin-body"></p></div><div class="comment-card-admin-actions"><button class="btn btn-danger delete-comment-btn" data-id="${comment.id}"></button></div>`;
                 card.querySelector('.comment-card-admin-body').textContent = comment.content;
                 commentsContainer.appendChild(card);
             });
@@ -457,53 +381,54 @@
 
         const handleDeleteCommentClick = async (e) => {
             const commentId = e.currentTarget.dataset.id;
-            if (!commentId || !confirm('Are you sure you want to permanently delete this comment?')) return;
+            if (!commentId || !confirm('Permanently delete this comment?')) return;
             try {
-                const response = await fetch('/api/comments', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ commentId, user: getCurrentUser() })
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to delete comment.');
-                }
+                const response = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId, user: getCurrentUser() }) });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Failed to delete.'); }
                 e.currentTarget.closest('.comment-card-admin').remove();
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-            }
+            } catch (error) { alert(`Error: ${error.message}`); }
         };
 
-        // --- EVENT LISTENERS ---
-        discordLoginBtn.addEventListener('click', () => {
-            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-            window.location.href = authUrl;
-        });
+        const fetchAndRenderUsers = async () => {
+            usersContainer.innerHTML = '<p style="text-align:center; padding: 40px;">Loading users...</p>';
+            try {
+                const currentUser = getCurrentUser();
+                if (!currentUser) throw new Error("Not logged in.");
+                const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                if (response.status === 403) throw new Error('Authorization failed.');
+                if (!response.ok) throw new Error('Failed to fetch users.');
+                const users = await response.json();
+                renderUsers(users);
+            } catch (error) { usersContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
+        };
+
+        const renderUsers = (users) => {
+            usersContainer.innerHTML = '';
+            if (!users || users.length === 0) { usersContainer.innerHTML = '<p style="text-align:center;">No users found.</p>'; return; }
+            users.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'user-card-admin';
+                const joinDate = new Date(user.join_date).toLocaleDateString();
+                const lastSeen = user.last_seen ? timeAgo(user.last_seen) : 'Never';
+                card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta"><span>Joined: <strong>${joinDate}</strong></span><span>Comments: <strong>${user.comment_count}</strong></span><span>Reports: <strong>${user.report_count}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div></div>`;
+                usersContainer.appendChild(card);
+            });
+        };
+
+        discordLoginBtn.addEventListener('click', () => { const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; window.location.href = authUrl; });
         logoutBtnAdmin.addEventListener('click', handleLogout);
         logoutBtnDenied.addEventListener('click', handleLogout);
-
         addNewGameBtn.addEventListener('click', () => openFormModal());
         modalCloseBtn.addEventListener('click', closeFormModal);
         modalCancelBtn.addEventListener('click', closeFormModal);
         document.addEventListener('keydown', (e) => { if (e.key === "Escape" && gameFormModal.classList.contains('visible')) closeFormModal(); });
-
         gamesTableBody.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
-            if (editBtn) {
-                openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id));
-                return;
-            }
+            if (editBtn) { openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id)); return; }
             const deleteBtn = e.target.closest('.delete-btn');
-            if (deleteBtn) {
-                handleDeleteGameClick({ currentTarget: deleteBtn });
-            }
+            if (deleteBtn) { handleDeleteGameClick({ currentTarget: deleteBtn }); }
         });
-
-        commentsContainer.addEventListener('click', (e) => {
-            const deleteBtn = e.target.closest('.delete-comment-btn');
-            if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn });
-        });
-
+        commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn }); });
         gameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.currentTarget.querySelector('button[type="submit"]');
@@ -520,28 +445,14 @@
             const isEditing = !!gameId;
             const bodyPayload = { gameData, user: getCurrentUser() };
             if (isEditing) bodyPayload.gameId = gameId;
-
             try {
-                const response = await fetch('/api/admin', {
-                    method: isEditing ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyPayload)
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.details || 'Failed to save game data.');
-                }
+                const response = await fetch('/api/admin', { method: isEditing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload) });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
                 closeFormModal();
                 await fetchAndRenderGames();
-            } catch (error) {
-                formError.textContent = error.message;
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Save Game';
-            }
+            } catch (error) { formError.textContent = error.message; } finally { submitButton.disabled = false; submitButton.innerHTML = 'Save Game'; }
         });
         
-        // --- INITIALIZATION ---
         handleOAuthCallback();
     });
     </script>

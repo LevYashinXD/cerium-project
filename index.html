@@ -735,29 +735,40 @@
             }
         };
 
-        const handleOAuthCallback = async () => {
-            const fragment = new URLSearchParams(window.location.hash.substring(1));
-            const accessToken = fragment.get('access_token');
-            if (accessToken) {
-                try {
-                    const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
-                    if (!response.ok) throw new Error('Failed to fetch user data.');
-                    const userData = await response.json();
-                    localStorage.setItem('discord_user_v2', JSON.stringify(userData));
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    await showWelcomeTransition(userData);
-                } catch (error) {
-                    showLoginWall('Login failed. Please try again.');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            } else {
-                const storedUser = getCurrentUser();
-                setTimeout(async () => {
-                    if (storedUser) await showWelcomeTransition(storedUser);
-                    else showLoginWall();
-                }, 500);
-            }
-        };
+        // Find this function in your index.html script
+const handleOAuthCallback = async () => {
+    const fragment = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = fragment.get('access_token');
+    if (accessToken) {
+        try {
+            const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
+            if (!response.ok) throw new Error('Failed to fetch user data.');
+            const userData = await response.json();
+            localStorage.setItem('discord_user_v2', JSON.stringify(userData));
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // --- ADD THIS CALL ---
+            // Silently record the login in the background. We don't wait for it.
+            fetch('/api/record-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user: userData })
+            });
+            // --- END OF ADDITION ---
+
+            await showWelcomeTransition(userData);
+        } catch (error) {
+            showLoginWall('Login failed. Please try again.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    } else {
+        const storedUser = getCurrentUser(); // Assumes getCurrentUser is defined
+        setTimeout(async () => {
+            if (storedUser) await showWelcomeTransition(storedUser);
+            else showLoginWall();
+        }, 500);
+    }
+};
 
         // --- DYNAMIC CONTENT LOADER ---
         async function loadAndDisplayGames() {
