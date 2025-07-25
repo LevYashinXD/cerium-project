@@ -135,10 +135,16 @@
         .status-indicator.unpublished { color: var(--color-status-down); }
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
         .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; transition: all var(--transition-speed) ease; }
-        .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.5); }
+        
+        /* --- CORRECTED BANNED USER STYLES --- */
+        .user-card-admin.banned {
+            border-color: rgba(255, 51, 102, 0.7);
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4); /* RED AURA */
+        }
         .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); }
         .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); }
         .user-card-admin:not(.banned):not(.suspended) { cursor: pointer; }
+        
         .comment-card-admin-avatar, .user-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
         .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;}
@@ -286,10 +292,7 @@
                 </div>
                 <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div>
                 <div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div>
-                
-                <!-- NEW KEY FIELD ADDED HERE -->
                 <div class="form-group"><label for="game-key">Key (Optional)</label><input type="text" id="game-key" placeholder="Enter product key if applicable..."></div>
-
                 <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div>
                 <div style="display: flex; gap: 20px;">
                     <div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div>
@@ -448,7 +451,7 @@
                 document.getElementById('game-status').value = game.status || '';
                 document.getElementById('thumbnail-url').value = game.thumbnail_url || '';
                 document.getElementById('loadstring').value = game.loadstring || '';
-                document.getElementById('game-key').value = game.key || ''; // POPULATE KEY
+                document.getElementById('game-key').value = game.key || '';
                 document.getElementById('topic-id').value = game.topic_id || '';
                 document.getElementById('display-order').value = game.display_order ?? 99;
                 document.getElementById('features-html').value = game.features_html || '';
@@ -621,7 +624,7 @@
                 status: document.getElementById('game-status').value,
                 thumbnail_url: document.getElementById('thumbnail-url').value.trim(),
                 loadstring: document.getElementById('loadstring').value.trim(),
-                key: document.getElementById('game-key').value.trim(), // READ KEY
+                key: document.getElementById('game-key').value.trim(),
                 topic_id: document.getElementById('topic-id').value.trim(),
                 display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
                 is_published: document.getElementById('is-published').checked,
