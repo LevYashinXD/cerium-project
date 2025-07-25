@@ -47,6 +47,12 @@
         .admin-tab-pane.active { display: block; }
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { font-size: 2.5rem; }
+        .shahada-header {
+            background: var(--color-card-bg); border: 1px solid var(--color-card-border);
+            border-radius: var(--border-radius); backdrop-filter: blur(10px);
+            padding: 25px; margin-bottom: 40px; text-align: center;
+        }
+        .shahada-header h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; }
         .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
         .stat-card { background: var(--color-card-bg); padding: 25px; border-radius: var(--border-radius); border: 1px solid var(--color-card-border); }
         .stat-card h4 { font-size: 1rem; opacity: 0.7; margin-bottom: 10px; }
@@ -91,15 +97,13 @@
         .details-body { max-height: 60vh; overflow-y: auto; padding-right: 10px; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-        /* UPDATED: Added select to this rule */
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); transition: border-color 0.3s, box-shadow 0.3s; font-family: inherit; font-size: 1rem; }
         .form-group textarea { resize: vertical; }
-        /* UPDATED: Added select to this rule */
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--color-heading); box-shadow: 0 0 10px var(--color-glow); }
         .form-group-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
-        .toast { padding: 15px 25px; border-radius: 8px; font-weight: 600; color: black; animation: toast-in-out 4s ease forwards; display:flex; align-items:center; gap: 10px;}
+        .toast { padding: 15px 25px; border-radius: 8px; font-weight: 600; color: black; animation: toast-in-out 4s ease forwards; display: flex; align-items: center; gap: 10px; }
         .toast.success { background-color: var(--color-status-up); }
         .toast.error { background-color: var(--color-status-down); }
         .confirm-modal-content { max-width: 500px; text-align: center; }
@@ -123,6 +127,9 @@
             <div class="admin-user-info"><img src="" alt="Admin Avatar" id="admin-avatar"><span id="admin-username"></span><button id="logout-btn-admin" class="btn btn-secondary">Logout</button></div>
         </header>
         <main class="admin-content">
+            <div class="shahada-header">
+                <h2 class="gradient-text">لا إله إلا الله محمد رسول الله</h2>
+            </div>
             <div class="dashboard-stats">
                 <div class="stat-card"><h4>Total Games</h4><p id="total-games">--</p></div>
                 <div class="stat-card"><h4>Total Users</h4><p id="total-users">--</p></div>
@@ -151,20 +158,36 @@
     </div>
 
     <div id="game-form-modal" class="modal">
-        <div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title" style="margin-bottom: 30px;"></h2><form id="game-form"><input type="hidden" id="game-id"><div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div>
-            <!-- UPDATED: Status is now a dropdown -->
-            <div class="form-group">
-                <label for="game-status">Status</label>
-                <select id="game-status" required>
-                    <option value="" disabled selected>Select a status...</option>
-                    <option value="Updated">Updated</option>
-                    <option value="New">New</option>
-                    <option value="Popular">Popular</option>
-                    <option value="Featured">Featured</option>
-                    <option value="Testing">Testing</option>
-                </select>
-            </div>
-            <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div><div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div><div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div><div style="display: flex; gap: 20px;"><div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div><div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div></div><div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8"></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Save Game</button></div><p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p></form></div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title" style="margin-bottom: 30px;"></h2>
+            <form id="game-form">
+                <input type="hidden" id="game-id">
+                <div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div>
+                <div class="form-group">
+                    <label for="game-status">Status</label>
+                    <select id="game-status" required>
+                        <option value="" disabled selected>Select a status...</option>
+                        <option value="Updated">Updated</option>
+                        <option value="New">New</option>
+                        <option value="Popular">Popular</option>
+                        <option value="Featured">Featured</option>
+                        <option value="Testing">Testing</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div>
+                <div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div>
+                <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div>
+                <div style="display: flex; gap: 20px;">
+                    <div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div>
+                    <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div>
+                </div>
+                <div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8"></textarea></div>
+                <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Game</button>
+                </div>
+                <p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p>
+            </form>
+        </div>
     </div>
     
     <div id="moderate-modal" class="modal"><div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div></div>
@@ -296,19 +319,16 @@
             games.forEach(game => {
                 const row = document.createElement('tr');
                 const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished"></i>';
-                // UPDATED: Fixed empty buttons
                 row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td>${game.status}</td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-danger icon-btn delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i></button></td>`;
                 gamesTableBody.appendChild(row);
             });
         };
-
-        // --- UPDATED AND FIXED: This function now works correctly ---
+        
         const openFormModal = (game = null) => {
             gameForm.reset();
             formError.textContent = '';
             
             if (game) {
-                // Editing an existing game: pre-fill all fields
                 modalTitle.textContent = "Edit Game";
                 document.getElementById('game-id').value = game.id;
                 document.getElementById('game-name').value = game.name || '';
@@ -316,18 +336,18 @@
                 document.getElementById('thumbnail-url').value = game.thumbnail_url || '';
                 document.getElementById('loadstring').value = game.loadstring || '';
                 document.getElementById('topic-id').value = game.topic_id || '';
-                document.getElementById('display-order').value = game.display_order || 99;
+                document.getElementById('display-order').value = game.display_order ?? 99;
                 document.getElementById('features-html').value = game.features_html || '';
                 document.getElementById('is-published').checked = game.is_published;
             } else {
-                // Adding a new game: ensure fields are at default state
                 modalTitle.textContent = "Add New Game";
-                document.getElementById('game-id').value = ''; // Ensure no ID is carried over
+                document.getElementById('game-id').value = '';
                 document.getElementById('display-order').value = 99;
+                document.getElementById('game-status').value = ""; // Reset dropdown
             }
             gameFormModal.classList.add('visible');
         };
-        
+
         const closeFormModal = () => gameFormModal.classList.remove('visible');
         const handleDeleteGameClick = async (e) => {
             const gameId = e.currentTarget.dataset.id;
@@ -496,21 +516,48 @@
             moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
             closeModerateModal();
         });
+
+        // --- UPDATED AND FIXED: This submit handler now works correctly ---
         gameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.currentTarget.querySelector('button[type="submit"]');
             submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; formError.textContent = '';
-            const gameData = { name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value, thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(), topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99, is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim(), };
-            const isEditing = !!document.getElementById('game-id').value;
+            
+            const gameId = document.getElementById('game-id').value;
+            const isEditing = !!gameId;
+
+            const gameData = {
+                name: document.getElementById('game-name').value.trim(),
+                status: document.getElementById('game-status').value, // Now a select dropdown
+                thumbnail_url: document.getElementById('thumbnail-url').value.trim(),
+                loadstring: document.getElementById('loadstring').value.trim(),
+                topic_id: document.getElementById('topic-id').value.trim(),
+                display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
+                is_published: document.getElementById('is-published').checked,
+                features_html: document.getElementById('features-html').value.trim(),
+            };
+            
             const bodyPayload = { gameData, user: getCurrentUser() };
-            if (isEditing) bodyPayload.gameId = document.getElementById('game-id').value;
+            if (isEditing) {
+                bodyPayload.gameId = gameId; // This is the crucial part for the backend to identify an update
+            }
+
             try {
-                const response = await fetch('/api/admin', { method: isEditing ? 'POST' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload) });
+                const response = await fetch('/api/admin', {
+                    method: 'POST', // The endpoint seems to handle both create and update on POST
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyPayload)
+                });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
-                showToast('Game saved successfully.');
+                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
                 closeFormModal();
                 await fetchAndRenderGames();
-            } catch (error) { formError.textContent = error.message; } finally { submitButton.disabled = false; submitButton.innerHTML = 'Save Game'; }
+            } catch (error) {
+                formError.textContent = error.message;
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Save Game';
+            }
         });
         
         handleOAuthCallback();
