@@ -89,11 +89,6 @@
         .details-header img { width: 60px; height: 60px; border-radius: 50%; }
         .details-header h3 { font-size: 1.8rem; }
         .details-body { max-height: 60vh; overflow-y: auto; padding-right: 10px; }
-        .status-tag { padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-new { background: #3b82f6; color: white; }
-        .status-in_progress { background: #f59e0b; color: black; }
-        .status-resolved { background: var(--color-status-up); color: black; }
-        .status-invalid { background: #6b7280; color: white; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); transition: border-color 0.3s, box-shadow 0.3s; }
@@ -135,8 +130,6 @@
                 <button class="admin-tab-btn active" data-tab="games">Games</button>
                 <button class="admin-tab-btn" data-tab="messages">Messages</button>
                 <button class="admin-tab-btn" data-tab="users">Users</button>
-                <button class="admin-tab-btn" data-tab="reports">Bug Reports</button>
-                <button class="admin-tab-btn" data-tab="audit">Audit Log</button>
             </div>
             <div id="games-view" class="admin-tab-pane active">
                 <div class="content-header"><h1>Games</h1><button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button></div>
@@ -151,14 +144,6 @@
                 <div class="content-header"><h1>Users</h1></div>
                 <div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name..."></div>
                 <div id="users-container" class="users-list-admin"></div>
-            </div>
-            <div id="reports-view" class="admin-tab-pane">
-                <div class="content-header"><h1>Bug Reports</h1></div>
-                <div class="card" style="padding:20px; overflow-x:auto;"><table class="table" id="bug-reports-table"><thead><tr><th>Reporter</th><th>Game</th><th>Description</th><th>Status</th><th>Submitted</th></tr></thead><tbody></tbody></table></div>
-            </div>
-            <div id="audit-view" class="admin-tab-pane">
-                <div class="content-header"><h1>Audit Log</h1></div>
-                <div class="card" style="padding:20px; overflow-x:auto;"><table class="table" id="audit-log-table"><thead><tr><th>Admin</th><th>Action</th><th>Target</th><th>Reason</th><th>Timestamp</th></tr></thead><tbody></tbody></table></div>
             </div>
         </main>
     </div>
@@ -218,8 +203,6 @@
         const totalCommentsEl = document.getElementById('total-comments');
         const commentsSearch = document.getElementById('comments-search');
         const usersSearch = document.getElementById('users-search');
-        const bugReportsTableBody = document.querySelector('#bug-reports-table tbody');
-        const auditLogTableBody = document.querySelector('#audit-log-table tbody');
         const userDetailsModal = document.getElementById('user-details-modal');
         const userDetailsContent = document.getElementById('user-details-content');
         const userDetailsModalClose = userDetailsModal.querySelector('.modal-close');
@@ -229,7 +212,7 @@
         const confirmOkBtn = document.getElementById('confirm-ok-btn');
         const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
 
-        let allGamesData = [], allUsersData = [], allCommentsData = [], allBugReports = [], allAuditLogs = [];
+        let allGamesData = [], allUsersData = [], allCommentsData = [];
 
         const setPageState = (state) => body.className = `state-${state}`;
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
@@ -265,7 +248,7 @@
             if (!user) { setPageState('login'); return; }
             authStatus.textContent = 'Verifying permissions...';
             try {
-                const response = await fetch(`/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id }) });
+                const response = await fetch(`/api/auth?action=check_admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Could not connect.'); }
                 const data = await response.json();
                 if (data.isAdmin) { showAdminPanel(user); } else { showAccessDenied(user); }
@@ -275,7 +258,7 @@
             document.getElementById('admin-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
             document.getElementById('admin-username').textContent = `${user.username}`;
             setPageState('admin');
-            fetchAndRenderGames(); fetchAndRenderComments(); fetchAndRenderUsers(); fetchAndRenderBugReports(); fetchAndRenderAuditLog();
+            fetchAndRenderGames(); fetchAndRenderComments(); fetchAndRenderUsers();
         };
         const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}`; setPageState('denied'); };
         const handleOAuthCallback = async () => {
@@ -340,7 +323,7 @@
             try {
                 const response = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId, gameName: game.name, user: getCurrentUser() }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to delete.'); }
-                showToast('Game deleted successfully.'); await fetchAndRenderGames(); await fetchAndRenderAuditLog();
+                showToast('Game deleted successfully.'); await fetchAndRenderGames();
             } catch (error) { showToast(error.message, true); }
         };
         
@@ -373,7 +356,7 @@
             try {
                 const response = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId, user: getCurrentUser() }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Failed to delete.'); }
-                showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove(); await fetchAndRenderAuditLog();
+                showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove();
             } catch (error) { showToast(error.message, true); }
         };
 
@@ -381,7 +364,7 @@
             usersContainer.innerHTML = '<p style="text-align:center;">Loading users...</p>';
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                const response = await fetch('/api/admin?action=get_all_users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch users.');
                 allUsersData = await response.json(); renderUsers(allUsersData); updateDashboardStats();
@@ -414,9 +397,8 @@
             });
         };
         const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
-            const endpoint = (action === 'warn') ? '/api/admin-warn-user' : '/api/admin-moderate-user';
             try {
-                const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
+                const response = await fetch('/api/admin?action=moderate_user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, sub_action: action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json();
                 showToast(result.message);
@@ -439,7 +421,7 @@
             bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/bug-reports', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                const response = await fetch('/api/admin?action=get_bug_reports', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch bug reports.');
                 allBugReports = await response.json(); renderBugReports(allBugReports);
@@ -456,16 +438,16 @@
         };
         const updateBugReportStatus = async (reportId, newStatus) => {
             try {
-                const response = await fetch('/api/bug-reports', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportId, newStatus, user: getCurrentUser() }) });
+                const response = await fetch('/api/admin?action=update_bug_report_status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportId, newStatus, user: getCurrentUser() }) });
                 if (!response.ok) throw new Error("Failed to update status.");
-                showToast('Status updated.');
+                showToast('Status updated.'); await fetchAndRenderAuditLog();
             } catch(error) { showToast(error.message, true); }
         };
         const fetchAndRenderAuditLog = async () => {
             auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin-audit-log', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                const response = await fetch('/api/admin?action=get_audit_log', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch audit log.');
                 allAuditLogs = await response.json(); renderAuditLog(allAuditLogs);
@@ -484,10 +466,10 @@
             userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>';
             userDetailsModal.classList.add('visible');
             try {
-                const response = await fetch(`/api/admin-user-details?userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
+                const response = await fetch(`/api/admin?action=get_user_details&userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
                 if (!response.ok) throw new Error("Failed to load details.");
                 const data = await response.json();
-                let commentsHTML = '<h4>Comment History</h4><p>No comments found for this user.</p>';
+                let commentsHTML = '<h4>Comment History</h4><p>No comments found.</p>';
                 if (data.comments && data.comments.length > 0) {
                     commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
                 }
@@ -502,7 +484,11 @@
         addNewGameBtn.addEventListener('click', () => openFormModal());
         gameModalCloseBtn.addEventListener('click', closeFormModal);
         gameModalCancelBtn.addEventListener('click', closeFormModal);
-        document.addEventListener('keydown', (e) => { if (e.key === "Escape" && gameFormModal.classList.contains('visible')) closeFormModal(); });
+        userDetailsModalClose.addEventListener('click', closeUserDetailsModal);
+        moderateModalClose.addEventListener('click', closeModerateModal);
+        moderateModalCancel.addEventListener('click', closeModerateModal);
+        document.addEventListener('keydown', (e) => { if (e.key === "Escape" && (gameFormModal.classList.contains('visible') || moderateModal.classList.contains('visible') || userDetailsModal.classList.contains('visible'))) { closeFormModal(); closeModerateModal(); closeUserDetailsModal(); } });
+        
         gamesTableBody.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
             if (editBtn) { openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id)); return; }
@@ -529,9 +515,7 @@
         });
         commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
         usersSearch.addEventListener('input', () => { const searchTerm = usersSearch.value.toLowerCase().trim(); const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm)); renderUsers(filtered); });
-        moderateModalClose.addEventListener('click', closeModerateModal);
-        moderateModalCancel.addEventListener('click', closeModerateModal);
-        userDetailsModalClose.addEventListener('click', closeUserDetailsModal);
+        
         moderateForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const userId = document.getElementById('moderate-user-id').value;
@@ -553,7 +537,7 @@
             const bodyPayload = { gameData, user: getCurrentUser() };
             if (isEditing) bodyPayload.gameId = gameId;
             try {
-                const response = await fetch('/api/admin', { method: isEditing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload) });
+                const response = await fetch('/api/admin', { method: isEditing ? 'POST' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
                 showToast('Game saved successfully.');
                 closeFormModal();
