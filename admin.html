@@ -67,7 +67,18 @@
         .status-indicator.unpublished { color: var(--color-status-down); }
         
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 15px; }
-        .comment-card-admin, .user-card-admin { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-card-border); border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: flex-start; }
+        .comment-card-admin, .user-card-admin { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-card-border); border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: flex-start; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        
+        /* --- NEW: GLOW STYLES FOR BANNED/SUSPENDED USERS --- */
+        .user-card-admin.banned {
+            border-color: rgba(255, 51, 102, 0.4);
+            box-shadow: 0 0 15px -3px var(--color-status-down);
+        }
+        .user-card-admin.suspended {
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 15px -3px var(--color-status-caution);
+        }
+
         .comment-card-admin-avatar, .user-card-admin-avatar { width: 40px; height: 40px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
         .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: var(--color-text); font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
@@ -97,16 +108,8 @@
 
     <div id="admin-auth-wall">
         <div class="card auth-container">
-            <div id="login-prompt">
-                <h1 class="gradient-text">Admin Panel</h1>
-                <p style="margin: 20px 0 30px;">Please connect with an authorized Discord account.</p>
-                <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
-            </div>
-            <div id="denied-message">
-                <h1 style="color: var(--color-status-down);">Access Denied</h1>
-                <p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized.</p>
-                <button id="logout-btn-denied" class="btn btn-secondary">Logout and Try Again</button>
-            </div>
+            <div id="login-prompt"><h1 class="gradient-text">Admin Panel</h1><p style="margin: 20px 0 30px;">Please connect with an authorized Discord account.</p><button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button></div>
+            <div id="denied-message"><h1 style="color: var(--color-status-down);">Access Denied</h1><p style="margin: 20px 0 30px;">The account <strong id="denied-username"></strong> is not authorized.</p><button id="logout-btn-denied" class="btn btn-secondary">Logout and Try Again</button></div>
             <p id="auth-status" style="margin-top: 20px; min-height: 20px;"></p>
         </div>
     </div>
@@ -114,11 +117,7 @@
     <div id="admin-panel">
         <header class="admin-header">
             <h1 class="gradient-text" style="font-size: 1.8rem;">Cerium Admin</h1>
-            <div class="admin-user-info">
-                <img src="" alt="Admin Avatar" id="admin-avatar">
-                <span id="admin-username"></span>
-                <button id="logout-btn-admin" class="btn btn-secondary">Logout</button>
-            </div>
+            <div class="admin-user-info"><img src="" alt="Admin Avatar" id="admin-avatar"><span id="admin-username"></span><button id="logout-btn-admin" class="btn btn-secondary">Logout</button></div>
         </header>
 
         <main class="admin-content">
@@ -129,18 +128,8 @@
             </div>
 
             <div id="games-view" class="admin-tab-pane active">
-                <div class="content-header">
-                    <h1>Games</h1>
-                    <button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button>
-                </div>
-                <div class="card" style="padding: 20px; overflow-x: auto;">
-                    <table class="table games-table">
-                        <thead>
-                            <tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr>
-                        </thead>
-                        <tbody id="games-table-body"></tbody>
-                    </table>
-                </div>
+                <div class="content-header"><h1>Games</h1><button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button></div>
+                <div class="card" style="padding: 20px; overflow-x: auto;"><table class="table games-table"><thead><tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead><tbody id="games-table-body"></tbody></table></div>
             </div>
 
             <div id="messages-view" class="admin-tab-pane">
@@ -156,53 +145,12 @@
     </div>
 
     <div id="game-form-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">×</span>
-            <h2 id="modal-title" style="margin-bottom: 30px;"></h2>
-            <form id="game-form">
-                 <input type="hidden" id="game-id" name="gameId">
-                <div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div>
-                <div class="form-group"><label for="game-status">Status</label><input type="text" id="game-status" required></div>
-                <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div>
-                <div class="form-group"><label for="loadstring">Loadstring (Optional)</label><textarea id="loadstring" rows="2"></textarea></div>
-                <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div>
-                <div style="display: flex; gap: 20px;">
-                    <div class="form-group" style="flex: 1;"><label for="display-order">Display Order</label><input type="number" id="display-order" value="99" required></div>
-                    <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div>
-                </div>
-                <div class="form-group"><label for="features-html">Features HTML (Optional)</label><textarea id="features-html" rows="8"></textarea></div>
-                <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Game</button>
-                </div>
-                <p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p>
-            </form>
-        </div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title" style="margin-bottom: 30px;"></h2><form id="game-form"><input type="hidden" id="game-id" name="gameId"><div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div><div class="form-group"><label for="game-status">Status</label><input type="text" id="game-status" required></div><div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div><div class="form-group"><label for="loadstring">Loadstring (Optional)</label><textarea id="loadstring" rows="2"></textarea></div><div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div><div style="display: flex; gap: 20px;"><div class="form-group" style="flex: 1;"><label for="display-order">Display Order</label><input type="number" id="display-order" value="99" required></div><div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div></div><div class="form-group"><label for="features-html">Features HTML (Optional)</label><textarea id="features-html" rows="8"></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Save Game</button></div><p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p></form></div>
     </div>
     
     <div id="moderate-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">×</span>
-            <h2 id="moderate-title" style="margin-bottom: 30px;"></h2>
-            <form id="moderate-form">
-                <input type="hidden" id="moderate-user-id">
-                <input type="hidden" id="moderate-action">
-                <div class="form-group" id="duration-group" style="display: none;">
-                    <label for="moderate-duration">Duration (in hours)</label>
-                    <input type="number" id="moderate-duration" min="1" value="24" required>
-                </div>
-                <div class="form-group">
-                    <label for="moderate-reason">Reason (optional, will be shown to user)</label>
-                    <textarea id="moderate-reason" rows="4" placeholder="e.g., Spamming, inappropriate behavior..."></textarea>
-                </div>
-                <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Confirm Action</button>
-                </div>
-            </form>
-        </div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (in hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason (optional, will be shown to user)</label><textarea id="moderate-reason" rows="4" placeholder="e.g., Spamming, inappropriate behavior..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm Action</button></div></form></div>
     </div>
-
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -397,20 +345,24 @@
             if (!users || users.length === 0) { usersContainer.innerHTML = '<p style="text-align:center;">No users found.</p>'; return; }
             users.forEach(user => {
                 const card = document.createElement('div');
-                card.className = 'user-card-admin';
                 const joinDate = new Date(user.join_date).toLocaleDateString();
                 const lastSeen = user.last_seen ? timeAgo(user.last_seen) : 'Never';
+                let cardClass = 'user-card-admin';
                 let statusHTML = '', actionsHTML = '';
+
                 if (user.is_banned) {
+                    cardClass += ' banned';
                     statusHTML = `<span>Status: <strong style="color:var(--color-status-down)">Banned</strong></span>`;
                     actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unban</button>`;
                 } else if (user.suspension_expires_at && new Date(user.suspension_expires_at) > new Date()) {
+                    cardClass += ' suspended';
                     statusHTML = `<span>Status: <strong style="color:var(--color-status-caution)">Suspended</strong></span>`;
-                    actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unsuspend</button>`;
+                    actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Remove Suspension</button>`;
                 } else {
                     statusHTML = `<span>Status: <strong style="color:var(--color-status-up)">Active</strong></span>`;
                     actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                 }
+                card.className = cardClass;
                 card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Reason: ${user.moderation_reason}</div>` : ''}</div><div class="actions" style="margin-left: auto; align-items: center;">${actionsHTML}</div>`;
                 usersContainer.appendChild(card);
             });
