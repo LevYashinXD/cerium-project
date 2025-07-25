@@ -23,6 +23,7 @@
             --color-glow: rgba(255, 255, 255, 0.15);
             --color-status-up: #00FF7F;
             --color-status-caution: #FFD700;
+            --color-danger: #FF4747;
             --header-height: 80px;
             --font-family: 'Inter', sans-serif;
             --border-radius: 16px;
@@ -41,16 +42,32 @@
                 radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%);
             background-attachment: fixed;
         }
-        .content-section { padding: 100px 5% 140px; max-width: 1280px; margin: 0 auto; }
+
+        /* QoL: Cursor Glow Effect */
+        #cursor-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: -1;
+            transition: opacity 0.3s;
+        }
+        
+        .content-section { padding: 100px 5% 140px; max-width: 1280px; margin: 0 auto; transition: opacity 0.4s ease; }
+        .content-section.fading-out { opacity: 0; }
         .section-title { font-size: 3.5rem; font-weight: 800; color: var(--color-heading); margin-bottom: 20px; text-align: center; }
         .section-subtitle { font-size: 1.1rem; max-width: 700px; margin: 0 auto 80px auto; color: var(--color-text); text-align: center; }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; }
+        .btn:disabled { cursor: not-allowed; filter: grayscale(80%); opacity: 0.6; }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
-        .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 15px var(--color-glow); transform: translateY(-2px); }
+        .btn-primary:not(:disabled):hover { filter: brightness(1.1); box-shadow: 0 0 15px var(--color-glow); transform: translateY(-2px); }
         .btn-secondary { background-color: transparent; color: var(--color-heading); border-color: var(--color-heading); }
-        .btn-secondary:hover { background-color: var(--color-heading); color: var(--color-background); box-shadow: 0 0 15px var(--color-glow); }
+        .btn-secondary:not(:disabled):hover { background-color: var(--color-heading); color: var(--color-background); box-shadow: 0 0 15px var(--color-glow); }
 
         .main-header { position: sticky; top: 0; z-index: 1000; height: var(--header-height); display: flex; align-items: center; background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-card-border); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 5%; }
@@ -75,7 +92,7 @@
         .filter-btn.active { background-image: var(--primary-gradient); color: black; }
         
         .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .game-card { background: var(--color-card-bg); border-radius: var(--border-radius); text-align: left; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; overflow: hidden; }
+        .game-card { background: var(--color-card-bg); border-radius: var(--border-radius); text-align: left; transition: all 0.3s ease; border: 1px solid var(--color-card-border); cursor: pointer; overflow: hidden; animation: fade-in 0.5s ease; }
         .game-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px -5px rgba(0,0,0,0.4), 0 0 20px -5px var(--color-glow); border-color: var(--color-card-border-hover); }
         .game-card.coming-soon { opacity: 0.5; filter: grayscale(50%); cursor: not-allowed; }
         .game-card.coming-soon:hover { transform: none; box-shadow: none; border-color: var(--color-card-border); }
@@ -88,7 +105,15 @@
         .game-key-tag { margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--color-card-border); border-radius: 8px; font-size: 0.85rem; }
         .game-key-tag span { font-weight: 600; color: var(--color-status-caution); }
 
-        #game-detail-view { display: none; text-align: left; animation: fade-in 0.5s ease; }
+        /* QoL: Skeleton Loader for Games */
+        .skeleton-card { background: var(--color-card-bg); border-radius: var(--border-radius); border: 1px solid var(--color-card-border); overflow: hidden; animation: pulse 1.5s infinite ease-in-out; }
+        .skeleton-thumbnail { background-color: rgba(255,255,255,0.08); width: 100%; aspect-ratio: 16/9; }
+        .skeleton-text { height: 20px; background-color: rgba(255,255,255,0.08); border-radius: 4px; margin: 20px; }
+        .skeleton-text.short { width: 50%; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+
+        #game-detail-view { display: none; text-align: left; animation: fade-in-scale 0.5s ease; }
         .back-to-grid { margin-bottom: 40px; }
         .detail-header { display: grid; grid-template-columns: 350px 1fr; gap: 40px; margin-bottom: 50px; align-items: flex-start; }
         #detail-thumbnail { width: 100%; border-radius: var(--border-radius); border: 1px solid var(--color-card-border); }
@@ -103,34 +128,58 @@
         .detail-section h3 { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--color-card-border); color: var(--color-heading); }
         
         #detail-execute-box { background: var(--color-card-bg); border: 1px solid var(--color-card-border); padding: 20px; border-radius: 12px; font-family: monospace; white-space: pre-wrap; word-break: break-all; position: relative; }
-        #detail-copy-btn { position: absolute; top: 15px; right: 15px; padding: 5px 15px; font-size: 0.8rem; }
+        #detail-copy-btn { position: absolute; top: 15px; right: 15px; padding: 8px 15px; font-size: 0.9rem; min-width: 80px; text-align: center; }
         
-        /* --- Redesigned Comment Section --- */
-        #detail-comment-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        /* --- Heavily Upgraded Comment Section --- */
+        #detail-comment-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
         .comment-form-main { display: flex; gap: 12px; align-items: flex-start; }
         .comment-form-avatar { width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; }
-        .comment-textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: rgba(0,0,0,0.2); color: var(--color-text); resize: vertical; min-height: 80px; font-size: 0.95rem; font-family: var(--font-family); transition: all 0.3s ease; }
+        .comment-textarea-wrapper { flex-grow: 1; }
+        .comment-textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: rgba(0,0,0,0.2); color: var(--color-text); resize: none; /* QoL: Disabled resize for auto-expand */ min-height: 50px; font-size: 0.95rem; font-family: var(--font-family); transition: all 0.3s ease; overflow-y: hidden; /* QoL: Hide scrollbar */ }
         .comment-textarea:focus { border-color: var(--color-card-border-hover); box-shadow: 0 0 15px var(--color-glow); outline: none; }
-        .comment-form-actions { display: flex; justify-content: flex-end; }
+        .comment-form-footer { display: flex; justify-content: space-between; align-items: center; padding-left: 54px; /* Align with textarea */ }
+        #comment-char-counter { font-size: 0.85rem; color: var(--color-text-muted); transition: opacity 0.3s; }
         .comment-form-actions .btn-primary { padding: 10px 24px; font-size: 0.95rem; }
 
         .comments-list { display: flex; flex-direction: column; gap: 20px; }
-        .comment-card { display: flex; gap: 15px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--color-card-border); border-radius: 12px; }
+        .comment-card { display: flex; gap: 15px; padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--color-card-border); border-radius: 12px; transition: background-color 0.5s ease; }
+        .comment-card.new-comment-highlight { background-color: rgba(255, 255, 255, 0.08); border-color: var(--color-card-border-hover); }
         .comment-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; }
         .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
         .comment-user { font-weight: 600; color: var(--color-heading); font-size: 1rem; }
         .comment-timestamp { font-size: 0.8rem; color: var(--color-text-muted); }
-        .comment-body { font-size: 0.95rem; line-height: 1.6; color: var(--color-text); opacity: 0.95; }
+        .comment-body { font-size: 0.95rem; line-height: 1.6; color: var(--color-text); opacity: 0.95; white-space: pre-wrap; word-wrap: break-word; }
 
-        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .spinner {
+            width: 1em; height: 1em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        /* QoL: Toast Notification System */
+        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { display: flex; align-items: center; gap: 15px; padding: 12px 20px; border-radius: 8px; color: var(--color-heading); font-weight: 500; background: #333; border: 1px solid var(--color-card-border); box-shadow: 0 5px 20px rgba(0,0,0,0.5); animation: toast-in 0.5s ease; }
+        .toast.error { background: var(--color-danger); color: white; }
+        .toast.success { background: var(--color-status-up); color: black; }
+        .toast i { font-size: 1.2rem; }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes fade-in-scale { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         @media(max-width: 768px) {
             .detail-header { grid-template-columns: 1fr; }
             #detail-title { font-size: 2.2rem; }
             .section-title { font-size: 2.5rem; }
+            .comment-form-footer { padding-left: 0; flex-direction: column; align-items: flex-end; gap: 10px; }
         }
     </style>
 </head>
 <body>
+    <div id="cursor-glow"></div>
+    <div id="toast-container"></div>
+
     <div id="main-content" style="opacity:1; visibility: visible;">
          <header class="main-header">
             <nav class="navbar">
@@ -154,14 +203,14 @@
         </header>
 
         <main>
-            <section class="content-section">
+            <section class="content-section" id="page-content">
                 <div id="games-browser-view">
                     <h2 class="section-title">Our <span class="gradient-text">Products</span></h2>
                     <p class="section-subtitle">Browse our full catalog of supported games. Click any game to see details, features, and discuss with the community.</p>
                     <div class="games-controls">
                         <div class="search-container">
                             <i class="fas fa-search"></i>
-                            <input type="search" id="game-search-input" placeholder="Search for a game...">
+                            <input type="search" id="game-search-input" placeholder="Search for a game..." aria-label="Search for a game">
                         </div>
                         <div class="filter-buttons">
                             <button class="filter-btn active" data-filter="all">All</button>
@@ -175,7 +224,7 @@
                 </div>
 
                 <div id="game-detail-view">
-                    <button id="back-to-grid-btn" class="btn btn-secondary back-to-grid"><i class="fas fa-arrow-left"></i> Back to All Games</button>
+                    <button id="back-to-grid-btn" class="btn btn-secondary back-to-grid" aria-label="Back to All Games"><i class="fas fa-arrow-left"></i> Back to All Games</button>
                     <div class="detail-header">
                         <img src="" alt="Game Thumbnail" id="detail-thumbnail">
                         <div class="detail-info">
@@ -185,7 +234,7 @@
                                 <strong>Key:</strong> <code id="detail-key-value"></code>
                             </div>
                             <div id="detail-execute-box">
-                                <button id="detail-copy-btn" class="btn btn-secondary">Copy</button>
+                                <button id="detail-copy-btn" class="btn btn-secondary" aria-label="Copy loadstring"><i class="fas fa-copy"></i><span>Copy</span></button>
                                 <code id="detail-loadstring"></code>
                             </div>
                         </div>
@@ -196,14 +245,20 @@
                     </div>
                     <div class="detail-section">
                         <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
-                        <!-- UPDATED COMMENT FORM STRUCTURE -->
                         <form id="detail-comment-form">
                             <div class="comment-form-main">
                                 <img src="" alt="Your avatar" class="comment-form-avatar">
-                                <textarea class="comment-textarea" placeholder="Share your thoughts..." required></textarea>
+                                <div class="comment-textarea-wrapper">
+                                    <textarea class="comment-textarea" placeholder="Share your thoughts..." required maxlength="1000"></textarea>
+                                </div>
                             </div>
-                            <div class="comment-form-actions">
-                                <button type="submit" class="btn btn-primary">Post Comment</button>
+                            <div class="comment-form-footer">
+                                <span id="comment-char-counter"></span>
+                                <div class="comment-form-actions">
+                                    <button type="submit" class="btn btn-primary" disabled>
+                                        <span>Post Comment</span>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                         <div class="comments-list"></div>
@@ -215,60 +270,117 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // --- QoL: Core variable setup ---
         const user = JSON.parse(localStorage.getItem('discord_user_v2'));
         if (!user) {
             window.location.href = 'index.html'; 
             return;
         }
 
+        const pageContent = document.getElementById('page-content');
         const browserView = document.getElementById('games-browser-view');
         const detailView = document.getElementById('game-detail-view');
         const gameGrid = document.querySelector('.game-grid');
         const searchInput = document.getElementById('game-search-input');
         const filterButtonsContainer = document.querySelector('.filter-buttons');
         const noResultsMessage = document.getElementById('no-results-message');
-        
         const avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+        
+        let allGames = [];
+        let currentFilter = 'all';
+        let currentSearchTerm = '';
+
+        // --- QoL: Toast Notification System ---
+        const showToast = (message, type = 'error') => {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check';
+            toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        };
+
+        // --- QoL: Relative Time Formatter ---
+        const formatTimeAgo = (date) => {
+            const now = new Date();
+            const seconds = Math.floor((now - new Date(date)) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return "Just now";
+        };
+
+        // --- User setup & Cross-tab logout sync ---
         document.getElementById('nav-user-avatar').src = avatarUrl;
         document.getElementById('nav-user-name').textContent = user.username;
         document.querySelector('.comment-form-avatar').src = avatarUrl;
         document.getElementById('discord-logout-btn-header').addEventListener('click', () => {
              if (window.confirm("Are you sure you want to log out?")) { localStorage.clear(); window.location.href = 'index.html'; }
         });
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'discord_user_v2' && e.newValue === null) {
+                showToast('Logged out from another tab. Redirecting...', 'success');
+                setTimeout(() => window.location.href = 'index.html', 2000);
+            }
+        });
 
-        let allGames = [];
-        let currentFilter = 'all';
-        let currentSearchTerm = '';
+        // --- View Management with Smooth Transitions ---
+        const switchView = (showView, hideView, callback) => {
+            pageContent.classList.add('fading-out');
+            setTimeout(() => {
+                hideView.style.display = 'none';
+                if (callback) callback();
+                showView.style.display = 'block';
+                pageContent.classList.remove('fading-out');
+            }, 400);
+        };
 
         const showGridView = () => {
-            browserView.style.display = 'block';
-            detailView.style.display = 'none';
+            switchView(browserView, detailView);
         };
 
         const showDetailView = (game) => {
-            document.getElementById('detail-thumbnail').src = game.thumbnail_url || '';
-            document.getElementById('detail-title').textContent = game.name;
-            const statusEl = document.getElementById('detail-status');
-            statusEl.textContent = game.status;
-            statusEl.className = '';
-            statusEl.classList.add(game.status);
-            document.getElementById('detail-loadstring').textContent = game.loadstring || 'Not available.';
-            document.getElementById('detail-features').innerHTML = game.features_html || '<p>No features listed.</p>';
-            document.getElementById('detail-comment-form').dataset.topic = game.topic_id;
-            
-            const keyDisplay = document.getElementById('detail-key-display');
-            if (game.key && game.key.trim() !== '') {
-                document.getElementById('detail-key-value').textContent = game.key;
-                keyDisplay.style.display = 'block';
-            } else {
-                keyDisplay.style.display = 'none';
+            switchView(detailView, browserView, () => {
+                document.getElementById('detail-thumbnail').src = game.thumbnail_url || '';
+                document.getElementById('detail-title').textContent = game.name;
+                const statusEl = document.getElementById('detail-status');
+                statusEl.textContent = game.status;
+                statusEl.className = '';
+                statusEl.classList.add(game.status);
+                document.getElementById('detail-loadstring').textContent = game.loadstring || 'Not available.';
+                document.getElementById('detail-features').innerHTML = game.features_html || '<p>No features listed.</p>';
+                document.getElementById('detail-comment-form').dataset.topic = game.topic_id;
+                
+                const keyDisplay = document.getElementById('detail-key-display');
+                keyDisplay.style.display = (game.key && game.key.trim() !== '') ? 'block' : 'none';
+                if (keyDisplay.style.display === 'block') {
+                    document.getElementById('detail-key-value').textContent = game.key;
+                }
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                fetchComments(game.topic_id);
+            });
+        };
+
+        // --- Game Rendering with Skeleton Loaders ---
+        const renderSkeletonGrid = (count = 6) => {
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                gameGrid.insertAdjacentHTML('beforeend', `
+                    <div class="skeleton-card">
+                        <div class="skeleton-thumbnail"></div>
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>`);
             }
-            
-            browserView.style.display = 'none';
-            detailView.style.display = 'block';
-            window.scrollTo(0, 0);
-            
-            fetchComments(game.topic_id);
         };
 
         const renderGames = () => {
@@ -285,43 +397,53 @@
                 const isComingSoon = game.status?.trim().toLowerCase() === 'coming soon';
                 const keyHTML = game.key && game.key.trim() !== '' ? `<div class="game-key-tag"><i class="fas fa-key"></i> Key: <span>${game.key}</span></div>` : '';
                 
-                gameGrid.insertAdjacentHTML('beforeend', `
-                    <div class="game-card ${isComingSoon ? 'coming-soon' : ''}" data-id="${game.topic_id}">
-                        <div class="game-card-thumbnail"><img src="${game.thumbnail_url || ''}" alt="${game.name}"></div>
-                        <div class="game-card-info">
-                            <h3>${game.name}</h3>
-                            <p>${game.status}</p>
-                            ${keyHTML}
-                        </div>
-                    </div>`);
+                const card = document.createElement('div');
+                card.className = `game-card ${isComingSoon ? 'coming-soon' : ''}`;
+                card.dataset.id = game.topic_id;
+                card.innerHTML = `
+                    <div class="game-card-thumbnail"><img src="${game.thumbnail_url || ''}" alt="${game.name}"></div>
+                    <div class="game-card-info">
+                        <h3>${game.name}</h3>
+                        <p>${game.status}</p>
+                        ${keyHTML}
+                    </div>`;
+                gameGrid.appendChild(card);
             });
         };
 
         const loadGames = async () => {
-            gameGrid.innerHTML = '<p class="api-status">Loading games...</p>';
+            renderSkeletonGrid();
             try {
                 const response = await fetch('/api/games');
                 if (!response.ok) throw new Error('Could not fetch games from server.');
                 allGames = await response.json();
                 renderGames();
             } catch (error) {
-                gameGrid.innerHTML = `<p class="api-status" style="color:red;">${error.message}</p>`;
+                gameGrid.innerHTML = '';
+                showToast(error.message);
             }
         };
 
+        // --- Upgraded Comment Handling ---
         const fetchComments = async (topicId) => {
             const list = document.querySelector('#game-detail-view .comments-list');
-            list.innerHTML = `<p class="api-status">Loading comments...</p>`;
+            list.innerHTML = `<div class="api-status"><div class="spinner"></div></div>`;
             try {
                 const response = await fetch(`/api/comments?topic=${topicId}`);
+                if (!response.ok) throw new Error();
                 const comments = await response.json();
                 list.innerHTML = comments.length === 0 ? `<p class="api-status">Be the first to comment!</p>` : '';
-                comments.forEach(c => list.insertAdjacentHTML('beforeend', createCommentCardHTML(c)));
-            } catch (e) { list.innerHTML = `<p class="api-status" style="color:red;">Could not load comments.</p>`; }
+                comments.forEach(c => list.appendChild(createCommentCard(c)));
+            } catch (e) {
+                list.innerHTML = `<p class="api-status" style="color:red;">Could not load comments.</p>`;
+            }
         };
         
-        // --- UPDATED to create the new comment card structure ---
-        const createCommentCardHTML = (comment) => {
+        const createCommentCard = (comment) => {
+            const card = document.createElement('div');
+            card.className = 'comment-card';
+            card.dataset.commentId = comment.id;
+
             const sanitizedContent = document.createElement('p');
             sanitizedContent.className = 'comment-body';
             sanitizedContent.textContent = comment.content || '';
@@ -330,22 +452,21 @@
             sanitizedUsername.className = 'comment-user';
             sanitizedUsername.textContent = comment.user_name || 'Anonymous';
 
-            const randomTime = Math.floor(Math.random() * 24);
-            const timestamp = randomTime > 0 ? `${randomTime}h ago` : 'Just now';
+            const timestamp = formatTimeAgo(comment.created_at || new Date());
 
-            return `
-                <div class="comment-card">
-                    <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar">
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            ${sanitizedUsername.outerHTML}
-                            <span class="comment-timestamp">· ${timestamp}</span>
-                        </div>
-                        ${sanitizedContent.outerHTML}
+            card.innerHTML = `
+                <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-avatar">
+                <div class="comment-content">
+                    <div class="comment-header">
+                        ${sanitizedUsername.outerHTML}
+                        <span class="comment-timestamp">· ${timestamp}</span>
                     </div>
+                    ${sanitizedContent.outerHTML}
                 </div>`;
+            return card;
         };
 
+        // --- Event Listeners ---
         document.getElementById('back-to-grid-btn').addEventListener('click', showGridView);
         searchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value.toLowerCase(); renderGames(); });
         filterButtonsContainer.addEventListener('click', (e) => {
@@ -362,47 +483,81 @@
             if (!card) return;
             const gameId = card.dataset.id;
             const selectedGame = allGames.find(g => g.topic_id == gameId); 
-            if (selectedGame) {
-                showDetailView(selectedGame);
-            }
+            if (selectedGame) showDetailView(selectedGame);
         });
 
-        document.getElementById('detail-comment-form').addEventListener('submit', async (e) => {
+        // QoL: Comment form enhancements
+        const commentForm = document.getElementById('detail-comment-form');
+        const commentTextarea = commentForm.querySelector('.comment-textarea');
+        const charCounter = document.getElementById('comment-char-counter');
+        const postCommentBtn = commentForm.querySelector('button[type="submit"]');
+        const postCommentBtnText = postCommentBtn.querySelector('span');
+
+        commentTextarea.addEventListener('input', () => {
+            // Auto-resize textarea
+            commentTextarea.style.height = 'auto';
+            commentTextarea.style.height = `${commentTextarea.scrollHeight}px`;
+            
+            // Character counter and button state
+            const len = commentTextarea.value.trim().length;
+            charCounter.textContent = `${len} / 1000`;
+            postCommentBtn.disabled = len === 0 || len > 1000;
+        });
+
+        commentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const textarea = form.querySelector('textarea');
-            const content = textarea.value.trim();
-            const topic = form.dataset.topic;
+            const content = commentTextarea.value.trim();
+            const topic = e.target.dataset.topic;
             if (!content || !topic) return;
             
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Posting...';
+            postCommentBtn.disabled = true;
+            postCommentBtnText.innerHTML = `<div class="spinner"></div>`;
 
             try {
                 const response = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, content, user }) });
                 if (!response.ok) throw new Error((await response.json()).error || 'Failed to post comment');
+                
                 const newComment = await response.json();
                 const list = document.querySelector('#game-detail-view .comments-list');
                 if (list.querySelector('.api-status')) list.innerHTML = '';
-                list.insertAdjacentHTML('afterbegin', createCommentCardHTML(newComment));
-                textarea.value = '';
+                
+                const newCard = createCommentCard(newComment);
+                list.prepend(newCard);
+                commentTextarea.value = '';
+                commentTextarea.dispatchEvent(new Event('input')); // Reset counter and height
+                
+                // Highlight new comment
+                newCard.classList.add('new-comment-highlight');
+                setTimeout(() => newCard.classList.remove('new-comment-highlight'), 3000);
+
             } catch (error) {
-                alert(error.message);
+                showToast(error.message);
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Post Comment';
+                postCommentBtn.disabled = false;
+                postCommentBtnText.textContent = 'Post Comment';
             }
         });
 
-        document.getElementById('detail-copy-btn').addEventListener('click', (e) => {
+        // QoL: Copy button with icon feedback
+        const copyBtn = document.getElementById('detail-copy-btn');
+        copyBtn.addEventListener('click', () => {
             const textToCopy = document.getElementById('detail-loadstring').textContent;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                e.target.textContent = 'Copied!';
-                setTimeout(() => { e.target.textContent = 'Copy'; }, 2000);
-            });
+                copyBtn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i><span>Copy</span>';
+                }, 2000);
+            }).catch(err => showToast('Failed to copy.'));
         });
 
+        // QoL: Cursor glow effect
+        const cursorGlow = document.getElementById('cursor-glow');
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.left = `${e.clientX}px`;
+            cursorGlow.style.top = `${e.clientY}px`;
+        });
+        
+        // --- Initial Load ---
         loadGames();
     });
     </script>
