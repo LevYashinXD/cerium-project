@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Restricted</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --color-background: #050505; --color-heading: #FFFFFF; --color-text: #E0E0E0; --color-status-caution: #FFD700; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--color-background); color: var(--color-text); display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
+        .container { max-width: 600px; padding: 40px; }
+        h1 { font-size: 3rem; font-weight: 800; color: var(--color-status-caution); margin-bottom: 20px; }
+        p { font-size: 1.2rem; line-height: 1.6; }
+        #expiry-date { font-weight: 700; color: var(--color-heading); }
+        .reason-box { margin-top: 30px; padding: 20px; background: rgba(255, 215, 0, 0.1); border-left: 4px solid var(--color-status-caution); text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Account Suspended</h1>
+        <p>Your account has been temporarily suspended. You may regain access after <strong id="expiry-date">...</strong></p>
+         <div id="reason-container" style="display: none;">
+            <div class="reason-box">
+                <strong>Reason:</strong>
+                <p id="suspension-reason"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const expiry = params.get('expires');
+            const reason = params.get('reason');
+
+            if (expiry) {
+                document.getElementById('expiry-date').textContent = new Date(expiry).toLocaleString();
+            }
+            if (reason) {
+                document.getElementById('suspension-reason').textContent = reason;
+                document.getElementById('reason-container').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

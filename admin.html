@@ -16,7 +16,7 @@
             --color-background: #050505; --color-heading: #FFFFFF; --color-text: #E0E0E0;
             --color-card-bg: rgba(255, 255, 255, 0.05); --color-card-border: rgba(255, 255, 255, 0.1);
             --primary-gradient: linear-gradient(90deg, #FFFFFF, #888888); --color-glow: rgba(255, 255, 255, 0.3);
-            --color-status-up: #00FF7F; --color-status-down: #FF3366; --border-radius: 16px;
+            --color-status-up: #00FF7F; --color-status-down: #FF3366; --color-status-caution: #FFD700; --border-radius: 16px;
             --font-family: 'Inter', sans-serif;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -82,7 +82,7 @@
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%; animation: slideInUp 0.4s ease; }
+        .modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%; animation: slideInUp 0.4s ease; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 25px; color: var(--color-text); font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
         .modal-close:hover { color: var(--color-heading); }
         .form-group { margin-bottom: 20px; }
@@ -161,47 +161,44 @@
             <h2 id="modal-title" style="margin-bottom: 30px;"></h2>
             <form id="game-form">
                  <input type="hidden" id="game-id" name="gameId">
-                <div class="form-group">
-                    <label for="game-name">Game Name</label>
-                    <input type="text" id="game-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="game-status">Status</label>
-                    <input type="text" id="game-status" required>
-                </div>
-                <div class="form-group">
-                    <label for="thumbnail-url">Thumbnail URL</label>
-                    <input type="url" id="thumbnail-url">
-                </div>
-                <div class="form-group">
-                    <label for="loadstring">Loadstring (Optional)</label>
-                    <textarea id="loadstring" rows="2"></textarea>
-                </div>
-                 <div class="form-group">
-                    <label for="topic-id">Topic ID (for comments, must be unique)</label>
-                    <input type="text" id="topic-id" required>
-                </div>
+                <div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div>
+                <div class="form-group"><label for="game-status">Status</label><input type="text" id="game-status" required></div>
+                <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div>
+                <div class="form-group"><label for="loadstring">Loadstring (Optional)</label><textarea id="loadstring" rows="2"></textarea></div>
+                <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div>
                 <div style="display: flex; gap: 20px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="display-order">Display Order</label>
-                        <input type="number" id="display-order" value="99" required>
-                    </div>
-                    <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;">
-                        <label class="form-group-checkbox">
-                            <input type="checkbox" id="is-published">
-                            Published
-                        </label>
-                    </div>
+                    <div class="form-group" style="flex: 1;"><label for="display-order">Display Order</label><input type="number" id="display-order" value="99" required></div>
+                    <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div>
                 </div>
-                 <div class="form-group">
-                    <label for="features-html">Features HTML (Optional)</label>
-                    <textarea id="features-html" rows="8"></textarea>
-                </div>
+                <div class="form-group"><label for="features-html">Features HTML (Optional)</label><textarea id="features-html" rows="8"></textarea></div>
                 <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
                     <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Game</button>
                 </div>
                 <p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p>
+            </form>
+        </div>
+    </div>
+    
+    <div id="moderate-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">×</span>
+            <h2 id="moderate-title" style="margin-bottom: 30px;"></h2>
+            <form id="moderate-form">
+                <input type="hidden" id="moderate-user-id">
+                <input type="hidden" id="moderate-action">
+                <div class="form-group" id="duration-group" style="display: none;">
+                    <label for="moderate-duration">Duration (in hours)</label>
+                    <input type="number" id="moderate-duration" min="1" value="24" required>
+                </div>
+                <div class="form-group">
+                    <label for="moderate-reason">Reason (optional, will be shown to user)</label>
+                    <textarea id="moderate-reason" rows="4" placeholder="e.g., Spamming, inappropriate behavior..."></textarea>
+                </div>
+                <div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Action</button>
+                </div>
             </form>
         </div>
     </div>
@@ -217,22 +214,22 @@
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
         const logoutBtnDenied = document.getElementById('logout-btn-denied');
         const authStatus = document.getElementById('auth-status');
-        
         const tabButtons = document.querySelectorAll('.admin-tab-btn');
         const tabPanes = document.querySelectorAll('.admin-tab-pane');
-
         const gamesTableBody = document.getElementById('games-table-body');
         const addNewGameBtn = document.getElementById('add-new-game-btn');
-        
         const commentsContainer = document.getElementById('comments-container');
         const usersContainer = document.getElementById('users-container');
-
         const gameFormModal = document.getElementById('game-form-modal');
         const gameForm = document.getElementById('game-form');
         const modalTitle = document.getElementById('modal-title');
-        const modalCloseBtn = gameFormModal.querySelector('.modal-close');
-        const modalCancelBtn = gameFormModal.querySelector('.modal-cancel-btn');
+        const gameModalCloseBtn = gameFormModal.querySelector('.modal-close');
+        const gameModalCancelBtn = gameFormModal.querySelector('.modal-cancel-btn');
         const formError = document.getElementById('form-error');
+        const moderateModal = document.getElementById('moderate-modal');
+        const moderateForm = document.getElementById('moderate-form');
+        const moderateModalClose = moderateModal.querySelector('.modal-close');
+        const moderateModalCancel = moderateModal.querySelector('.modal-cancel-btn');
 
         const setPageState = (state) => body.className = `state-${state}`;
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
@@ -300,10 +297,9 @@
         
         let allGamesData = [];
         const fetchAndRenderGames = async () => {
-            gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">Loading...</td></tr>';
+            gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
             try {
-                const currentUser = getCurrentUser();
-                if (!currentUser) throw new Error("Not logged in.");
+                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
                 const response = await fetch('/api/admin', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) { await verifyAdminStatus(currentUser); throw new Error('Authorization failed.'); }
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to fetch games.'); }
@@ -325,19 +321,15 @@
         };
         
         const openFormModal = (game = null) => {
-            gameForm.reset();
-            formError.textContent = '';
+            gameForm.reset(); formError.textContent = '';
             if (game) {
                 modalTitle.textContent = "Edit Game";
-                ['id', 'name', 'status', 'thumbnail_url', 'loadstring', 'topic_id', 'display_order', 'features_html'].forEach(field => {
-                    const el = document.getElementById(field.replace('_', '-'));
-                    if (el) el.value = game[field] || (field === 'display-order' ? 99 : '');
+                ['id', 'name', 'status', 'thumbnail_url', 'loadstring', 'topic_id', 'display_order', 'features_html'].forEach(f => {
+                    const el = document.getElementById(f.replace('_', '-'));
+                    if (el) el.value = game[f] ?? (f === 'display_order' ? 99 : '');
                 });
                 document.getElementById('is-published').checked = game.is_published;
-            } else {
-                modalTitle.textContent = "Add New Game";
-                document.getElementById('display-order').value = 99;
-            }
+            } else { modalTitle.textContent = "Add New Game"; document.getElementById('display-order').value = 99; }
             gameFormModal.classList.add('visible');
         };
 
@@ -355,10 +347,9 @@
         };
         
         const fetchAndRenderComments = async () => {
-            commentsContainer.innerHTML = '<p style="text-align:center; padding: 40px;">Loading comments...</p>';
+            commentsContainer.innerHTML = '<p style="text-align:center;">Loading comments...</p>';
             try {
-                const currentUser = getCurrentUser();
-                if (!currentUser) throw new Error("Not logged in.");
+                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
                 const response = await fetch('/api/comments', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch comments.');
@@ -390,10 +381,9 @@
         };
 
         const fetchAndRenderUsers = async () => {
-            usersContainer.innerHTML = '<p style="text-align:center; padding: 40px;">Loading users...</p>';
+            usersContainer.innerHTML = '<p style="text-align:center;">Loading users...</p>';
             try {
-                const currentUser = getCurrentUser();
-                if (!currentUser) throw new Error("Not logged in.");
+                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
                 const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch users.');
@@ -410,17 +400,53 @@
                 card.className = 'user-card-admin';
                 const joinDate = new Date(user.join_date).toLocaleDateString();
                 const lastSeen = user.last_seen ? timeAgo(user.last_seen) : 'Never';
-                card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta"><span>Joined: <strong>${joinDate}</strong></span><span>Comments: <strong>${user.comment_count}</strong></span><span>Reports: <strong>${user.report_count}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div></div>`;
+                let statusHTML = '', actionsHTML = '';
+                if (user.is_banned) {
+                    statusHTML = `<span>Status: <strong style="color:var(--color-status-down)">Banned</strong></span>`;
+                    actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unban</button>`;
+                } else if (user.suspension_expires_at && new Date(user.suspension_expires_at) > new Date()) {
+                    statusHTML = `<span>Status: <strong style="color:var(--color-status-caution)">Suspended</strong></span>`;
+                    actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unsuspend</button>`;
+                } else {
+                    statusHTML = `<span>Status: <strong style="color:var(--color-status-up)">Active</strong></span>`;
+                    actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
+                }
+                card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Reason: ${user.moderation_reason}</div>` : ''}</div><div class="actions" style="margin-left: auto; align-items: center;">${actionsHTML}</div>`;
                 usersContainer.appendChild(card);
             });
         };
+
+        const moderateUser = async (target_discord_id, action, reason = null, duration_hours = null) => {
+            try {
+                const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), target_discord_id, action, reason, duration_hours }) });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
+                await fetchAndRenderUsers();
+            } catch (error) { alert(`Error: ${error.message}`); }
+        };
+        
+        const openModerateModal = (userId, action) => {
+            document.getElementById('moderate-user-id').value = userId;
+            document.getElementById('moderate-action').value = action;
+            document.getElementById('moderate-reason').value = '';
+            const title = document.getElementById('moderate-title');
+            const durationGroup = document.getElementById('duration-group');
+            if (action === 'ban') {
+                title.textContent = 'Ban User';
+                durationGroup.style.display = 'none';
+            } else {
+                title.textContent = 'Suspend User';
+                durationGroup.style.display = 'block';
+            }
+            moderateModal.classList.add('visible');
+        };
+        const closeModerateModal = () => moderateModal.classList.remove('visible');
 
         discordLoginBtn.addEventListener('click', () => { const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; window.location.href = authUrl; });
         logoutBtnAdmin.addEventListener('click', handleLogout);
         logoutBtnDenied.addEventListener('click', handleLogout);
         addNewGameBtn.addEventListener('click', () => openFormModal());
-        modalCloseBtn.addEventListener('click', closeFormModal);
-        modalCancelBtn.addEventListener('click', closeFormModal);
+        gameModalCloseBtn.addEventListener('click', closeFormModal);
+        gameModalCancelBtn.addEventListener('click', closeFormModal);
         document.addEventListener('keydown', (e) => { if (e.key === "Escape" && gameFormModal.classList.contains('visible')) closeFormModal(); });
         gamesTableBody.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
@@ -429,6 +455,24 @@
             if (deleteBtn) { handleDeleteGameClick({ currentTarget: deleteBtn }); }
         });
         commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn }); });
+        usersContainer.addEventListener('click', (e) => {
+            const target = e.target.closest('button'); if (!target) return;
+            const userId = target.dataset.id;
+            if (target.classList.contains('ban-btn')) { openModerateModal(userId, 'ban'); }
+            else if (target.classList.contains('suspend-btn')) { openModerateModal(userId, 'suspend'); }
+            else if (target.classList.contains('unban-btn')) { if (confirm(`Remove restrictions for this user?`)) { moderateUser(userId, 'unban'); } }
+        });
+        moderateModalClose.addEventListener('click', closeModerateModal);
+        moderateModalCancel.addEventListener('click', closeModerateModal);
+        moderateForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('moderate-user-id').value;
+            const action = document.getElementById('moderate-action').value;
+            const reason = document.getElementById('moderate-reason').value;
+            const duration = document.getElementById('moderate-duration').value;
+            moderateUser(userId, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
+            closeModerateModal();
+        });
         gameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.currentTarget.querySelector('button[type="submit"]');
