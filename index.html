@@ -140,7 +140,7 @@
         .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .game-card { background: var(--color-card-bg); border-radius: var(--border-radius); text-align: left; transition: all 0.3s ease; border: 1px solid var(--color-card-border); display: flex; flex-direction: column; padding: 25px; }
         .game-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); border-color: var(--color-card-border-hover); }
-        .game-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .game-card-header { display: flex; justify-content: space-between; align-items: flex-start; flex-grow: 1; }
         .game-card-info { flex-grow: 1; }
         .game-card-info h3 { color: var(--color-heading); font-size: 1.3rem; margin-bottom: 5px; }
         .game-card-info p { color: var(--color-text); opacity: 0.7; font-size: 0.9rem; }
@@ -186,7 +186,8 @@
         .comment-user { font-weight: 700; color: var(--color-heading); }
         .comment-time { font-size: 0.85rem; color: var(--color-text); opacity: 0.6; }
         .comment-body { line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
-        .comments-status { text-align: center; padding: 40px; font-style: italic; opacity: 0.7; }
+        .comments-status { text-align: center; padding: 40px; font-style: italic; opacity: 0.7; grid-column: 1 / -1; }
+        .comments-status.error { color: var(--color-status-down); font-weight: 600; }
         .timeline-container { position: relative; max-width: 900px; margin: 0 auto; }
         .timeline-container::before { content: ''; position: absolute; width: 3px; background: var(--color-card-border); top: 0; bottom: 0; left: 24px; border-radius: 3px; }
         .timeline-item { position: relative; padding: 20px 0 40px 70px; }
@@ -226,7 +227,6 @@
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
         .user-name { font-weight: 600; color: var(--color-heading); }
         #cta-section { padding: 120px 5%; background: transparent; }
-        #cta-section h2 { font-size: 3rem; margin-bottom: 20px; }
         .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background-image: var(--primary-gradient); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-decoration: none; opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 999; transform: translateY(20px); }
         .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
 
@@ -659,7 +659,7 @@
             setTimeout(() => {
                 welcomeTransition.classList.add('exiting');
                 setTimeout(() => showMainContent(userData), 800);
-            }, 1500); // Shortened for faster load
+            }, 1500);
         };
 
         const showMainContent = (userData) => {
@@ -673,8 +673,8 @@
             setPageState('authenticated');
             body.classList.add('status-up');
 
-            initializeStaticPageScripts();
-            fetchAndRenderGames(); // <-- NEW: Fetch dynamic content
+            // This is the main execution flow now. Fetch data first.
+            fetchAndRenderGames();
         };
 
         const handleLogout = () => {
@@ -711,7 +711,7 @@
             } else {
                 const storedUser = localStorage.getItem('discord_user_v2');
                 setTimeout(() => {
-                    if (storedUser) showMainContent(JSON.parse(storedUser)); // Go straight to main content
+                    if (storedUser) showMainContent(JSON.parse(storedUser));
                     else showLoginWall();
                 }, 500);
             }
@@ -721,7 +721,10 @@
         const fetchAndRenderGames = async () => {
             try {
                 const response = await fetch('/api/games');
-                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); // Handle cases where body is not JSON
+                    throw new Error(`API Error: ${errorData.details || response.statusText}`);
+                }
                 const games = await response.json();
 
                 // Clear loading states
@@ -732,97 +735,94 @@
 
                 if (games.length === 0) {
                     gameGridContainer.innerHTML = '<p class="comments-status">No games are available at the moment. Please check back later.</p>';
-                    return;
-                }
-
-                games.forEach((game, index) => {
-                    // 1. Create Game Card
-                    const gameCard = document.createElement('div');
-                    gameCard.className = 'game-card card-glow reveal-child';
-                    gameCard.style.setProperty('--i', index + 2);
-                    gameCard.innerHTML = `
-                        <div class="game-card-header">
-                            <div class="game-card-info">
-                                <h3>${game.name}</h3>
-                                <p>${game.status}</p>
-                            </div>
-                            <div class="dropdown">
-                                <button class="dropdown-btn" aria-label="More options for ${game.name}">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-content">
-                                    <a href="${game.roblox_url || '#'}" target="_blank" class="dropdown-item" ${!game.roblox_url ? 'disabled' : ''}>
-                                        <i class="fas fa-play"></i> Play Game
-                                    </a>
-                                    <button class="dropdown-item get-script-btn" data-loadstring="${game.loadstring || ''}" ${!game.loadstring ? 'disabled' : ''}>
-                                        <i class="fas fa-copy"></i> Copy Loadstring
-                                    </button>
-                                    <button class="dropdown-item features-trigger" data-topic="${game.topic_id}">
-                                        <i class="fas fa-star"></i> View Features
-                                    </button>
+                } else {
+                     games.forEach((game, index) => {
+                        // 1. Create Game Card
+                        const gameCard = document.createElement('div');
+                        gameCard.className = 'game-card card-glow'; // reveal-child is added later by observer
+                        gameCard.innerHTML = `
+                            <div class="game-card-header">
+                                <div class="game-card-info">
+                                    <h3>${game.name}</h3>
+                                    <p>${game.status}</p>
                                 </div>
-                            </div>
-                        </div>
-                    `;
-                    gameGridContainer.appendChild(gameCard);
-
-                    // 2. Create Feature Tab
-                    const featureTab = document.createElement('button');
-                    featureTab.className = `feature-tab-btn reveal-child ${index === 0 ? 'active' : ''}`;
-                    featureTab.dataset.topic = game.topic_id;
-                    featureTab.style.setProperty('--i', index + 2);
-                    featureTab.textContent = game.name;
-                    featureTabsContainer.appendChild(featureTab);
-                    
-                    // 3. Create Feature Pane
-                    const featurePane = document.createElement('div');
-                    featurePane.id = `features-${game.topic_id}`;
-                    featurePane.className = `feature-pane ${index === 0 ? 'active' : ''}`;
-                    featurePane.innerHTML = `
-                        ${game.features_html || '<p class="comments-status">No features listed for this game yet.</p>'}
-                        
-                        <div class="comments-section card-glow">
-                            <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
-                            <form class="comment-form" data-topic="${game.topic_id}">
-                                <img src="${document.getElementById('nav-user-avatar').src}" alt="Your avatar" class="comment-form-avatar">
-                                <div class="comment-form-input-wrapper">
-                                    <textarea class="comment-textarea" placeholder="Share your thoughts or ask a question..." required></textarea>
-                                    <div class="comment-form-actions">
-                                        <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Post</button>
+                                <div class="dropdown">
+                                    <button class="dropdown-btn" aria-label="More options for ${game.name}">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <a href="${game.roblox_url || '#'}" target="_blank" class="dropdown-item" ${!game.roblox_url ? 'disabled title="No game link available"' : ''}>
+                                            <i class="fas fa-play"></i> Play Game
+                                        </a>
+                                        <button class="dropdown-item get-script-btn" data-loadstring="${game.loadstring || ''}" ${!game.loadstring ? 'disabled title="No loadstring available"' : ''}>
+                                            <i class="fas fa-copy"></i> Copy Loadstring
+                                        </button>
+                                        <button class="dropdown-item features-trigger" data-topic="${game.topic_id}">
+                                            <i class="fas fa-star"></i> View Features
+                                        </button>
                                     </div>
                                 </div>
-                            </form>
-                            <div class="comments-list" id="comments-list-${game.topic_id}">
-                                <!-- Comments will be populated by JS -->
                             </div>
-                        </div>
-                    `;
-                    featurePanesContainer.appendChild(featurePane);
+                        `;
+                        gameGridContainer.appendChild(gameCard);
 
-                    // 4. Populate Bug Report Dropdown
-                    const gameOption = document.createElement('option');
-                    gameOption.value = game.name;
-                    gameOption.textContent = game.name;
-                    bugReportGameSelect.appendChild(gameOption);
-                });
+                        // 2. Create Feature Tab
+                        const featureTab = document.createElement('button');
+                        featureTab.className = `feature-tab-btn ${index === 0 ? 'active' : ''}`;
+                        featureTab.dataset.topic = game.topic_id;
+                        featureTab.textContent = game.name;
+                        featureTabsContainer.appendChild(featureTab);
+                        
+                        // 3. Create Feature Pane
+                        const featurePane = document.createElement('div');
+                        featurePane.id = `features-${game.topic_id}`;
+                        featurePane.className = `feature-pane ${index === 0 ? 'active' : ''}`;
+                        featurePane.innerHTML = `
+                            ${game.features_html || '<p class="comments-status">No features listed for this game yet.</p>'}
+                            
+                            <div class="comments-section card-glow">
+                                <h3><i class="fas fa-comments gradient-text"></i> Community Discussion</h3>
+                                <form class="comment-form" data-topic="${game.topic_id}">
+                                    <img src="${document.getElementById('nav-user-avatar').src}" alt="Your avatar" class="comment-form-avatar">
+                                    <div class="comment-form-input-wrapper">
+                                        <textarea class="comment-textarea" placeholder="Share your thoughts or ask a question..." required></textarea>
+                                        <div class="comment-form-actions">
+                                            <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Post</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="comments-list" id="comments-list-${game.topic_id}">
+                                    <!-- Comments will be populated by JS -->
+                                </div>
+                            </div>
+                        `;
+                        featurePanesContainer.appendChild(featurePane);
+
+                        // 4. Populate Bug Report Dropdown
+                        const gameOption = document.createElement('option');
+                        gameOption.value = game.name;
+                        gameOption.textContent = game.name;
+                        bugReportGameSelect.appendChild(gameOption);
+                    });
+                }
+                
                 bugReportGameSelect.innerHTML += '<option value="Other">Other/Website</option>';
 
-                // All dynamic content is loaded, now bind events to it
-                rebindDynamicEventListeners();
+                // All dynamic content is created. Now initialize all scripts that use these elements.
+                initializePageScripts();
                 
             } catch (error) {
                 console.error("Failed to fetch and render games:", error);
-                gameGridContainer.innerHTML = `<p class="comments-status error">Could not load games. ${error.message}</p>`;
+                gameGridContainer.innerHTML = `<p class="comments-status error">${error.message}</p>`;
             }
         };
         
-        // --- EVENT LISTENER BINDING ---
+        // --- SCRIPT INITIALIZATION (RUNS AFTER DYNAMIC CONTENT IS LOADED) ---
 
         let loadedComments = [];
         
-        // Binds events to content that is dynamically loaded
-        function rebindDynamicEventListeners() {
-            // Feature Tabs
+        function initializePageScripts() {
+            // Feature Tabs and Panes Logic
             const featureTabButtons = document.querySelectorAll('.feature-tab-btn');
             const featurePanes = document.querySelectorAll('.feature-pane');
             
@@ -840,7 +840,6 @@
             
             // "View Features" buttons in dropdowns
             document.querySelectorAll('.features-trigger').forEach(button => {
-                if (button.disabled) return;
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
                     document.querySelector('#features').scrollIntoView({ behavior: 'smooth' });
@@ -852,7 +851,7 @@
             document.querySelectorAll('.get-script-btn').forEach(btn => {
                 const originalHTML = btn.innerHTML;
                 btn.addEventListener('click', () => {
-                    if (btn.hasAttribute('data-clicked')) return;
+                    if (btn.hasAttribute('data-clicked') || btn.disabled) return;
                     btn.setAttribute('data-clicked', 'true');
 
                     navigator.clipboard.writeText(btn.dataset.loadstring).then(() => {
@@ -876,24 +875,26 @@
                 fetchComments(activeTab.dataset.topic);
                 loadedComments.push(activeTab.dataset.topic);
             }
-        }
-        
-        // Binds events to static content that exists on page load
-        function initializeStaticPageScripts() {
+
+            // --- ANIMATION & STATIC EVENT LISTENERS ---
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
             const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 
             if (isFinePointer && !isReducedMotion) {
                 const glow = document.getElementById('cursor-glow');
-                document.addEventListener('mousemove', (e) => { requestAnimationFrame(() => { glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`; }); });
+                if (glow) {
+                    document.addEventListener('mousemove', (e) => { requestAnimationFrame(() => { glow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`; }); });
+                }
                 const heroContent = document.querySelector('.hero-content');
-                document.addEventListener('mousemove', (e) => {
-                    const { clientX, clientY } = e;
-                    const x = (clientX / window.innerWidth - 0.5) * 30;
-                    const y = (clientY / window.innerHeight - 0.5) * 30;
-                    requestAnimationFrame(() => { heroContent.style.transform = `translateX(${-x}px) translateY(${-y}px)`; });
-                });
-                document.querySelectorAll('.card-glow').forEach(card => {
+                if (heroContent) {
+                    document.addEventListener('mousemove', (e) => {
+                        const { clientX, clientY } = e;
+                        const x = (clientX / window.innerWidth - 0.5) * 30;
+                        const y = (clientY / window.innerHeight - 0.5) * 30;
+                        requestAnimationFrame(() => { heroContent.style.transform = `translateX(${-x}px) translateY(${-y}px)`; });
+                    });
+                }
+                document.querySelectorAll('.card-glow, .game-card').forEach(card => {
                     const intensity = 15;
                     card.addEventListener('mousemove', (e) => {
                         const rect = card.getBoundingClientRect();
@@ -905,6 +906,7 @@
                 });
             }
 
+            // --- GENERAL PAGE LISTENERS (NON-DYNAMIC) ---
             const header = document.querySelector('.main-header');
             const backToTopButton = document.querySelector('.back-to-top');
             const sections = document.querySelectorAll('main > section[id]');
@@ -949,7 +951,7 @@
             window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
 
-            // --- Bug Report Form Logic ---
+            // Bug Report Form Logic
             bugReportForm.addEventListener('submit', handleBugReportSubmit);
 
             const reportFormStateKey = 'cerium_bug_report_draft';
@@ -966,6 +968,19 @@
         }
 
         // --- COMMENTS LOGIC ---
+        const fetchComments = async (topicId) => {
+            const list = document.getElementById(`comments-list-${topicId}`);
+            list.innerHTML = `<p class="comments-status">Loading comments...</p>`;
+            try {
+                const response = await fetch(`/api/comments?topic=${topicId}`);
+                if (!response.ok) throw new Error('Failed to load comments.');
+                const comments = await response.json();
+                renderComments(comments, topicId);
+            } catch (error) {
+                list.innerHTML = `<p class="comments-status error">${error.message}</p>`;
+            }
+        };
+
         const renderComments = (comments, topicId) => {
             const list = document.getElementById(`comments-list-${topicId}`);
             list.innerHTML = '';
@@ -993,19 +1008,6 @@
                     <p class="comment-body">${safeContent}</p>
                 </div>`;
             return card;
-        };
-
-        const fetchComments = async (topicId) => {
-            const list = document.getElementById(`comments-list-${topicId}`);
-            list.innerHTML = `<p class="comments-status">Loading comments...</p>`;
-            try {
-                const response = await fetch(`/api/comments?topic=${topicId}`);
-                if (!response.ok) throw new Error('Failed to load comments.');
-                const comments = await response.json();
-                renderComments(comments, topicId);
-            } catch (error) {
-                list.innerHTML = `<p class="comments-status error">${error.message}</p>`;
-            }
         };
 
         async function handleCommentSubmit(event) {
@@ -1064,7 +1066,6 @@
             const statusMessage = document.getElementById('form-status-message');
             const submitButton = document.getElementById('submit-bug-report');
             
-            // Rate limiting check
             const lastSubmission = localStorage.getItem('cerium_last_report_timestamp');
             if (lastSubmission && (Date.now() - lastSubmission < RATE_LIMIT_MS)) {
                 const timeLeft = Math.ceil((RATE_LIMIT_MS - (Date.now() - lastSubmission)) / 60000);
@@ -1073,7 +1074,6 @@
                 return;
             }
 
-            // Validation check
             let allValid = true;
             bugReportForm.querySelectorAll('[required]').forEach(field => {
                 if (!field.value) { allValid = false; field.classList.add('invalid'); } 
@@ -1093,7 +1093,23 @@
                 const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
                 const game = bugReportGameSelect.value;
                 const description = document.getElementById('bug-description').value.trim();
-                const discordPayload = { /* ... payload from original code ... */ }; // Kept for brevity, same as before
+                const discordPayload = {
+                    username: "Cerium",
+                    avatar_url: "https://i.imgur.com/g4IARd6.png",
+                    embeds: [{
+                        author: { name: `Report by ${userData.username}#${userData.discriminator}`, icon_url: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` },
+                        color: 3092790,
+                        thumbnail: { url: "https://i.imgur.com/g4IARd6.png" },
+                        fields: [
+                            { name: "Game", value: game, inline: true },
+                            { name: "Reporter ID", value: userData.id, inline: true },
+                            { name: "Description", value: "```" + description + "```" },
+                            { name: "User Agent", value: "```" + navigator.userAgent + "```" }
+                        ],
+                        footer: { text: "Cerium Bug Report System" },
+                        timestamp: new Date().toISOString()
+                    }]
+                };
                 
                 const response = await fetch('/api/submit-report', {
                     method: 'POST',
