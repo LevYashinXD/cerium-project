@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You Have Received a Warning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-background: #0D1117;
+            --color-heading: #FFFFFF;
+            --color-text: #C9D1D9;
+            --color-border: #30363D;
+            --color-status-caution: #FFD700;
+            --color-status-caution-glow: rgba(255, 215, 0, 0.3);
+            --color-status-caution-bg: rgba(255, 215, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .container { max-width: 600px; width: 100%; padding: 40px; animation: fadeIn 0.8s ease-out forwards; }
+        .icon { color: var(--color-status-caution); width: 64px; height: 64px; margin: 0 auto 24px; stroke-width: 1.5; }
+        h1 { font-size: 3rem; font-weight: 800; color: var(--color-status-caution); margin-bottom: 16px; text-shadow: 0 0 20px var(--color-status-caution-glow); }
+        p.main-message { font-size: 1.1rem; line-height: 1.6; max-width: 500px; margin: 0 auto 30px auto; }
+        .reason-box { margin-top: 30px; padding: 20px; background-color: var(--color-status-caution-bg); border: 1px solid var(--color-border); border-left: 4px solid var(--color-status-caution); border-radius: 8px; text-align: left; }
+        .reason-box strong { color: var(--color-heading); }
+        #warning-reason { margin-top: 8px; font-size: 1.1rem; white-space: pre-wrap; word-break: break-word; }
+        .actions { margin-top: 40px; }
+        .btn { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 6px; padding: 12px 24px; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
+        .btn-primary { background-color: var(--color-status-caution); color: var(--color-background); border-color: var(--color-status-caution); }
+        .btn-primary:hover { background-color: #ffeca0; border-color: #ffeca0; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+
+        <h1>You Have Received a Warning</h1>
+        <p class="main-message">Your account has received a warning from a staff member. Please review the reason below. Further infractions may result in a suspension or ban.</p>
+
+        <div class="reason-box">
+            <strong>Reason for Warning:</strong>
+            <p id="warning-reason">Loading...</p>
+        </div>
+
+        <div class="actions">
+            <button id="continue-btn" class="btn btn-primary">Acknowledge & Continue to Website</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const continueBtn = document.getElementById('continue-btn');
+            const reasonEl = document.getElementById('warning-reason');
+            
+            const user = JSON.parse(localStorage.getItem('discord_user_v2'));
+
+            // Log the user out immediately by clearing their local session data.
+            localStorage.removeItem('discord_user_v2');
+
+            if (!user) {
+                reasonEl.textContent = "Could not identify your account. Please log in again.";
+                continueBtn.textContent = "Return to Login";
+                continueBtn.onclick = () => window.location.href = '/index.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/check-user-warns?userId=${user.id}`);
+                const data = await response.json();
+
+                if (data.has_warning) {
+                    reasonEl.textContent = data.warning.reason;
+                    continueBtn.dataset.warnId = data.warning.id;
+                } else {
+                    // If they have no unacknowledged warnings, they shouldn't be here.
+                    // Send them back to the main site.
+                    window.location.href = '/index.html';
+                }
+
+            } catch (error) {
+                reasonEl.textContent = "Could not load warning details. Please try again.";
+                continueBtn.disabled = true;
+            }
+
+            continueBtn.addEventListener('click', async () => {
+                continueBtn.disabled = true;
+                continueBtn.textContent = "Processing...";
+                const warnId = continueBtn.dataset.warnId;
+
+                if (!warnId) {
+                    alert("Error: Could not find warning ID. Please refresh.");
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = "Acknowledge & Continue to Website";
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/acknowledge-warn', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: user.id, warnId: warnId })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Server failed to acknowledge the warning.");
+                    }
+
+                    // Success, send them to the main site to log back in.
+                    window.location.href = '/index.html';
+                } catch (error) {
+                    alert("Could not acknowledge the warning. Please try refreshing the page.");
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = "Acknowledge & Continue to Website";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
