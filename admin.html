@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cerium | Admin Panel</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <style>
         :root {
             --color-background: #050505; --color-heading: #FFFFFF; --color-text: #E0E0E0;
@@ -30,7 +26,6 @@
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         .card { background: var(--color-card-bg); border-radius: var(--border-radius); padding: 40px; border: 1px solid var(--color-card-border); backdrop-filter: blur(10px); }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
         #admin-auth-wall, #admin-panel { display: none; }
         body.state-loading #admin-auth-wall, body.state-login #admin-auth-wall, body.state-denied #admin-auth-wall { display: flex; align-items: center; justify-content: center; min-height: 100vh; animation: fadeIn 0.5s ease; }
@@ -42,9 +37,8 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; border-bottom: 1px solid var(--color-card-border); background: rgba(5,5,5,0.5); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .admin-user-info { display: flex; align-items: center; gap: 15px; }
         .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
-        .admin-content { max-width: 1280px; margin: 40px auto; padding: 0 5%; }
-        
-        .admin-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--color-card-border); margin-bottom: 30px; }
+        .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
+        .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--color-card-border); margin-bottom: 30px; }
         .admin-tab-btn { background: transparent; border: none; color: var(--color-text); padding: 15px 25px; font-size: 1rem; font-weight: 600; cursor: pointer; position: relative; transition: color 0.3s; }
         .admin-tab-btn::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 2px; background: var(--primary-gradient); transition: width 0.3s ease; }
         .admin-tab-btn.active { color: var(--color-heading); }
@@ -72,6 +66,7 @@
         .comment-card-admin, .user-card-admin { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-card-border); border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: flex-start; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
         .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.5); box-shadow: 0 0 20px -5px rgba(255, 51, 102, 0.4); }
         .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); box-shadow: 0 0 20px -5px rgba(255, 215, 0, 0.4); }
+        .user-card-admin:not(.banned):not(.suspended):hover { border-color: var(--color-card-border-hover); cursor: pointer; }
         .comment-card-admin-avatar, .user-card-admin-avatar { width: 40px; height: 40px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
         .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: var(--color-text); font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
@@ -83,20 +78,28 @@
         .comment-card-admin-actions { margin-left: auto; padding-left: 20px; }
         .comment-card-admin-actions .btn { width: 40px; height: 40px; padding: 0; }
         .actions .btn { min-width: 100px; }
-
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%; animation: slideInUp 0.4s ease; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 25px; color: var(--color-text); font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
         .modal-close:hover { color: var(--color-heading); }
+        .details-modal-content { max-width: 800px; }
+        .details-header { display: flex; align-items: center; gap: 20px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--color-card-border); }
+        .details-header img { width: 60px; height: 60px; border-radius: 50%; }
+        .details-header h3 { font-size: 1.8rem; }
+        .details-body { max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+        .status-tag { padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-new { background: #3b82f6; color: white; }
+        .status-in_progress { background: #f59e0b; color: black; }
+        .status-resolved { background: var(--color-status-up); color: black; }
+        .status-invalid { background: #6b7280; color: white; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); transition: border-color 0.3s, box-shadow 0.3s; }
         .form-group textarea { resize: vertical; }
         .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--color-heading); box-shadow: 0 0 10px var(--color-glow); }
         .form-group-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
         .toast { padding: 15px 25px; border-radius: 8px; font-weight: 600; color: black; animation: toast-in-out 4s ease forwards; }
@@ -119,35 +122,40 @@
             <h1 class="gradient-text" style="font-size: 1.8rem;">Cerium Admin</h1>
             <div class="admin-user-info"><img src="" alt="Admin Avatar" id="admin-avatar"><span id="admin-username"></span><button id="logout-btn-admin" class="btn btn-secondary">Logout</button></div>
         </header>
-
         <main class="admin-content">
             <div class="dashboard-stats">
                 <div class="stat-card"><h4>Total Games</h4><p id="total-games">--</p></div>
                 <div class="stat-card"><h4>Total Users</h4><p id="total-users">--</p></div>
                 <div class="stat-card"><h4>Total Comments</h4><p id="total-comments">--</p></div>
             </div>
-
             <div class="admin-tabs">
-                <button class="admin-tab-btn active" data-tab="games">Game Management</button>
-                <button class="admin-tab-btn" data-tab="messages">Message Manager</button>
-                <button class="admin-tab-btn" data-tab="users">User Management</button>
+                <button class="admin-tab-btn active" data-tab="games">Games</button>
+                <button class="admin-tab-btn" data-tab="messages">Messages</button>
+                <button class="admin-tab-btn" data-tab="users">Users</button>
+                <button class="admin-tab-btn" data-tab="reports">Bug Reports</button>
+                <button class="admin-tab-btn" data-tab="audit">Audit Log</button>
             </div>
-
             <div id="games-view" class="admin-tab-pane active">
                 <div class="content-header"><h1>Games</h1><button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button></div>
                 <div class="card" style="padding: 20px; overflow-x: auto;"><table class="table games-table"><thead><tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead><tbody id="games-table-body"></tbody></table></div>
             </div>
-
             <div id="messages-view" class="admin-tab-pane">
                 <div class="content-header"><h1>Comments</h1></div>
                 <div class="search-bar"><input type="text" id="comments-search" placeholder="Search comments or authors..."></div>
                 <div id="comments-container" class="comments-list-admin"></div>
             </div>
-            
             <div id="users-view" class="admin-tab-pane">
                 <div class="content-header"><h1>Users</h1></div>
                 <div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name..."></div>
                 <div id="users-container" class="users-list-admin"></div>
+            </div>
+            <div id="reports-view" class="admin-tab-pane">
+                <div class="content-header"><h1>Bug Reports</h1></div>
+                <div class="card" style="padding:20px; overflow-x:auto;"><table class="table" id="bug-reports-table"><thead><tr><th>Reporter</th><th>Game</th><th>Description</th><th>Status</th><th>Submitted</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div id="audit-view" class="admin-tab-pane">
+                <div class="content-header"><h1>Audit Log</h1></div>
+                <div class="card" style="padding:20px; overflow-x:auto;"><table class="table" id="audit-log-table"><thead><tr><th>Admin</th><th>Action</th><th>Target</th><th>Reason</th><th>Timestamp</th></tr></thead><tbody></tbody></table></div>
             </div>
         </main>
     </div>
@@ -157,7 +165,11 @@
     </div>
     
     <div id="moderate-modal" class="modal">
-        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div>
+        <div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title" style="margin-bottom: 30px;"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-user-name"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div style="display:flex; justify-content: flex-end; gap: 15px; margin-top: 20px;"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div>
+    </div>
+
+    <div id="user-details-modal" class="modal">
+        <div class="modal-content details-modal-content"><span class="modal-close">×</span><div id="user-details-content"></div></div>
     </div>
 
     <div id="toast-container"></div>
@@ -193,8 +205,13 @@
         const totalCommentsEl = document.getElementById('total-comments');
         const commentsSearch = document.getElementById('comments-search');
         const usersSearch = document.getElementById('users-search');
+        const bugReportsTableBody = document.querySelector('#bug-reports-table tbody');
+        const auditLogTableBody = document.querySelector('#audit-log-table tbody');
+        const userDetailsModal = document.getElementById('user-details-modal');
+        const userDetailsContent = document.getElementById('user-details-content');
+        const userDetailsModalClose = userDetailsModal.querySelector('.modal-close');
 
-        let allGamesData = [], allUsersData = [], allCommentsData = [];
+        let allGamesData = [], allUsersData = [], allCommentsData = [], allBugReports = [], allAuditLogs = [];
 
         const setPageState = (state) => body.className = `state-${state}`;
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
@@ -206,8 +223,7 @@
             for (let unit in intervals) {
                 let interval = seconds / intervals[unit];
                 if (interval > 1) return Math.floor(interval) + `${unit} ago`;
-            }
-            return "Just now";
+            } return "Just now";
         };
         const showToast = (message, isError = false) => {
             const toastContainer = document.getElementById('toast-container');
@@ -233,9 +249,7 @@
             document.getElementById('admin-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
             document.getElementById('admin-username').textContent = `${user.username}#${user.discriminator}`;
             setPageState('admin');
-            fetchAndRenderGames();
-            fetchAndRenderComments();
-            fetchAndRenderUsers();
+            fetchAndRenderGames(); fetchAndRenderComments(); fetchAndRenderUsers(); fetchAndRenderBugReports(); fetchAndRenderAuditLog();
         };
         const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}#${user.discriminator}`; setPageState('denied'); };
         const handleOAuthCallback = async () => {
@@ -254,11 +268,7 @@
             } else { await verifyAdminStatus(getCurrentUser()); }
         };
         
-        const updateDashboardStats = () => {
-            totalGamesEl.textContent = allGamesData.length;
-            totalUsersEl.textContent = allUsersData.length;
-            totalCommentsEl.textContent = allCommentsData.length;
-        };
+        const updateDashboardStats = () => { totalGamesEl.textContent = allGamesData.length; totalUsersEl.textContent = allUsersData.length; totalCommentsEl.textContent = allCommentsData.length; };
 
         tabButtons.forEach(button => { button.addEventListener('click', () => { const targetTab = button.dataset.tab; tabButtons.forEach(btn => btn.classList.remove('active')); tabPanes.forEach(pane => pane.classList.remove('active')); button.classList.add('active'); document.getElementById(`${targetTab}-view`).classList.add('active'); }); });
         
@@ -269,9 +279,7 @@
                 const response = await fetch('/api/admin', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) { await verifyAdminStatus(currentUser); throw new Error('Authorization failed.'); }
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to fetch games.'); }
-                allGamesData = await response.json();
-                renderGamesTable(allGamesData);
-                updateDashboardStats();
+                allGamesData = await response.json(); renderGamesTable(allGamesData); updateDashboardStats();
             } catch (error) { gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
         };
         const renderGamesTable = (games) => {
@@ -303,10 +311,9 @@
             const game = allGamesData.find(g => g.id == gameId);
             if (!game || !confirm(`Delete "${game.name}"?`)) return;
             try {
-                const response = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId, user: getCurrentUser() }) });
+                const response = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId, gameName: game.name, user: getCurrentUser() }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to delete.'); }
-                showToast('Game deleted successfully.');
-                await fetchAndRenderGames();
+                showToast('Game deleted successfully.'); await fetchAndRenderGames();
             } catch (error) { showToast(error.message, true); }
         };
         
@@ -317,9 +324,7 @@
                 const response = await fetch('/api/comments', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch comments.');
-                allCommentsData = await response.json();
-                renderComments(allCommentsData);
-                updateDashboardStats();
+                allCommentsData = await response.json(); renderComments(allCommentsData); updateDashboardStats();
             } catch (error) { commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
         const renderComments = (comments) => {
@@ -339,8 +344,7 @@
             try {
                 const response = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId, user: getCurrentUser() }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Failed to delete.'); }
-                showToast('Comment deleted.');
-                e.currentTarget.closest('.comment-card-admin').remove();
+                showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove();
             } catch (error) { showToast(error.message, true); }
         };
 
@@ -351,9 +355,7 @@
                 const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
                 if (response.status === 403) throw new Error('Authorization failed.');
                 if (!response.ok) throw new Error('Failed to fetch users.');
-                allUsersData = await response.json();
-                renderUsers(allUsersData);
-                updateDashboardStats();
+                allUsersData = await response.json(); renderUsers(allUsersData); updateDashboardStats();
             } catch (error) { usersContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
         const renderUsers = (users) => {
@@ -382,53 +384,101 @@
                 usersContainer.appendChild(card);
             });
         };
-        const moderateUser = async (target_discord_id, action, reason = null, duration_hours = null) => {
+        const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
             try {
-                const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), target_discord_id, action, reason, duration_hours }) });
+                const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json();
                 showToast(result.message);
-                
-                // OPTIMISTIC UPDATE LOGIC
-                const userIndex = allUsersData.findIndex(u => u.discord_id === target_discord_id);
-                if (userIndex !== -1) {
-                    const user = allUsersData[userIndex];
-                    const finalReason = reason || 'No reason provided.';
-                    if (action === 'ban') {
-                        user.is_banned = true;
-                        user.suspension_expires_at = null;
-                        user.moderation_reason = finalReason;
-                    } else if (action === 'suspend') {
-                        const expiry = new Date();
-                        expiry.setHours(expiry.getHours() + duration_hours);
-                        user.suspension_expires_at = expiry.toISOString();
-                        user.is_banned = false;
-                        user.moderation_reason = finalReason;
-                    } else if (action === 'unban') {
-                        user.is_banned = false;
-                        user.suspension_expires_at = null;
-                        user.moderation_reason = null;
-                    }
-                }
-                renderUsers(allUsersData); // Re-render from local data
+                await fetchAndRenderUsers(); await fetchAndRenderAuditLog();
             } catch (error) { showToast(error.message, true); }
         };
-        const openModerateModal = (userId, action) => {
-            document.getElementById('moderate-user-id').value = userId;
+        const openModerateModal = (user, action) => {
+            document.getElementById('moderate-user-id').value = user.discord_id;
+            document.getElementById('moderate-user-name').value = user.username;
             document.getElementById('moderate-action').value = action;
             document.getElementById('moderate-reason').value = '';
             const title = document.getElementById('moderate-title');
             const durationGroup = document.getElementById('duration-group');
             if (action === 'ban') {
-                title.textContent = 'Ban User';
+                title.textContent = `Ban ${user.username}`;
                 durationGroup.style.display = 'none';
             } else {
-                title.textContent = 'Suspend User';
+                title.textContent = `Suspend ${user.username}`;
                 durationGroup.style.display = 'block';
             }
             moderateModal.classList.add('visible');
         };
         const closeModerateModal = () => moderateModal.classList.remove('visible');
+
+        const fetchAndRenderBugReports = async () => { /* ... see full implementation below ... */ };
+        const renderBugReports = (reports) => { /* ... see full implementation below ... */ };
+        const updateBugReportStatus = async (reportId, newStatus) => { /* ... see full implementation below ... */ };
+        const fetchAndRenderAuditLog = async () => { /* ... see full implementation below ... */ };
+        const renderAuditLog = (logs) => { /* ... see full implementation below ... */ };
+        const openUserDetailsModal = async (user) => { /* ... see full implementation below ... */ };
+        const closeUserDetailsModal = () => userDetailsModal.classList.remove('visible');
+
+        // FULL IMPLEMENTATIONS
+        fetchAndRenderBugReports = async () => {
+            bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
+            try {
+                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
+                const response = await fetch('/api/bug-reports', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                if (response.status === 403) throw new Error('Authorization failed.');
+                if (!response.ok) throw new Error('Failed to fetch bug reports.');
+                allBugReports = await response.json(); renderBugReports(allBugReports);
+            } catch (error) { bugReportsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
+        };
+        renderBugReports = (reports) => {
+            bugReportsTableBody.innerHTML = '';
+            if (!reports || reports.length === 0) { bugReportsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No bug reports found.</td></tr>'; return; }
+            reports.forEach(report => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${report.reporter_username}</td><td>${report.game_name}</td><td style="white-space: pre-wrap; word-break: break-word;">${report.description}</td><td><select class="status-select" data-id="${report.id}"><option value="new" ${report.status === 'new' ? 'selected' : ''}>New</option><option value="in_progress" ${report.status === 'in_progress' ? 'selected' : ''}>In Progress</option><option value="resolved" ${report.status === 'resolved' ? 'selected' : ''}>Resolved</option><option value="invalid" ${report.status === 'invalid' ? 'selected' : ''}>Invalid</option></select></td><td>${timeAgo(report.timestamp)}</td>`;
+                bugReportsTableBody.appendChild(row);
+            });
+        };
+        updateBugReportStatus = async (reportId, newStatus) => {
+            try {
+                const response = await fetch('/api/bug-reports', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportId, newStatus, user: getCurrentUser() }) });
+                if (!response.ok) throw new Error("Failed to update status.");
+                showToast('Status updated.');
+            } catch(error) { showToast(error.message, true); }
+        };
+        fetchAndRenderAuditLog = async () => {
+            auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
+            try {
+                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
+                const response = await fetch('/api/admin-audit-log', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
+                if (response.status === 403) throw new Error('Authorization failed.');
+                if (!response.ok) throw new Error('Failed to fetch audit log.');
+                allAuditLogs = await response.json(); renderAuditLog(allAuditLogs);
+            } catch (error) { auditLogTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
+        };
+        renderAuditLog = (logs) => {
+            auditLogTableBody.innerHTML = '';
+            if (!logs || logs.length === 0) { auditLogTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No audit logs found.</td></tr>'; return; }
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${log.admin_username}</td><td>${log.action_type.replace(/_/g, ' ')}</td><td>${log.target_id || 'N/A'}</td><td style="white-space: pre-wrap; word-break: break-word;">${log.reason || ''}</td><td>${timeAgo(log.timestamp)}</td>`;
+                auditLogTableBody.appendChild(row);
+            });
+        };
+        openUserDetailsModal = async (user) => {
+            userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>';
+            userDetailsModal.classList.add('visible');
+            try {
+                const response = await fetch(`/api/admin-user-details?userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
+                if (!response.ok) throw new Error("Failed to load details.");
+                const data = await response.json();
+                let commentsHTML = '<h4>Comment History</h4><p>No comments found.</p>';
+                if (data.comments && data.comments.length > 0) {
+                    commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0;">...</div>`).join('');
+                }
+                userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url}"><div class="details-header-info"><h3>${user.username}</h3><p>${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
+            } catch (error) { userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`; }
+        };
 
         discordLoginBtn.addEventListener('click', () => { const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; window.location.href = authUrl; });
         logoutBtnAdmin.addEventListener('click', handleLogout);
@@ -445,39 +495,40 @@
         });
         commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn }); });
         usersContainer.addEventListener('click', (e) => {
-            const target = e.target.closest('button'); if (!target) return;
-            const userId = target.dataset.id;
-            if (target.classList.contains('ban-btn')) { openModerateModal(userId, 'ban'); }
-            else if (target.classList.contains('suspend-btn')) { openModerateModal(userId, 'suspend'); }
-            else if (target.classList.contains('unban-btn')) { if (confirm(`Remove restrictions for this user?`)) { moderateUser(userId, 'unban'); } }
+            const target = e.target.closest('button');
+            const userCard = e.target.closest('.user-card-admin');
+            if (!userCard) return;
+            const userId = userCard.querySelector('[data-id]')?.dataset.id;
+            const userToModerate = allUsersData.find(u => u.discord_id === userId);
+            if (!userToModerate) return;
+            if (target) { // If a button was clicked
+                if (target.classList.contains('ban-btn')) { openModerateModal(userToModerate, 'ban'); }
+                else if (target.classList.contains('suspend-btn')) { openModerateModal(userToModerate, 'suspend'); }
+                else if (target.classList.contains('unban-btn')) { if (confirm(`Remove restrictions for this user?`)) { moderateUser(userToModerate, 'unban'); } }
+            } else { // If the card itself was clicked
+                openUserDetailsModal(userToModerate);
+            }
         });
-        commentsSearch.addEventListener('input', () => {
-            const searchTerm = commentsSearch.value.toLowerCase().trim();
-            const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm));
-            renderComments(filtered);
-        });
-        usersSearch.addEventListener('input', () => {
-            const searchTerm = usersSearch.value.toLowerCase().trim();
-            const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm));
-            renderUsers(filtered);
-        });
+        commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
+        usersSearch.addEventListener('input', () => { const searchTerm = usersSearch.value.toLowerCase().trim(); const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm)); renderUsers(filtered); });
         moderateModalClose.addEventListener('click', closeModerateModal);
         moderateModalCancel.addEventListener('click', closeModerateModal);
+        userDetailsModalClose.addEventListener('click', closeUserDetailsModal);
         moderateForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const userId = document.getElementById('moderate-user-id').value;
+            const userName = allUsersData.find(u => u.discord_id === userId).username;
             const action = document.getElementById('moderate-action').value;
             const reason = document.getElementById('moderate-reason').value;
             const duration = document.getElementById('moderate-duration').value;
-            moderateUser(userId, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
+            const targetUser = { discord_id: userId, username: userName };
+            moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
             closeModerateModal();
         });
         gameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.currentTarget.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            formError.textContent = '';
+            submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; formError.textContent = '';
             const gameId = document.getElementById('game-id').value;
             const gameData = { name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value.trim(), thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(), topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99, is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim(), };
             const isEditing = !!gameId;
@@ -490,6 +541,11 @@
                 closeFormModal();
                 await fetchAndRenderGames();
             } catch (error) { formError.textContent = error.message; } finally { submitButton.disabled = false; submitButton.innerHTML = 'Save Game'; }
+        });
+        bugReportsTableBody.addEventListener('change', (e) => {
+            if (e.target.classList.contains('status-select')) {
+                updateBugReportStatus(e.target.dataset.id, e.target.value);
+            }
         });
         
         handleOAuthCallback();

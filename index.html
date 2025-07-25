@@ -783,7 +783,55 @@
             window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
         }
+// In index.html script
+bugReportForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const submitButton = document.getElementById('submit-bug-report');
+    const statusMessage = document.getElementById('form-status-message');
+    // ... validation logic ...
+    
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
+    const userData = getCurrentUser();
+    const reportData = {
+        userId: userData.id,
+        username: `${userData.username}#${userData.discriminator}`,
+        game: document.getElementById('game-select').value,
+        description: document.getElementById('bug-description').value.trim()
+    };
+    const discordPayload = {
+        username: "Cerium Bug Reports",
+        embeds: [{
+            author: { name: `Report by ${reportData.username}`, icon_url: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` },
+            fields: [
+                { name: "Game", value: reportData.game },
+                { name: "Description", value: "```" + reportData.description + "```" }
+            ],
+            timestamp: new Date().toISOString()
+        }]
+    };
+
+    try {
+        const response = await fetch('/api/bug-reports', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reportData, discordPayload })
+        });
+        if (!response.ok) throw new Error('Submission failed.');
+        
+        statusMessage.textContent = 'Report submitted successfully!';
+        statusMessage.className = 'success';
+        bugReportForm.reset();
+        // ... update user profile logic for achievements ...
+    } catch (error) {
+        statusMessage.textContent = error.message;
+        statusMessage.className = 'error';
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Submit Report';
+    }
+});
         discordLoginBtn.addEventListener('click', () => {
             const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
             window.location.href = authUrl;
