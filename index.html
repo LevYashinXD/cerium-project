@@ -735,7 +735,6 @@
             const navLinks = document.querySelectorAll('.nav-menu a.nav-link');
             let scrollTimeout;
 
-            // CORRECTED: Reading CSS variable
             const headerHeightValue = getComputedStyle(document.documentElement).getPropertyValue('--header-height');
             const headerHeight = parseInt(headerHeightValue, 10) || 80;
 
@@ -783,12 +782,24 @@
                  if (hamburger.classList.contains('active')) toggleMenu(); 
             }));
 
-            // Tab Switching Logic
+            // ===================================================================
+            // ===== CORRECTED TAB SWITCHING LOGIC ===============================
+            // ===================================================================
             let loadedComments = [];
             function switchFeatureTab(gameId) {
-                document.querySelectorAll('.feature-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.game === gameId));
-                document.querySelectorAll('.feature-pane').forEach(pane => pane.classList.toggle('active', pane.id === `features-${gameId}`));
-                if (!loadedComments.includes(gameId)) { 
+                // First, remove 'active' from all tabs and panes
+                document.querySelectorAll('.feature-tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.feature-pane').forEach(pane => pane.classList.remove('active'));
+                
+                // Then, add 'active' to the specific one that was clicked
+                const activeButton = document.querySelector(`.feature-tab-btn[data-game="${gameId}"]`);
+                if (activeButton) activeButton.classList.add('active');
+                
+                const activePane = document.getElementById(`features-${gameId}`);
+                if (activePane) activePane.classList.add('active');
+
+                // Fetch comments if they haven't been loaded yet for this tab
+                if (gameId && !loadedComments.includes(gameId)) { 
                     fetchComments(gameId); 
                     loadedComments.push(gameId); 
                 }
@@ -805,6 +816,7 @@
                     switchFeatureTab(featureTrigger.dataset.game);
                 }
             });
+            // ===================================================================
 
             // Initial comment load
             const activeTab = document.querySelector('.feature-tab-btn.active');
@@ -841,9 +853,10 @@
             const gameSelect = document.getElementById('game-select');
             const bugDesc = document.getElementById('bug-description');
             
-            // Client-side validation
             let isValid = true;
             [gameSelect, bugDesc].forEach(field => field.classList.remove('invalid'));
+            statusMessage.textContent = ''; 
+            statusMessage.className = '';
             if (!gameSelect.value) { gameSelect.classList.add('invalid'); isValid = false; }
             if (!bugDesc.value.trim()) { bugDesc.classList.add('invalid'); isValid = false; }
             if (!isValid) {
