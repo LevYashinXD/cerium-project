@@ -8,37 +8,53 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --color-background: #0D0D0F;
             --color-heading: #FFFFFF;
-            --color-text: #E0E0E0;
-            --color-text-muted: #888888;
-            --color-card-bg: rgba(255, 255, 255, 0.03);
-            --color-card-bg-hover: rgba(255, 255, 255, 0.06);
-            --color-card-border: rgba(255, 255, 255, 0.1);
-            --primary-gradient: linear-gradient(90deg, #FFFFFF, #AAAAAA);
-            --color-glow: rgba(200, 200, 255, 0.2);
+            --color-text: #EAEAEA;
+            --color-text-muted: #A0A0A0;
+            --glass-bg: rgba(35, 35, 45, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-blur: 16px;
+            --primary-gradient: linear-gradient(90deg, #FFFFFF, #CCCCCC);
+            --color-glow: rgba(180, 180, 255, 0.25);
             --color-status-up: #00FF7F;
             --color-status-down: #FF3366;
             --color-status-caution: #FFD700;
             --border-radius: 16px;
-            --border-radius-sm: 8px;
+            --border-radius-sm: 10px;
             --font-family: 'Inter', sans-serif;
             --transition-speed: 0.3s;
         }
 
-        /* --- Base & Typography --- */
+        /* --- Base & Aurora Background --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: var(--font-family);
-            background-color: var(--color-background);
-            background-image: radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 40%);
+            background-color: #020202;
             color: var(--color-text);
             line-height: 1.6;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(at 20% 25%, hsla(212,80%,30%,0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 20%, hsla(288,80%,40%,0.3) 0px, transparent 50%),
+                radial-gradient(at 20% 80%, hsla(343,80%,50%,0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 85%, hsla(180,80%,40%,0.3) 0px, transparent 50%);
+            background-attachment: fixed;
         }
+
         h1, h2, h3, h4, h5, h6 { color: var(--color-heading); font-weight: 700; }
-        h1 { font-size: 2.8rem; letter-spacing: -1px; }
+        h1 { font-size: 2.5rem; letter-spacing: -1px; }
         p { color: var(--color-text-muted); }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* --- Glassmorphism Element Base --- */
+        .glass-ui {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+        }
 
         /* --- Animations & Page States --- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -53,105 +69,80 @@
             position: relative; display: inline-flex; align-items: center; justify-content: center;
             gap: 10px; padding: 12px 28px; border-radius: 50px; text-decoration: none;
             font-weight: 600; font-size: 0.95rem; transition: all var(--transition-speed) ease;
-            border: 1px solid var(--color-card-border); cursor: pointer; white-space: nowrap;
+            cursor: pointer; white-space: nowrap; border: 1px solid transparent;
         }
-        .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
+        .btn-primary { background-image: var(--primary-gradient); color: #000; }
         .btn-primary:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 25px -5px var(--color-glow); }
-        .btn-secondary { background-color: var(--color-card-bg); color: var(--color-heading); }
-        .btn-secondary:hover { background-color: var(--color-card-bg-hover); transform: translateY(-3px); border-color: rgba(255,255,255,0.2); }
-        .btn-danger { background-color: transparent; color: var(--color-status-down); border-color: rgba(255, 51, 102, 0.4); }
-        .btn-danger:hover { background-color: rgba(255, 51, 102, 0.1); border-color: var(--color-status-down); transform: translateY(-3px); }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.1); color: var(--color-heading); border-color: rgba(255, 255, 255, 0.2); }
+        .btn-secondary:hover { background-color: rgba(255, 255, 255, 0.2); transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.3); }
+        .btn-danger { background-color: rgba(255, 51, 102, 0.15); color: var(--color-status-down); border-color: rgba(255, 51, 102, 0.4); }
+        .btn-danger:hover { background-color: rgba(255, 51, 102, 0.25); border-color: var(--color-status-down); transform: translateY(-2px); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         .btn .fa-spinner { animation: fa-spin 1s linear infinite; }
+        .card { padding: 40px; } /* Use .card for padding, .glass-ui for styling */
 
-        /* --- Cards & Containers --- */
-        .card {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-            border-radius: var(--border-radius);
-            padding: 40px;
-            border: 1px solid var(--color-card-border);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            transition: all var(--transition-speed) ease;
-        }
-        .card:hover { border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2); }
-        .auth-container { text-align: center; max-width: 500px; padding: 30px; }
+        /* --- Auth & Main Layout --- */
+        .auth-container { text-align: center; max-width: 500px; }
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
         body.state-denied #login-prompt { display: none; }
-
-        /* --- Admin Panel Layout --- */
         .admin-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 5%; border-bottom: 1px solid var(--color-card-border);
-            background: rgba(13, 13, 15, 0.7); backdrop-filter: blur(15px);
-            position: sticky; top: 0; z-index: 100;
+            padding: 15px 5%; position: sticky; top: 0; z-index: 100;
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
         }
         .admin-user-info { display: flex; align-items: center; gap: 15px; }
-        .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--color-card-border); }
+        .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
         .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
-        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;}
+        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
 
         /* --- Tabs --- */
-        .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--color-card-border); margin-bottom: 40px; }
+        .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--glass-border); margin-bottom: 40px; }
         .admin-tab-btn {
             background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px;
             font-size: 1rem; font-weight: 600; cursor: pointer; position: relative; transition: color var(--transition-speed);
         }
         .admin-tab-btn::after {
-            content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 2px;
-            background: var(--primary-gradient); transition: width var(--transition-speed) ease;
+            content: ''; position: absolute; bottom: -1px; left: 0; right: 0; margin: auto;
+            width: 0; height: 2px; background: var(--primary-gradient);
+            transition: width var(--transition-speed) ease; border-radius: 2px;
         }
         .admin-tab-btn:hover { color: var(--color-heading); }
         .admin-tab-btn.active { color: var(--color-heading); }
-        .admin-tab-btn.active::after { width: 100%; }
+        .admin-tab-btn.active::after { width: 50%; }
         .admin-tab-pane { display: none; animation: fadeInUp 0.5s ease-out; }
         .admin-tab-pane.active { display: block; }
 
         /* --- Special Headers & Stats --- */
-        .shahada-header {
-            background: var(--color-card-bg); border: 1px solid var(--color-card-border);
-            border-radius: var(--border-radius); padding: 25px; margin-bottom: 40px; text-align: center;
-        }
+        .shahada-header { padding: 25px; margin-bottom: 40px; text-align: center; }
         .shahada-header h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 15px var(--color-glow); }
         .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
-        .stat-card {
-            background: var(--color-card-bg); padding: 25px; border-radius: var(--border-radius);
-            border: 1px solid var(--color-card-border); position: relative; overflow: hidden;
-            transition: all var(--transition-speed) ease;
-        }
-        .stat-card:hover { transform: translateY(-5px); background-color: var(--color-card-bg-hover); }
-        .stat-card::before {
-            font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute;
-            right: -20px; bottom: -30px; font-size: 100px; color: rgba(255,255,255,0.03);
-            z-index: 0; transition: all var(--transition-speed) ease;
-        }
-        .stat-card:hover::before { transform: scale(1.1) rotate(-5deg); color: rgba(255,255,255,0.05); }
-        #total-games ~ .stat-card::before { content: "\f11b"; } /* fa-gamepad */
-        #total-users ~ .stat-card::before { content: "\f0c0"; } /* fa-users */
-        #total-comments ~ .stat-card::before { content: "\f4ad"; } /* fa-comments */
-        .stat-card h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 500; position: relative; }
-        .stat-card p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; position: relative; }
+        .stat-card { padding: 25px; transition: all var(--transition-speed) ease; }
+        .stat-card:hover { transform: translateY(-5px) scale(1.02); border-color: rgba(255, 255, 255, 0.3); }
+        .stat-card h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 10px; font-weight: 500; }
+        .stat-card p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; }
 
         /* --- Search & Tables --- */
         .search-bar { position: relative; width: 100%; max-width: 400px; margin-bottom: 30px; }
         .search-bar input {
-            width: 100%; padding: 12px 15px 12px 40px; border-radius: var(--border-radius-sm);
-            border: 1px solid var(--color-card-border); background: var(--color-card-bg);
+            width: 100%; padding: 12px 15px 12px 45px; border-radius: var(--border-radius-sm);
+            border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);
             color: var(--color-text); font-size: 1rem; transition: all var(--transition-speed) ease;
         }
-        .search-bar input:focus { outline: none; border-color: rgba(255,255,255,0.3); box-shadow: 0 0 15px var(--color-glow); }
+        .search-bar input:focus { outline: none; border-color: rgba(255,255,255,0.4); box-shadow: 0 0 15px var(--color-glow); }
         .search-bar::before {
             content: "\f002"; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
             color: var(--color-text-muted);
         }
-        .table-container { background: var(--color-card-bg); border-radius: var(--border-radius); padding: 20px; border: 1px solid var(--color-card-border); overflow-x: auto; }
+        .table-container { padding: 20px; overflow-x: auto; }
         .table { width: 100%; border-collapse: collapse; text-align: left; }
-        .table th, .table td { padding: 16px; border-bottom: 1px solid var(--color-card-border); vertical-align: middle; }
+        .table th, .table td { padding: 16px; border-bottom: 1px solid var(--glass-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .table tbody tr { transition: background-color var(--transition-speed); }
-        .table tbody tr:hover { background-color: var(--color-card-bg-hover); }
+        .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
         .table tbody tr:last-child td { border-bottom: none; }
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: var(--border-radius-sm); }
@@ -162,19 +153,12 @@
 
         /* --- Comments & Users Lists --- */
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
-        .comment-card-admin, .user-card-admin {
-            background: var(--color-card-bg); border: 1px solid var(--color-card-border); border-radius: 12px;
-            padding: 20px; display: flex; gap: 20px; align-items: flex-start;
-            transition: all var(--transition-speed) ease;
-        }
-        .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.5); box-shadow: 0 0 20px -5px rgba(255, 51, 102, 0.2); }
-        .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); box-shadow: 0 0 20px -5px rgba(255, 215, 0, 0.2); }
-        .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover {
-            border-color: rgba(255, 255, 255, 0.3); transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
+        .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; transition: all var(--transition-speed) ease; }
+        .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.5); }
+        .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); }
+        .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); }
         .user-card-admin:not(.banned):not(.suspended) { cursor: pointer; }
-        .comment-card-admin-avatar, .user-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; border: 2px solid var(--color-card-border); }
+        .comment-card-admin-avatar, .user-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
         .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;}
         .comment-card-admin-author, .user-card-admin-author { font-weight: 600; color: var(--color-heading); font-size: 1.05rem; }
@@ -183,32 +167,33 @@
         .comment-card-admin-meta strong, .user-card-admin-meta strong { color: var(--color-text); font-weight: 500; }
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
         .comment-card-admin-actions, .user-card-admin .actions { margin-left: auto; padding-left: 20px; align-self: center; }
-        .comment-card-admin-actions .btn, .user-card-admin .actions .btn { min-width: auto; }
-        
+
         /* --- Modals --- */
-        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(10px); }
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.4s 0.1s both; }
         @keyframes slideInUpModal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .modal-content {
-            background: linear-gradient(145deg, #1A1A1C, #101012); border: 1px solid var(--color-card-border);
+            background: rgba(25, 25, 35, 0.7);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%;
             animation: slideInUpModal 0.5s ease-out; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.3);
         }
-        .modal-close { position: absolute; top: 15px; right: 25px; color: var(--color-text-muted); font-size: 28px; font-weight: bold; cursor: pointer; transition: color var(--transition-speed); }
-        .modal-close:hover { color: var(--color-heading); transform: rotate(90deg); }
+        .modal-close { position: absolute; top: 15px; right: 25px; color: var(--color-text-muted); font-size: 28px; font-weight: bold; cursor: pointer; transition: all var(--transition-speed); }
+        .modal-close:hover { color: var(--color-heading); transform: rotate(90deg) scale(1.1); }
         .modal-content h2 { margin-bottom: 30px; }
         .details-modal-content { max-width: 800px; }
-        .details-header { display: flex; align-items: center; gap: 20px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--color-card-border); }
+        .details-header { display: flex; align-items: center; gap: 20px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
         .details-header img { width: 60px; height: 60px; border-radius: 50%; }
         .details-header h3 { font-size: 1.8rem; }
-        .details-body { max-height: 60vh; overflow-y: auto; padding-right: 15px; } /* Improved scrollbar spacing */
+        .details-body { max-height: 60vh; overflow-y: auto; padding-right: 15px; }
 
         /* --- Forms --- */
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-text); font-size: 0.9rem; }
         .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 14px; border-radius: var(--border-radius-sm); border: 1px solid var(--color-card-border);
-            background: var(--color-card-bg); color: var(--color-text);
+            width: 100%; padding: 14px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2); color: var(--color-text);
             transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
             font-family: inherit; font-size: 1rem;
         }
@@ -227,22 +212,23 @@
         .toast {
             padding: 15px 25px; border-radius: var(--border-radius-sm); font-weight: 600; color: #000;
             animation: toast-in-out 4s ease forwards; display: flex; align-items: center; gap: 10px;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-        .toast.success { background: var(--color-status-up); }
-        .toast.error { background: var(--color-status-down); color: #fff;}
+        .toast.success { background: rgba(0, 255, 127, 0.7); }
+        .toast.error { background: rgba(255, 51, 102, 0.7); color: #fff; }
 
         /* --- Confirmation Modal --- */
         .confirm-modal-content { max-width: 500px; text-align: center; }
         .confirm-modal-content p { font-size: 1.1rem; margin: 20px 0 30px; color: var(--color-text); }
         .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
-
     </style>
 </head>
 <body class="state-loading">
 
     <div id="admin-auth-wall">
-        <div class="card auth-container">
+        <div class="card glass-ui auth-container">
             <div id="login-prompt">
                 <h1 class="gradient-text">Admin Panel</h1>
                 <p style="margin: 20px 0 30px;">Connect with an authorized Discord account to continue.</p>
@@ -250,7 +236,7 @@
             </div>
             <div id="denied-message">
                 <h1 style="color: var(--color-status-down);">Access Denied</h1>
-                <p style="margin: 20px 0 30px;">The account <strong id="denied-username" style="color: var(--color-heading);"></strong> is not authorized to access this panel.</p>
+                <p style="margin: 20px 0 30px;">The account <strong id="denied-username" style="color: var(--color-heading);"></strong> is not authorized.</p>
                 <button id="logout-btn-denied" class="btn btn-secondary">Logout</button>
             </div>
             <p id="auth-status" style="margin-top: 20px; min-height: 20px;"></p>
@@ -268,14 +254,14 @@
         </header>
 
         <main class="admin-content">
-            <div class="shahada-header">
+            <div class="shahada-header glass-ui">
                 <h2 class="gradient-text">لا إله إلا الله محمد رسول الله</h2>
             </div>
 
             <div class="dashboard-stats">
-                <div class="stat-card"><h4>Total Games</h4><p id="total-games">--</p></div>
-                <div class="stat-card"><h4>Total Users</h4><p id="total-users">--</p></div>
-                <div class="stat-card"><h4>Total Comments</h4><p id="total-comments">--</p></div>
+                <div class="stat-card glass-ui"><h4>Total Games</h4><p id="total-games">--</p></div>
+                <div class="stat-card glass-ui"><h4>Total Users</h4><p id="total-users">--</p></div>
+                <div class="stat-card glass-ui"><h4>Total Comments</h4><p id="total-comments">--</p></div>
             </div>
 
             <div class="admin-tabs">
@@ -289,7 +275,7 @@
                     <h1>Manage Games</h1>
                     <button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button>
                 </div>
-                <div class="table-container">
+                <div class="table-container glass-ui">
                     <table class="table games-table">
                         <thead><tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead>
                         <tbody id="games-table-body"></tbody>
@@ -311,7 +297,6 @@
         </main>
     </div>
 
-    <!-- Modals remain the same -->
     <div id="game-form-modal" class="modal">
         <div class="modal-content">
             <span class="modal-close">×</span>
@@ -449,11 +434,11 @@
                 confirmTitle.textContent = title;
                 confirmText.textContent = text;
                 confirmModal.classList.add('visible');
-                const cleanup = () => { confirmOkBtn.removeEventListener('click', handleConfirm); confirmCancelBtn.removeEventListener('click', handleCancel); };
-                const handleConfirm = () => { confirmModal.classList.remove('visible'); resolve(true); cleanup(); };
-                const handleCancel = () => { confirmModal.classList.remove('visible'); resolve(false); cleanup(); };
-                confirmOkBtn.addEventListener('click', handleConfirm);
-                confirmCancelBtn.addEventListener('click', handleCancel);
+                const cleanup = () => { confirmOkBtn.removeEventListener('click', handleConfirm); confirmCancelBtn.removeEventListener('click', handleCancel); confirmModal.classList.remove('visible'); };
+                const handleConfirm = () => { resolve(true); cleanup(); };
+                const handleCancel = () => { resolve(false); cleanup(); };
+                confirmOkBtn.addEventListener('click', handleConfirm, { once: true });
+                confirmCancelBtn.addEventListener('click', handleCancel, { once: true });
             });
         };
         const handleLogout = () => { localStorage.removeItem('discord_user_v2'); setPageState('login'); };
@@ -516,34 +501,24 @@
         };
         
         const openFormModal = (game = null) => {
-            gameForm.reset();
-            formError.textContent = '';
-            
+            gameForm.reset(); formError.textContent = '';
             if (game) {
                 modalTitle.textContent = "Edit Game";
                 document.getElementById('game-id').value = game.id;
-                document.getElementById('game-name').value = game.name || '';
-                document.getElementById('game-status').value = game.status || '';
-                document.getElementById('thumbnail-url').value = game.thumbnail_url || '';
-                document.getElementById('loadstring').value = game.loadstring || '';
-                document.getElementById('topic-id').value = game.topic_id || '';
-                document.getElementById('display-order').value = game.display_order ?? 99;
-                document.getElementById('features-html').value = game.features_html || '';
-                document.getElementById('is-published').checked = game.is_published;
+                document.getElementById('game-name').value = game.name || ''; document.getElementById('game-status').value = game.status || '';
+                document.getElementById('thumbnail-url').value = game.thumbnail_url || ''; document.getElementById('loadstring').value = game.loadstring || '';
+                document.getElementById('topic-id').value = game.topic_id || ''; document.getElementById('display-order').value = game.display_order ?? 99;
+                document.getElementById('features-html').value = game.features_html || ''; document.getElementById('is-published').checked = game.is_published;
             } else {
                 modalTitle.textContent = "Add New Game";
-                document.getElementById('game-id').value = '';
-                document.getElementById('display-order').value = 99;
-                document.getElementById('game-status').value = ""; // Reset dropdown
+                document.getElementById('game-id').value = ''; document.getElementById('display-order').value = 99; document.getElementById('game-status').value = "";
             }
             gameFormModal.classList.add('visible');
         };
 
         const closeFormModal = () => gameFormModal.classList.remove('visible');
         const handleDeleteGameClick = async (e) => {
-            const gameId = e.currentTarget.dataset.id;
-            const game = allGamesData.find(g => g.id == gameId);
-            if (!game) return;
+            const gameId = e.currentTarget.dataset.id; const game = allGamesData.find(g => g.id == gameId); if (!game) return;
             const confirmed = await showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "${game.name}"?`);
             if (!confirmed) return;
             try {
@@ -558,25 +533,21 @@
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
                 const response = await fetch('/api/comments', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) throw new Error('Authorization failed.');
-                if (!response.ok) throw new Error('Failed to fetch comments.');
+                if (response.status === 403) throw new Error('Authorization failed.'); if (!response.ok) throw new Error('Failed to fetch comments.');
                 allCommentsData = await response.json(); renderComments(allCommentsData); updateDashboardStats();
             } catch (error) { commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
         const renderComments = (comments) => {
-            commentsContainer.innerHTML = '';
-            if (!comments || comments.length === 0) { commentsContainer.innerHTML = '<p style="text-align:center;">No comments found.</p>'; return; }
+            commentsContainer.innerHTML = ''; if (!comments || comments.length === 0) { commentsContainer.innerHTML = '<p style="text-align:center;">No comments found.</p>'; return; }
             comments.forEach(comment => {
-                const card = document.createElement('div');
-                card.className = 'comment-card-admin';
+                const card = document.createElement('div'); card.className = 'comment-card-admin glass-ui';
                 card.innerHTML = `<img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${comment.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${comment.topic_id}</strong></span><span>${timeAgo(comment.created_at)}</span></div></div><p class="comment-card-admin-body"></p></div><div class="comment-card-admin-actions"><button class="btn btn-danger icon-btn delete-comment-btn" data-id="${comment.id}"><i class="fas fa-trash"></i></button></div>`;
                 card.querySelector('.comment-card-admin-body').textContent = comment.content;
                 commentsContainer.appendChild(card);
             });
         };
         const handleDeleteCommentClick = async (e) => {
-            const commentId = e.currentTarget.dataset.id;
-            if (!commentId) return;
+            const commentId = e.currentTarget.dataset.id; if (!commentId) return;
             const confirmed = await showConfirmModal('Delete Comment?', 'Are you sure you want to permanently delete this comment?');
             if (!confirmed) return;
             try {
@@ -591,34 +562,28 @@
             try {
                 const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
                 const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) throw new Error('Authorization failed.');
-                if (!response.ok) throw new Error('Failed to fetch users.');
+                if (response.status === 403) throw new Error('Authorization failed.'); if (!response.ok) throw new Error('Failed to fetch users.');
                 allUsersData = await response.json(); renderUsers(allUsersData); updateDashboardStats();
             } catch (error) { usersContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
         const renderUsers = (users) => {
-            usersContainer.innerHTML = '';
-            if (!users || users.length === 0) { usersContainer.innerHTML = '<p style="text-align:center;">No users found.</p>'; return; }
+            usersContainer.innerHTML = ''; if (!users || users.length === 0) { usersContainer.innerHTML = '<p style="text-align:center;">No users found.</p>'; return; }
             users.forEach(user => {
                 const card = document.createElement('div');
-                const joinDate = new Date(user.join_date).toLocaleDateString();
-                const lastSeen = user.last_seen ? timeAgo(user.last_seen) : 'Never';
-                let cardClass = 'user-card-admin';
-                let statusHTML = '', actionsHTML = '';
+                const joinDate = new Date(user.join_date).toLocaleDateString(); const lastSeen = user.last_seen ? timeAgo(user.last_seen) : 'Never';
+                let cardClass = 'user-card-admin glass-ui', statusHTML = '', actionsHTML = '';
                 if (user.is_banned) {
-                    cardClass += ' banned';
-                    statusHTML = `<span>Status: <strong style="color:var(--color-status-down)">Banned</strong></span>`;
+                    cardClass += ' banned'; statusHTML = `<span>Status: <strong style="color:var(--color-status-down)">Banned</strong></span>`;
                     actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unban</button>`;
                 } else if (user.suspension_expires_at && new Date(user.suspension_expires_at) > new Date()) {
-                    cardClass += ' suspended';
-                    statusHTML = `<span>Status: <strong style="color:var(--color-status-caution)">Suspended</strong></span>`;
+                    cardClass += ' suspended'; statusHTML = `<span>Status: <strong style="color:var(--color-status-caution)">Suspended</strong></span>`;
                     actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unsuspend</button>`;
                 } else {
                     statusHTML = `<span>Status: <strong style="color:var(--color-status-up)">Active</strong></span>`;
                     actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                 }
                 card.className = cardClass;
-                card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8; color: var(--color-text-muted);">Reason: <span style="color: var(--color-text);">${user.moderation_reason}</span></div>` : ''}</div><div class="actions">${actionsHTML}</div>`;
+                card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Reason: ${user.moderation_reason}</div>` : ''}</div><div class="actions" style="margin-left: auto; align-items: center;">${actionsHTML}</div>`;
                 usersContainer.appendChild(card);
             });
         };
@@ -626,17 +591,12 @@
             try {
                 const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
-                const result = await response.json();
-                showToast(result.message);
-                await fetchAndRenderUsers();
+                const result = await response.json(); showToast(result.message); await fetchAndRenderUsers();
             } catch (error) { showToast(error.message, true); }
         };
         const openModerateModal = (user, action) => {
-            document.getElementById('moderate-user-id').value = user.discord_id;
-            document.getElementById('moderate-action').value = action;
-            document.getElementById('moderate-reason').value = '';
-            const title = document.getElementById('moderate-title');
-            const durationGroup = document.getElementById('duration-group');
+            document.getElementById('moderate-user-id').value = user.discord_id; document.getElementById('moderate-action').value = action; document.getElementById('moderate-reason').value = '';
+            const title = document.getElementById('moderate-title'); const durationGroup = document.getElementById('duration-group');
             title.textContent = `${action.charAt(0).toUpperCase() + action.slice(1)} ${user.username}`;
             durationGroup.style.display = (action === 'suspend') ? 'block' : 'none';
             moderateModal.classList.add('visible');
@@ -644,121 +604,79 @@
         const closeModerateModal = () => moderateModal.classList.remove('visible');
         
         const openUserDetailsModal = async (user) => {
-            userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>';
-            userDetailsModal.classList.add('visible');
+            userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>'; userDetailsModal.classList.add('visible');
             try {
                 const response = await fetch(`/api/admin-user-details?userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
                 if (!response.ok) throw new Error("Failed to load details.");
                 const data = await response.json();
                 let commentsHTML = '<h4>Comment History</h4><p>No comments found for this user.</p>';
                 if (data.comments && data.comments.length > 0) {
-                    commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0; box-shadow: none;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
+                    commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0; box-shadow: none; backdrop-filter: none;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
                 }
-                userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"><div class="details-header-info"><h3>${user.username}</h3><p style="opacity: 0.7; color: var(--color-text-muted);">${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
+                userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"><div class="details-header-info"><h3>${user.username}</h3><p style="opacity: 0.7;">${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
             } catch (error) { userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`; }
         };
         const closeUserDetailsModal = () => userDetailsModal.classList.remove('visible');
 
         discordLoginBtn.addEventListener('click', () => { const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; window.location.href = authUrl; });
-        logoutBtnAdmin.addEventListener('click', handleLogout);
-        logoutBtnDenied.addEventListener('click', handleLogout);
+        logoutBtnAdmin.addEventListener('click', handleLogout); logoutBtnDenied.addEventListener('click', handleLogout);
         addNewGameBtn.addEventListener('click', () => openFormModal());
-        gameModalCloseBtn.addEventListener('click', closeFormModal);
-        gameModalCancelBtn.addEventListener('click', closeFormModal);
+        gameModalCloseBtn.addEventListener('click', closeFormModal); gameModalCancelBtn.addEventListener('click', closeFormModal);
         userDetailsModalClose.addEventListener('click', closeUserDetailsModal);
-        moderateModalClose.addEventListener('click', closeModerateModal);
-        moderateModalCancel.addEventListener('click', closeModerateModal);
+        moderateModalClose.addEventListener('click', closeModerateModal); moderateModalCancel.addEventListener('click', closeModerateModal);
         document.addEventListener('keydown', (e) => { if (e.key === "Escape") { closeFormModal(); closeModerateModal(); closeUserDetailsModal(); confirmModal.classList.remove('visible'); } });
         
         gamesTableBody.addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-btn');
-            if (editBtn) { openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id)); return; }
-            const deleteBtn = e.target.closest('.delete-btn');
-            if (deleteBtn) { handleDeleteGameClick({ currentTarget: deleteBtn }); }
+            const editBtn = e.target.closest('.edit-btn'); if (editBtn) { openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id)); return; }
+            const deleteBtn = e.target.closest('.delete-btn'); if (deleteBtn) { handleDeleteGameClick({ currentTarget: deleteBtn }); }
         });
         commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn }); });
         usersContainer.addEventListener('click', async (e) => {
-            const targetButton = e.target.closest('button');
-            const userCard = e.target.closest('.user-card-admin');
+            const targetButton = e.target.closest('button'); const userCard = e.target.closest('.user-card-admin');
             if (!userCard) return;
-            const userId = userCard.querySelector('[data-id]')?.dataset.id;
-            if (!userId) {
-                // If no button with data-id found, it might be the card itself for details view
-                 const authorName = userCard.querySelector('.user-card-admin-author').textContent;
-                 const userForDetails = allUsersData.find(u => u.username === authorName);
-                 if (userForDetails) openUserDetailsModal(userForDetails);
-                 return;
-            }
-            const userToModerate = allUsersData.find(u => u.discord_id === userId);
-            if (!userToModerate) return;
-
+            const userAuthorElement = userCard.querySelector('.user-card-admin-author');
+            const username = userAuthorElement ? userAuthorElement.textContent : null;
+            if (!username) return;
+            const userToActOn = allUsersData.find(u => u.username === username);
+            if (!userToActOn) return;
             if (targetButton) {
-                e.stopPropagation(); // Prevent modal from opening when a button is clicked
-                if (targetButton.classList.contains('ban-btn')) { openModerateModal(userToModerate, 'ban'); }
-                else if (targetButton.classList.contains('suspend-btn')) { openModerateModal(userToModerate, 'suspend'); }
+                e.stopPropagation();
+                if (targetButton.classList.contains('ban-btn')) openModerateModal(userToActOn, 'ban');
+                else if (targetButton.classList.contains('suspend-btn')) openModerateModal(userToActOn, 'suspend');
                 else if (targetButton.classList.contains('unban-btn')) {
-                    const confirmed = await showConfirmModal('Remove Restrictions?', `Are you sure you want to unban/unsuspend ${userToModerate.username}?`);
-                    if (confirmed) { moderateUser(userToModerate, 'unban'); }
+                    const confirmed = await showConfirmModal('Remove Restrictions?', `Are you sure you want to unban/unsuspend ${userToActOn.username}?`);
+                    if (confirmed) moderateUser(userToActOn, 'unban');
                 }
-            } else {
-                openUserDetailsModal(userToModerate);
-            }
+            } else { openUserDetailsModal(userToActOn); }
         });
         commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
         usersSearch.addEventListener('input', () => { const searchTerm = usersSearch.value.toLowerCase().trim(); const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm)); renderUsers(filtered); });
         
         moderateForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const userId = document.getElementById('moderate-user-id').value;
-            const action = document.getElementById('moderate-action').value;
-            const reason = document.getElementById('moderate-reason').value;
-            const duration = document.getElementById('moderate-duration').value;
-            const targetUser = allUsersData.find(u => u.discord_id === userId);
-            if (!targetUser) return showToast('User not found.', true);
+            e.preventDefault(); const userId = document.getElementById('moderate-user-id').value; const action = document.getElementById('moderate-action').value;
+            const reason = document.getElementById('moderate-reason').value; const duration = document.getElementById('moderate-duration').value;
+            const targetUser = allUsersData.find(u => u.discord_id === userId); if (!targetUser) return showToast('User not found.', true);
             moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
             closeModerateModal();
         });
 
         gameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+            e.preventDefault(); const submitButton = e.currentTarget.querySelector('button[type="submit"]');
             submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; formError.textContent = '';
-            
-            const gameId = document.getElementById('game-id').value;
-            const isEditing = !!gameId;
-
+            const gameId = document.getElementById('game-id').value; const isEditing = !!gameId;
             const gameData = {
-                name: document.getElementById('game-name').value.trim(),
-                status: document.getElementById('game-status').value,
-                thumbnail_url: document.getElementById('thumbnail-url').value.trim(),
-                loadstring: document.getElementById('loadstring').value.trim(),
-                topic_id: document.getElementById('topic-id').value.trim(),
-                display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
-                is_published: document.getElementById('is-published').checked,
-                features_html: document.getElementById('features-html').value.trim(),
+                name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value,
+                thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(),
+                topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
+                is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim(),
             };
-            
-            const bodyPayload = { gameData, user: getCurrentUser() };
-            if (isEditing) {
-                bodyPayload.gameId = gameId;
-            }
-
+            const bodyPayload = { gameData, user: getCurrentUser() }; if (isEditing) bodyPayload.gameId = gameId;
             try {
-                const response = await fetch('/api/admin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyPayload)
-                });
+                const response = await fetch('/api/admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyPayload) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
-                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
-                closeFormModal();
-                await fetchAndRenderGames();
-            } catch (error) {
-                formError.textContent = error.message;
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Save Game';
-            }
+                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`); closeFormModal(); await fetchAndRenderGames();
+            } catch (error) { formError.textContent = error.message;
+            } finally { submitButton.disabled = false; submitButton.innerHTML = 'Save Game'; }
         });
         
         handleOAuthCallback();
