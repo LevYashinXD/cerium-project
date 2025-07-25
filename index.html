@@ -224,13 +224,15 @@
         .comment-form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
             margin-top: 10px;
         }
         .comments-list {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px; /* For scrollbar */
         }
         .comment-card {
             display: flex;
@@ -269,36 +271,6 @@
             line-height: 1.6;
             white-space: pre-wrap; /* Preserve line breaks */
             word-break: break-word;
-            margin-bottom: 12px;
-        }
-        .comment-actions {
-            display: flex;
-            gap: 15px;
-        }
-        .comment-reply-btn {
-            background: none;
-            border: none;
-            color: var(--color-text);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-        .comment-reply-btn:hover {
-            opacity: 1;
-        }
-        .reply-form-container {
-            display: none;
-            margin-top: 15px;
-        }
-        .comment-replies-container {
-            margin-top: 20px;
-            padding-left: 30px;
-            border-left: 2px solid var(--color-card-border);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
         }
         .comments-status {
             text-align: center;
@@ -377,7 +349,6 @@
             .staff-card { grid-template-columns: 1fr; text-align: center; justify-items: center; gap: 15px; }
             .staff-socials { margin-top: 10px; }
             .staff-socials a { margin: 0 10px; }
-            .comment-replies-container { padding-left: 15px; }
         }
     </style>
 </head>
@@ -934,26 +905,22 @@
         handleOAuthCallback();
 
         // --- COMMENTS LOGIC ---
-        const renderComments = (comments, container, topicId) => {
-            container.innerHTML = ''; 
-            if (comments.length === 0 && container.classList.contains('comments-list')) {
-                container.innerHTML = `<p class="comments-status">Be the first to comment!</p>`;
+        const renderComments = (comments, topicId) => {
+            const list = document.getElementById(`comments-list-${topicId}`);
+            list.innerHTML = '';
+            if (comments.length === 0) {
+                list.innerHTML = `<p class="comments-status">Be the first to comment!</p>`;
                 return;
             }
             comments.forEach(comment => {
-                const card = createCommentCard(comment, topicId);
-                container.appendChild(card);
-                if (comment.replies && comment.replies.length > 0) {
-                    const repliesContainer = card.querySelector('.comment-replies-container');
-                    renderComments(comment.replies, repliesContainer, topicId);
-                }
+                const card = createCommentCard(comment);
+                list.appendChild(card);
             });
         };
 
-        const createCommentCard = (comment, topicId) => {
+        const createCommentCard = (comment) => {
             const card = document.createElement('div');
             card.className = 'comment-card';
-            card.id = `comment-${comment.id}`;
             card.innerHTML = `
                 <img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${comment.user_name}'s avatar" class="comment-avatar">
                 <div class="comment-content">
@@ -962,18 +929,7 @@
                         <span class="comment-time">${timeAgo(comment.created_at)}</span>
                     </div>
                     <p class="comment-body">${document.createTextNode(comment.content).textContent}</p>
-                    <div class="comment-actions">
-                        <button class="comment-reply-btn" data-comment-id="${comment.id}">
-                            <i class="fas fa-reply"></i> Reply
-                        </button>
-                    </div>
-                    <div class="reply-form-container"></div>
-                    <div class="comment-replies-container"></div>
                 </div>`;
-            card.querySelector('.comment-reply-btn').addEventListener('click', (e) => {
-                const commentId = e.currentTarget.dataset.commentId;
-                toggleReplyForm(commentId, topicId);
-            });
             return card;
         };
 
@@ -984,98 +940,11 @@
                 const response = await fetch(`/api/comments?topic=${topicId}`);
                 if (!response.ok) throw new Error('Failed to load comments.');
                 const comments = await response.json();
-                renderComments(comments, list, topicId);
+                renderComments(comments, topicId);
             } catch (error) {
                 list.innerHTML = `<p class="comments-status error">${error.message}</p>`;
             }
         };
-
-        const toggleReplyForm = (parentId, topicId) => {
-            const container = document.querySelector(`#comment-${parentId} .reply-form-container`);
-            if (!container) return;
-            if (container.innerHTML) {
-                container.style.display = 'none';
-                container.innerHTML = '';
-                return;
-            }
-            const userData = JSON.parse(localStorage.getItem('discord_user_v2'));
-            const avatarUrl = userData.avatar ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png';
-            
-            const form = document.createElement('form');
-            form.className = 'comment-form reply-form';
-            form.innerHTML = `
-                <img src="${avatarUrl}" alt="Your avatar" class="comment-form-avatar">
-                <div class="comment-form-input-wrapper">
-                    <textarea class="comment-textarea" placeholder="Write a reply..." required></textarea>
-                    <div class="comment-form-actions">
-                        <button type="button" class="btn btn-secondary cancel-reply-btn" style="padding: 10px 24px;">Cancel</button>
-                        <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Reply</button>
-                    </div>
-                </div>`;
-            container.appendChild(form);
-            container.style.display = 'block';
-            form.querySelector('textarea').focus();
-            form.addEventListener('submit', (e) => handleCommentSubmit(e, topicId, parentId));
-            form.querySelector('.cancel-reply-btn').addEventListener('click', () => {
-                container.style.display = 'none';
-                container.innerHTML = '';
-            });
-        };
-
-        const handleCommentSubmit = async (e, topicId, parentId = null) => {
-            e.preventDefault();
-            const form = e.currentTarget;
-            const submitButton = form.querySelector('button[type="submit"]');
-            const textarea = form.querySelector('.comment-textarea');
-            const content = textarea.value.trim();
-            if (!content) return;
-
-            const originalButtonText = submitButton.innerHTML;
-            submitButton.disabled = true;
-            submitButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-            
-            try {
-                const user = JSON.parse(localStorage.getItem('discord_user_v2'));
-                const response = await fetch('/api/comments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topic: topicId, content, user, parentId })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error || 'Failed to post comment.');
-                }
-                
-                const newComment = await response.json();
-                const card = createCommentCard(newComment, topicId);
-
-                if (parentId) {
-                    const repliesContainer = document.querySelector(`#comment-${parentId} .comment-replies-container`);
-                    repliesContainer.appendChild(card);
-                    form.parentElement.style.display = 'none';
-                    form.parentElement.innerHTML = '';
-                } else {
-                    const list = document.getElementById(`comments-list-${topicId}`);
-                    const statusMessage = list.querySelector('.comments-status');
-                    if (statusMessage) statusMessage.remove();
-                    list.prepend(card);
-                    textarea.value = '';
-                }
-
-                const profile = getOrCreateProfile(user);
-                profile.commentCount = (profile.commentCount || 0) + 1;
-                localStorage.setItem(getProfileKey(user.id), JSON.stringify(profile));
-                checkAndUnlockAchievements(profile);
-
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            }
-        };
-
 
         function initializePageScripts() {
             const isReducedMotion = window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
@@ -1197,7 +1066,7 @@
             window.addEventListener('click', (event) => { if (event.target == profileModal) closeProfileModal(); });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profileModal.classList.contains('visible')) closeProfileModal(); });
 
-            // --- BUG REPORT LOGIC ---
+            // --- Bug Report Form Logic ---
             const reportFormStateKey = 'cerium_bug_report_draft';
             const saveFormState = () => {
                 const state = { game: document.getElementById('game-select').value, description: document.getElementById('bug-description').value };
@@ -1306,10 +1175,57 @@
                 field.addEventListener('input', () => { if (field.value) { field.classList.remove('invalid'); } });
                 field.addEventListener('change', () => { if (field.value) { field.classList.remove('invalid'); } });
             });
-            
-            // Add listeners for the main (top-level) comment forms
-            document.querySelectorAll('.comment-form:not(.reply-form)').forEach(form => {
-                form.addEventListener('submit', (e) => handleCommentSubmit(e, form.dataset.topic, null));
+
+            // --- COMMENT FORM SUBMISSION ---
+            document.querySelectorAll('.comment-form').forEach(form => {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    const textarea = form.querySelector('.comment-textarea');
+                    const content = textarea.value.trim();
+                    const topic = form.dataset.topic;
+
+                    if (!content) return;
+
+                    const originalButtonText = submitButton.innerHTML;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+                    
+                    try {
+                        const user = JSON.parse(localStorage.getItem('discord_user_v2'));
+                        const response = await fetch('/api/comments', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ topic, content, user })
+                        });
+
+                        if (!response.ok) {
+                            const errData = await response.json();
+                            throw new Error(errData.error || 'Failed to post comment.');
+                        }
+                        
+                        const newComment = await response.json();
+                        const card = createCommentCard(newComment);
+                        const list = document.getElementById(`comments-list-${topic}`);
+                        
+                        const statusMessage = list.querySelector('.comments-status');
+                        if (statusMessage) statusMessage.remove();
+
+                        list.prepend(card);
+                        textarea.value = '';
+
+                        const profile = getOrCreateProfile(user);
+                        profile.commentCount = (profile.commentCount || 0) + 1;
+                        localStorage.setItem(getProfileKey(user.id), JSON.stringify(profile));
+                        checkAndUnlockAchievements(profile);
+
+                    } catch (error) {
+                        alert(`Error: ${error.message}`);
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    }
+                });
             });
         }
     });
