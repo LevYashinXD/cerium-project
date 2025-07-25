@@ -152,7 +152,7 @@
                         </div>
                     </div>
                     <div class="detail-section">
-                        <h3><i class="fas fa-star gradient-text"></i> Features</h3>
+                        <h3><i class="fas fa-star gradient-text"></i> Description & Features</h3>
                         <div id="detail-features"></div>
                     </div>
                     <div class="detail-section">
@@ -264,14 +264,25 @@
             } catch (e) { list.innerHTML = `<p class="api-status" style="color:red;">Could not load comments.</p>`; }
         };
 
-        const createCommentCard = (comment) => `
-            <div class="comment-card">
+        const createCommentCard = (comment) => {
+             const card = document.createElement('div');
+             card.className = 'comment-card';
+             // Sanitize content before inserting
+             const userNameEl = document.createElement('strong');
+             userNameEl.textContent = comment.user_name;
+             const contentEl = document.createElement('p');
+             contentEl.textContent = comment.content;
+             
+             card.innerHTML = `
                 <img src="${comment.user_avatar}" alt="avatar" class="comment-avatar">
                 <div class="comment-content">
-                    <p><strong>${comment.user_name}</strong></p>
-                    <p>${comment.content}</p>
-                </div>
-            </div>`;
+                    <p class="user-name-comment"></p>
+                    <div class="comment-body"></div>
+                </div>`;
+            card.querySelector('.user-name-comment').appendChild(userNameEl);
+            card.querySelector('.comment-body').appendChild(contentEl);
+            return card.outerHTML;
+        }
 
         document.getElementById('back-to-grid-btn').addEventListener('click', showGridView);
         searchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value.toLowerCase(); renderGames(); });
@@ -301,11 +312,14 @@
             if (!content || !topic) return;
             
             const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
             submitButton.disabled = true;
+            submitButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
 
             try {
                 const response = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, content, user }) });
-                if (!response.ok) throw new Error('Failed to post comment');
+                if (!response.ok) throw new Error((await response.json()).error || 'Failed to post comment');
                 const newComment = await response.json();
                 const list = document.querySelector('#game-detail-view .comments-list');
                 if(list.querySelector('.api-status')) list.innerHTML = '';
@@ -315,6 +329,7 @@
                 alert(error.message);
             } finally {
                 submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
             }
         });
 
