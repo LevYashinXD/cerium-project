@@ -1,51 +1,91 @@
 import { neon } from '@neondatabase/serverless';
 
-const WEBHOOK_URL = process.env.DISCORD_BUG_REPORT_WEBHOOK;
-
-function isAdmin(user) {
-  if (!user || !user.id) return false;
-  const adminIds = (process.env.ADMIN_DISCORD_IDS || '').split(',');
-  return adminIds.includes(user.id);
-}
-
-async function logToDiscord(payload) {
-  if (!WEBHOOK_URL) {
-    console.log("Discord webhook URL not set. Skipping log.");
-    return;
+// Helper function to get the verified user from their token
+async function getVerifiedUser(authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  const token = authHeader.substring(7);
+  try {
+    const response = await fetch('https://discord.com/api/users/@me', {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    return null;
   }
-  await fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
 }
 
 export default async function handler(req, res) {
-  const sql = neon(process.env.POSTGRES_URL);
-
-  if (req.method === 'GET') {
-    const user = JSON.parse(req.headers['x-user-data'] || '{}');
-    if (!isAdmin(user)) return res.status(403).json({ error: 'Forbidden' });
-    const reports = await sql`SELECT * FROM bug_reports ORDER BY timestamp DESC`;
-    return res.status(200).json(reports);
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  if (req.method === 'POST') {
-    const { reportData, discordPayload } = req.body;
-    await sql`
-      INSERT INTO bug_reports (reporter_id, reporter_username, game_name, description)
-      VALUES (${reportData.userId}, ${reportData.username}, ${reportData.game}, ${reportData.description})
-    `;
-    await logToDiscord(discordPayload);
-    return res.status(201).json({ message: 'Report submitted successfully.' });
-  }
+  try {
+    // 1. Securely verify the user making the request. This prevents spam.
+    const user = await getVerifiedUser(req.headers.authorization);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid or missing token.' });
+    }
 
-  if (req.method === 'PUT') {
-    const { user, reportId, newStatus } = req.body;
-    if (!isAdmin(user)) return res.status(403).json({ error: 'Forbidden' });
-    await sql`UPDATE bug_reports SET status = ${newStatus} WHERE id = ${reportId}`;
-    return res.status(200).json({ message: 'Report status updated.' });
-  }
+    const { game, description } = req.body;
 
-  return res.status(405).json({ error: 'Method Not Allowed' });
+    // 2. Validate the incoming data.
+    if (!game || !description) {
+      return res.status(400).json({ error: 'Game and description are required fields.' });
+    }
+
+    // 3. Get the secret webhook URL from environment variables.
+    const webhookUrl = process.env.DISCORD_BUG_REPORT_WEBHOOK_URL;
+    if (!webhookUrl) {
+      console.error("DISCORD_BUG_REPORT_WEBHOOK_URL is not set.");
+      return res.status(500).json({ error: 'Server configuration error.' });
+    }
+
+    // 4. Create a professional-looking embed for Discord.
+    const embed = {
+      author: {
+        name: `${user.username} (${user.id})`,
+        icon_url: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png',
+      },
+      title: 'New Bug Report Submitted',
+      color: 16729421, // A red-ish color
+      fields: [
+        {
+          name: 'Game',
+          value: game,
+          inline: true,
+        },
+        {
+          name: 'Submitted By',
+          value: `<@${user.id}>`, // This will ping the user in Discord
+          inline: true,
+        },
+        {
+          name: 'Description',
+          value: "```" + description.substring(0, 1020) + "```", // Limit length and format as code block
+        },
+      ],
+      timestamp: new Date().toISOString(),
+    };
+
+    // 5. Send the report to your Discord channel.
+    const discordResponse = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: 'Cerium Bug Reporter',
+        embeds: [embed],
+      }),
+    });
+
+    if (!discordResponse.ok) {
+      throw new Error('Failed to send report to Discord.');
+    }
+
+    return res.status(200).json({ message: 'Report submitted successfully.' });
+
+  } catch (error) {
+    console.error('Bug Report API Error:', error);
+    return res.status(500).json({ error: 'An internal server error occurred.' });
+  }
 }
