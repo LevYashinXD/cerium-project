@@ -1,6 +1,5 @@
 import { neon } from '@neondatabase/serverless';
 
-// Helper function to get the verified user from a token
 async function getVerifiedUser(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.substring(7);
@@ -14,7 +13,6 @@ async function getVerifiedUser(authHeader) {
   }
 }
 
-// Helper function to check if a user is an admin
 function isAdmin(user) {
   if (!user || !user.id) return false;
   const adminIds = (process.env.ADMIN_DISCORD_IDS || '').split(',');
@@ -23,23 +21,19 @@ function isAdmin(user) {
 
 export default async function handler(req, res) {
   try {
-    // 1. Authenticate the user from the token on EVERY request.
     const user = await getVerifiedUser(req.headers.authorization);
 
-    // 2. Check for admin privileges using the VERIFIED user object.
     if (!isAdmin(user)) {
       return res.status(403).json({ error: 'Forbidden: You do not have admin privileges.' });
     }
 
     const sql = neon(process.env.POSTGRES_URL);
 
-    // Handle GET request to fetch all games
     if (req.method === 'GET') {
       const games = await sql`SELECT * FROM games ORDER BY display_order ASC, name ASC`;
       return res.status(200).json(games);
     }
 
-    // Handle POST request to create a new game
     if (req.method === 'POST') {
       const { gameData } = req.body;
       const [newGame] = await sql`
@@ -49,7 +43,6 @@ export default async function handler(req, res) {
       return res.status(201).json(newGame);
     }
 
-    // Handle PUT request to update an existing game
     if (req.method === 'PUT') {
       const { gameId, gameData } = req.body;
       const [updatedGame] = await sql`
@@ -64,7 +57,6 @@ export default async function handler(req, res) {
       return res.status(200).json(updatedGame);
     }
 
-    // Handle DELETE request to remove a game
     if (req.method === 'DELETE') {
       const { gameId } = req.body;
       await sql`DELETE FROM games WHERE id = ${gameId}`;
