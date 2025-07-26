@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cerium | The Athletic Standard for Roblox Sports</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         :root {
             --color-background: #050505;
@@ -18,6 +22,7 @@
             --font-family: 'Inter', sans-serif;
             --border-radius: 16px;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
         body { font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text); line-height: 1.7; overflow-x: hidden; }
@@ -62,8 +67,8 @@
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-size: 1rem; }
         #form-status-message { margin-top: 20px; min-height: 1.2em; font-weight: 600; }
-        #form-status-message.success { color: var(--color-status-up); }
-        #form-status-message.error { color: var(--color-status-down); }
+        #form-status-message.success { color: #00FF7F; }
+        #form-status-message.error { color: #FF3366; }
     </style>
 </head>
 <body class="state-preloading">
@@ -128,30 +133,16 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- CONFIG & DOM ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
         const preloader = document.getElementById('preloader');
         const discordLoginBtn = document.getElementById('discord-login-btn');
 
-        // --- HELPERS ---
-        const getAccessToken = () => localStorage.getItem('discord_access_token');
-        const setAccessToken = (token) => localStorage.setItem('discord_access_token', token);
         const getCurrentUser = () => JSON.parse(localStorage.getItem('discord_user_v2'));
         const setPageState = (state) => body.className = `state-${state}`;
         const handleLogout = () => { if (confirm("Are you sure?")) { localStorage.clear(); window.location.reload(); } };
 
-        const secureFetch = async (endpoint, options = {}) => {
-            const token = getAccessToken();
-            if (!token) { handleLogout(); throw new Error("Missing auth token"); }
-            const headers = { ...options.headers, 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
-            const response = await fetch(endpoint, { ...options, headers });
-            if (response.status === 401 || response.status === 403) { handleLogout(); throw new Error("Authorization failed"); }
-            return response;
-        };
-
-        // --- PAGE VIEWS & STATE ---
         const showLoginWall = () => { preloader.classList.add('hidden'); setPageState('login'); };
         const showMainContent = (userData) => { setPageState('authenticated'); initializePageScripts(userData); };
         const showWelcomeTransition = async (userData) => {
@@ -164,25 +155,22 @@
             }, 2000);
         };
         
-        // --- SECURITY & PRESENCE ---
         const checkAndRedirect = async (user) => {
             try {
                 const response = await fetch(`/api/check-user-status?userId=${user.id}`);
                 const data = await response.json();
                 if (data.status === 'banned') {
                     window.location.href = `/banned.html?reason=${encodeURIComponent(data.reason || '')}`;
-                    return false;
+                    return false; 
                 }
                 if (data.status === 'suspended') {
                     window.location.href = `/suspended.html?expires=${encodeURIComponent(data.expires || '')}&reason=${encodeURIComponent(data.reason || '')}`;
                     return false;
                 }
                 return true;
-            } catch (error) {
-                console.error("Status check failed:", error);
-                return true;
-            }
+            } catch { return true; }
         };
+
         const recordUserPresence = (user) => {
             fetch('/api/record-login', {
                 method: 'POST',
@@ -191,13 +179,10 @@
             }).catch(err => console.warn("Failed to record user presence:", err));
         };
         
-        // --- MAIN AUTHENTICATION FLOW ---
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
-
             if (accessToken) {
-                setAccessToken(accessToken);
                 try {
                     const res = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
                     const userData = await res.json();
@@ -230,12 +215,9 @@
                 gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
                 games.forEach(game => gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`));
                 gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
-            } catch (error) { 
-                gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`;
-            }
+            } catch { gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`; }
         }
         
-        // --- PAGE INITIALIZATION & EVENT LISTENERS ---
         function initializePageScripts(userData) {
             document.getElementById('nav-user-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
             document.getElementById('nav-user-name').textContent = userData.username;
@@ -251,6 +233,7 @@
                     event.preventDefault();
                     const submitButton = document.getElementById('submit-bug-report');
                     const statusMessage = document.getElementById('form-status-message');
+                    const user = getCurrentUser();
                     
                     const originalButtonHTML = submitButton.innerHTML;
                     submitButton.disabled = true;
@@ -258,13 +241,27 @@
                     statusMessage.textContent = '';
                     statusMessage.className = '';
 
+                    // This is the corrected payload to match your existing backend.
+                    const discordPayload = {
+                        username: "Cerium Bug Reports",
+                        embeds: [{
+                            author: {
+                                name: `${user.username} (${user.id})`,
+                                icon_url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                            },
+                            fields: [
+                                { name: "Game", value: bugReportForm['game-select'].value },
+                                { name: "Description", value: "```" + bugReportForm['bug-description'].value.substring(0, 1020) + "```" }
+                            ],
+                            timestamp: new Date().toISOString()
+                        }]
+                    };
+
                     try {
-                        const response = await secureFetch('/api/bug-reports', {
+                        const response = await fetch('/api/bug-reports', {
                             method: 'POST',
-                            body: JSON.stringify({
-                                game: bugReportForm['game-select'].value,
-                                description: bugReportForm['bug-description'].value
-                            })
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ discordPayload }) // Send the correctly named payload
                         });
 
                         if (!response.ok) {
