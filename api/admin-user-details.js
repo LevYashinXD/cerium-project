@@ -2,7 +2,7 @@
 
 import { neon } from '@neondatabase/serverless';
 
-// --- Add the re-usable security functions here ---
+// --- Re-usable Security Functions ---
 async function getVerifiedUser(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.substring(7);
@@ -29,7 +29,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // FIXED: Authenticate using the standard Authorization header
     const user = await getVerifiedUser(req.headers.authorization);
     if (!isAdmin(user)) {
         return res.status(403).json({ error: 'Forbidden' });
@@ -42,14 +41,20 @@ export default async function handler(req, res) {
 
     const sql = neon(process.env.POSTGRES_URL);
     
-    // Your query logic is fine, no changes needed here.
+    // This query is likely correct, assuming your 'users' table uses 'discord_id'
     const [userDetails] = await sql`SELECT * FROM users WHERE discord_id = ${userId}`;
-    const comments = await sql`SELECT * FROM comments WHERE discord_id = ${userId} ORDER BY created_at DESC`;
     
+    // ***** THIS IS THE FIXED LINE *****
+    // The 'comments' table uses the 'user_id' column to reference the Discord ID.
+    const comments = await sql`SELECT * FROM comments WHERE user_id = ${userId} ORDER BY created_at DESC`;
+    
+    // If the user has no details in the users table yet, it's not an error.
+    // The modal can still show their comments. Return what we found.
     return res.status(200).json({ userDetails: userDetails || {}, comments });
 
   } catch (error) {
+    // This catch block is triggered when a database query fails, like the one we just fixed.
     console.error('Error fetching user details:', error);
-    return res.status(500).json({ error: 'Failed to fetch user details.' });
+    return res.status(500).json({ error: 'Failed to fetch user details due to a server error.' });
   }
 }
