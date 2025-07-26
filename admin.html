@@ -136,10 +136,9 @@
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
         .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; transition: all var(--transition-speed) ease; }
         
-        /* --- CORRECTED BANNED USER STYLES --- */
         .user-card-admin.banned {
             border-color: rgba(255, 51, 102, 0.7);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4); /* RED AURA */
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
         }
         .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); }
         .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); }

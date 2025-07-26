@@ -270,7 +270,6 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- QoL: Core variable setup ---
         const user = JSON.parse(localStorage.getItem('discord_user_v2'));
         if (!user) {
             window.location.href = 'index.html'; 
@@ -290,7 +289,6 @@
         let currentFilter = 'all';
         let currentSearchTerm = '';
 
-        // --- QoL: Toast Notification System ---
         const showToast = (message, type = 'error') => {
             const toastContainer = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -301,7 +299,6 @@
             setTimeout(() => toast.remove(), 5000);
         };
 
-        // --- QoL: Relative Time Formatter ---
         const formatTimeAgo = (date) => {
             const now = new Date();
             const seconds = Math.floor((now - new Date(date)) / 1000);
@@ -318,7 +315,6 @@
             return "Just now";
         };
 
-        // --- User setup & Cross-tab logout sync ---
         document.getElementById('nav-user-avatar').src = avatarUrl;
         document.getElementById('nav-user-name').textContent = user.username;
         document.querySelector('.comment-form-avatar').src = avatarUrl;
@@ -332,7 +328,6 @@
             }
         });
 
-        // --- View Management with Smooth Transitions ---
         const switchView = (showView, hideView, callback) => {
             pageContent.classList.add('fading-out');
             setTimeout(() => {
@@ -370,7 +365,6 @@
             });
         };
 
-        // --- Game Rendering with Skeleton Loaders ---
         const renderSkeletonGrid = (count = 6) => {
             gameGrid.innerHTML = '';
             for (let i = 0; i < count; i++) {
@@ -424,7 +418,6 @@
             }
         };
 
-        // --- Upgraded Comment Handling ---
         const fetchComments = async (topicId) => {
             const list = document.querySelector('#game-detail-view .comments-list');
             list.innerHTML = `<div class="api-status"><div class="spinner"></div></div>`;
@@ -466,7 +459,6 @@
             return card;
         };
 
-        // --- Event Listeners ---
         document.getElementById('back-to-grid-btn').addEventListener('click', showGridView);
         searchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value.toLowerCase(); renderGames(); });
         filterButtonsContainer.addEventListener('click', (e) => {
@@ -486,7 +478,6 @@
             if (selectedGame) showDetailView(selectedGame);
         });
 
-        // QoL: Comment form enhancements
         const commentForm = document.getElementById('detail-comment-form');
         const commentTextarea = commentForm.querySelector('.comment-textarea');
         const charCounter = document.getElementById('comment-char-counter');
@@ -494,11 +485,8 @@
         const postCommentBtnText = postCommentBtn.querySelector('span');
 
         commentTextarea.addEventListener('input', () => {
-            // Auto-resize textarea
             commentTextarea.style.height = 'auto';
             commentTextarea.style.height = `${commentTextarea.scrollHeight}px`;
-            
-            // Character counter and button state
             const len = commentTextarea.value.trim().length;
             charCounter.textContent = `${len} / 1000`;
             postCommentBtn.disabled = len === 0 || len > 1000;
@@ -524,9 +512,9 @@
                 const newCard = createCommentCard(newComment);
                 list.prepend(newCard);
                 commentTextarea.value = '';
-                commentTextarea.dispatchEvent(new Event('input')); // Reset counter and height
+                commentTextarea.dispatchEvent(new Event('input'));
                 
-                // Highlight new comment
+
                 newCard.classList.add('new-comment-highlight');
                 setTimeout(() => newCard.classList.remove('new-comment-highlight'), 3000);
 
@@ -538,7 +526,6 @@
             }
         });
 
-        // QoL: Copy button with icon feedback
         const copyBtn = document.getElementById('detail-copy-btn');
         copyBtn.addEventListener('click', () => {
             const textToCopy = document.getElementById('detail-loadstring').textContent;
@@ -550,14 +537,12 @@
             }).catch(err => showToast('Failed to copy.'));
         });
 
-        // QoL: Cursor glow effect
         const cursorGlow = document.getElementById('cursor-glow');
         document.addEventListener('mousemove', (e) => {
             cursorGlow.style.left = `${e.clientX}px`;
             cursorGlow.style.top = `${e.clientY}px`;
         });
         
-        // --- Initial Load ---
         loadGames();
     });
     </script>
