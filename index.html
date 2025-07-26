@@ -109,6 +109,8 @@
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-size: 1rem; }
         .form-group textarea { resize: vertical; min-height: 120px; }
         #form-status-message { margin-top: 20px; text-align: center; }
+        .mobile-nav-container { display: none; }
+        @media (max-width: 1024px) { .mobile-nav-container { display: block; } .nav-left .nav-menu-container, .nav-actions { display: none; } }
     </style>
 </head>
 <body class="state-preloading">
@@ -150,11 +152,20 @@
             <nav class="navbar">
                 <div class="nav-left">
                     <a href="#welcome" class="nav-logo">Cerium</a>
-                     <ul class="nav-menu">
+                     <div class="nav-menu-container">
+                        <ul class="nav-menu">
+                            <!-- UPDATED NAVIGATION -->
+                            <li><a href="games.html" class="nav-link">Games</a></li>
+                            <li><a href="#bug-report" class="nav-link">Report</a></li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="mobile-nav-container">
+                    <button class="hamburger" aria-label="Open menu"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+                    <ul class="nav-menu">
+                        <!-- UPDATED MOBILE NAVIGATION -->
                         <li><a href="games.html" class="nav-link">Games</a></li>
-                        <li><a href="#updates" class="nav-link">Updates</a></li>
-                        <li><a href="#staff" class="nav-link">Team</a></li>
-                        <li><a href="#bug-report" class="nav-link">Report</a></li>
+                        <li><a href="#bug-report" class="nav-link">Report a Bug</a></li>
                     </ul>
                 </div>
                 <div class="nav-actions">
@@ -170,14 +181,17 @@
         <main>
             <section id="welcome" class="hero-section">
                 <div>
-                    <h1 class="hero-title">The Athletic <span class="gradient-text">Standard</span></h1>
+                    <h1 class="hero-title">The "Athletic" <span class="gradient-text">Standard</span></h1>
                     <p class="hero-subtitle">Engineered for victory across Roblox's top competitive sports games, giving you the ultimate edge.</p>
                     <div class="hero-buttons">
                         <a href="games.html" class="btn btn-primary">Explore Products</a>
+                        <a href="#bug-report" class="btn btn-secondary">Report a Bug</a>
                     </div>
                 </div>
             </section>
-            
+
+            <!-- REMOVED #updates and #staff sections -->
+
             <section id="bug-report" class="content-section">
                 <h2 class="section-title">Report a Bug</h2>
                 <form id="bug-report-form">
@@ -195,12 +209,17 @@
                     </div>
                 </form>
             </section>
+
+            <section id="cta-section" class="content-section">
+                <h2>Ready to Redefine Your Game?</h2>
+                <p class="section-subtitle">Join our community of elite players.</p>
+                <a href="https://discord.gg/qjsGU83urz" target="_blank" class="btn btn-primary">Join the Discord Server</a>
+            </section>
         </main>
     </div>
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- CONFIGURATION & DOM ELEMENTS ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
@@ -212,12 +231,10 @@
             'first_report': { name: 'Bug Squasher', description: 'Submitted your first report.', icon: 'fas fa-bug', condition: (p) => p.reportCount >= 1 },
         };
 
-        // --- HELPER FUNCTIONS ---
         const getProfileKey = (id) => `cerium_user_profile_${id}`;
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch (e) { return null; } };
         const setPageState = (state) => body.className = `state-${state}`;
 
-        // --- PROFILE & ACHIEVEMENT LOGIC ---
         function getOrCreateProfile(userData) {
             const profileKey = getProfileKey(userData.id);
             let profile = JSON.parse(localStorage.getItem(profileKey));
@@ -228,12 +245,45 @@
             }
             return profile;
         }
-        function unlockAchievement(profile, achievementId) { /* ... */ }
-        function checkAndUnlockAchievements(profile) { /* ... */ }
-        function displayProfileModal() { /* ... */ }
-        function closeProfileModal() { /* ... */ }
 
-        // --- PAGE STATE & VIEW MANAGEMENT ---
+        function unlockAchievement(profile, achievementId) {
+            if (profile.unlockedAchievements.includes(achievementId)) return;
+            profile.unlockedAchievements.push(achievementId);
+            localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
+        }
+
+        function checkAndUnlockAchievements(profile) {
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                if (!profile.unlockedAchievements.includes(id) && ACHIEVEMENTS[id].condition(profile)) {
+                   unlockAchievement(profile, id);
+                }
+            });
+        }
+
+        function displayProfileModal() {
+            const userData = getCurrentUser();
+            if (!userData) return;
+            const profile = getOrCreateProfile(userData);
+            document.getElementById('profile-modal-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+            document.getElementById('profile-modal-username').textContent = `${userData.username}`;
+            document.getElementById('profile-modal-join-date').textContent = new Date(profile.joinDate).toLocaleDateString();
+            document.getElementById('profile-modal-report-count').textContent = profile.reportCount;
+            document.getElementById('profile-modal-comment-count').textContent = profile.commentCount || 0;
+            const grid = document.getElementById('achievements-grid');
+            grid.innerHTML = '';
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                const isUnlocked = profile.unlockedAchievements.includes(id);
+                grid.insertAdjacentHTML('beforeend', `<div class="achievement-card ${isUnlocked ? '' : 'locked'}"><i class="${ACHIEVEMENTS[id].icon} icon"></i><h5>${ACHIEVEMENTS[id].name}</h5></div>`);
+            });
+            document.getElementById('profile-modal').classList.add('visible');
+            body.classList.add('no-scroll');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.remove('visible');
+            body.classList.remove('no-scroll');
+        }
+
         const showLoginWall = () => {
             preloader.classList.add('hidden');
             setPageState('login');
@@ -269,16 +319,18 @@
             if (!gameSelect) return;
             try {
                 const response = await fetch('/api/games');
+                if (!response.ok) throw new Error('Server error');
                 const games = await response.json();
                 gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
-                games.forEach(game => gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`));
+                games.forEach(game => {
+                    gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`);
+                });
                 gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
             } catch (error) { 
                 gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`;
             }
         }
         
-        // --- AUTHENTICATION & SECURITY FLOW ---
         const checkAndRedirect = async (user) => {
             try {
                 const response = await fetch(`/api/check-user-status?userId=${user.id}`);
@@ -337,13 +389,10 @@
             }
         };
 
-        // --- INITIALIZATION OF PAGE SCRIPTS & EVENT LISTENERS ---
         function initializePageScripts(userData) {
-            // Update UI elements
             document.getElementById('nav-user-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
             document.getElementById('nav-user-name').textContent = userData.username;
-
-            // Attach all event listeners that depend on the main content being visible
+            
             const logoutButton = document.getElementById('discord-logout-btn-header');
             if (logoutButton) {
                 logoutButton.addEventListener('click', handleLogout);
@@ -394,10 +443,8 @@
             }
         }
         
-        // This is a global listener, safe to keep here
         discordLoginBtn.addEventListener('click', () => { window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; });
-
-        // --- START THE APPLICATION ---
+        
         handleOAuthCallback();
     });
     </script>
