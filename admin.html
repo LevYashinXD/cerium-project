@@ -126,7 +126,6 @@
         .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .table tbody tr { transition: background-color var(--transition-speed); }
         .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
-        .table tbody tr:last-child td { border-bottom: none; }
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: var(--border-radius-sm); }
         .table .icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
@@ -135,15 +134,10 @@
         .status-indicator.unpublished { color: var(--color-status-down); }
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
         .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; transition: all var(--transition-speed) ease; }
-        
-        .user-card-admin.banned {
-            border-color: rgba(255, 51, 102, 0.7);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
-        }
+        .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.7); box-shadow: 0 0 15px rgba(255, 51, 102, 0.4); }
         .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); }
         .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); }
         .user-card-admin:not(.banned):not(.suspended) { cursor: pointer; }
-        
         .comment-card-admin-avatar, .user-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
         .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;}
@@ -353,6 +347,42 @@
 
         let allGamesData = [], allUsersData = [], allCommentsData = [];
 
+        // --- NEW: Function to get the stored access token ---
+        const getAccessToken = () => {
+            return localStorage.getItem('discord_access_token');
+        };
+
+        // --- NEW: Function to store the access token ---
+        const setAccessToken = (token) => {
+            localStorage.setItem('discord_access_token', token);
+        };
+        
+        // --- NEW: A central place for making secure API calls ---
+        const secureFetch = async (endpoint, options = {}) => {
+            const token = getAccessToken();
+            if (!token) {
+                showToast("Authentication error. Please log in again.", true);
+                handleLogout(); // Force logout if token is missing
+                throw new Error("Missing auth token");
+            }
+            
+            const headers = {
+                ...options.headers,
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Add the token here
+            };
+
+            const response = await fetch(endpoint, { ...options, headers });
+
+            if (response.status === 401 || response.status === 403) {
+                 showToast("Session expired or invalid. Please log in again.", true);
+                 handleLogout();
+                 throw new Error("Authorization failed");
+            }
+
+            return response;
+        };
+
         const setPageState = (state) => body.className = `state-${state}`;
         const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
         const timeAgo = (date) => {
@@ -382,12 +412,14 @@
                 confirmCancelBtn.addEventListener('click', handleCancel, { once: true });
             });
         };
-        const handleLogout = () => { localStorage.removeItem('discord_user_v2'); setPageState('login'); };
-        const verifyAdminStatus = async (user) => {
+        const handleLogout = () => { localStorage.clear(); setPageState('login'); };
+        const verifyAdminStatus = async () => {
+            const user = getCurrentUser();
             if (!user) { setPageState('login'); return; }
             authStatus.textContent = 'Verifying permissions...';
             try {
-                const response = await fetch(`/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id }) });
+                // Use secureFetch for this check
+                const response = await secureFetch(`/api/check-admin`, { method: 'POST' });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Could not connect.'); }
                 const data = await response.json();
                 if (data.isAdmin) { showAdminPanel(user); } else { showAccessDenied(user); }
@@ -400,10 +432,12 @@
             fetchAndRenderGames(); fetchAndRenderComments(); fetchAndRenderUsers();
         };
         const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}`; setPageState('denied'); };
+        
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
             if (accessToken) {
+                setAccessToken(accessToken); // Store the token securely
                 authStatus.textContent = 'Fetching user data...';
                 try {
                     const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
@@ -411,9 +445,9 @@
                     const userData = await response.json();
                     localStorage.setItem('discord_user_v2', JSON.stringify(userData));
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    await verifyAdminStatus(userData);
+                    await verifyAdminStatus(); // No need to pass user, it will use secureFetch
                 } catch (error) { authStatus.textContent = `Login failed: ${error.message}`; window.history.replaceState({}, document.title, window.location.pathname); }
-            } else { await verifyAdminStatus(getCurrentUser()); }
+            } else { await verifyAdminStatus(); }
         };
         
         const updateDashboardStats = () => { totalGamesEl.textContent = allGamesData.length; totalUsersEl.textContent = allUsersData.length; totalCommentsEl.textContent = allCommentsData.length; };
@@ -422,9 +456,7 @@
         const fetchAndRenderGames = async () => {
             gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
             try {
-                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) { await verifyAdminStatus(currentUser); throw new Error('Authorization failed.'); }
+                const response = await secureFetch('/api/admin');
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to fetch games.'); }
                 allGamesData = await response.json(); renderGamesTable(allGamesData); updateDashboardStats();
             } catch (error) { gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
@@ -469,7 +501,7 @@
             const confirmed = await showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "${game.name}"?`);
             if (!confirmed) return;
             try {
-                const response = await fetch('/api/admin', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gameId, gameName: game.name, user: getCurrentUser() }) });
+                const response = await secureFetch('/api/admin', { method: 'DELETE', body: JSON.stringify({ gameId, gameName: game.name }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to delete.'); }
                 showToast('Game deleted successfully.'); await fetchAndRenderGames();
             } catch (error) { showToast(error.message, true); }
@@ -478,9 +510,8 @@
         const fetchAndRenderComments = async () => {
             commentsContainer.innerHTML = '<p style="text-align:center;">Loading comments...</p>';
             try {
-                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/comments', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) throw new Error('Authorization failed.'); if (!response.ok) throw new Error('Failed to fetch comments.');
+                const response = await secureFetch('/api/comments');
+                if (!response.ok) throw new Error('Failed to fetch comments.');
                 allCommentsData = await response.json(); renderComments(allCommentsData); updateDashboardStats();
             } catch (error) { commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
@@ -498,7 +529,7 @@
             const confirmed = await showConfirmModal('Delete Comment?', 'Are you sure you want to permanently delete this comment?');
             if (!confirmed) return;
             try {
-                const response = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId, user: getCurrentUser() }) });
+                const response = await secureFetch('/api/comments', { method: 'DELETE', body: JSON.stringify({ commentId }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Failed to delete.'); }
                 showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove();
             } catch (error) { showToast(error.message, true); }
@@ -507,9 +538,8 @@
         const fetchAndRenderUsers = async () => {
             usersContainer.innerHTML = '<p style="text-align:center;">Loading users...</p>';
             try {
-                const currentUser = getCurrentUser(); if (!currentUser) throw new Error("Not logged in.");
-                const response = await fetch('/api/admin-users', { headers: { 'X-User-Data': JSON.stringify(currentUser) } });
-                if (response.status === 403) throw new Error('Authorization failed.'); if (!response.ok) throw new Error('Failed to fetch users.');
+                const response = await secureFetch('/api/admin-users');
+                if (!response.ok) throw new Error('Failed to fetch users.');
                 allUsersData = await response.json(); renderUsers(allUsersData); updateDashboardStats();
             } catch (error) { usersContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
@@ -536,7 +566,7 @@
         };
         const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
             try {
-                const response = await fetch('/api/admin-moderate-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: getCurrentUser(), targetUser, action, reason, duration_hours }) });
+                const response = await secureFetch('/api/admin-moderate-user', { method: 'POST', body: JSON.stringify({ targetUser, action, reason, duration_hours }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
                 const result = await response.json(); showToast(result.message); await fetchAndRenderUsers();
             } catch (error) { showToast(error.message, true); }
@@ -553,7 +583,7 @@
         const openUserDetailsModal = async (user) => {
             userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>'; userDetailsModal.classList.add('visible');
             try {
-                const response = await fetch(`/api/admin-user-details?userId=${user.discord_id}`, { headers: { 'X-User-Data': JSON.stringify(getCurrentUser()) } });
+                const response = await secureFetch(`/api/admin-user-details?userId=${user.discord_id}`);
                 if (!response.ok) throw new Error("Failed to load details.");
                 const data = await response.json();
                 let commentsHTML = '<h4>Comment History</h4><p>No comments found for this user.</p>';
@@ -613,11 +643,9 @@
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             formError.textContent = '';
-
             const gameId = document.getElementById('game-id').value;
             const isEditing = !!gameId;
             const method = isEditing ? 'PUT' : 'POST';
-
             const gameData = {
                 name: document.getElementById('game-name').value.trim(),
                 status: document.getElementById('game-status').value,
@@ -629,28 +657,14 @@
                 is_published: document.getElementById('is-published').checked,
                 features_html: document.getElementById('features-html').value.trim(),
             };
-
-            const bodyPayload = { gameData, user: getCurrentUser() };
-            if (isEditing) {
-                bodyPayload.gameId = gameId;
-            }
-
+            const bodyPayload = { gameData };
+            if (isEditing) { bodyPayload.gameId = gameId; }
             try {
-                const response = await fetch('/api/admin', {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyPayload)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.details || 'Failed to save.');
-                }
-
+                const response = await secureFetch('/api/admin', { method: method, body: JSON.stringify(bodyPayload) });
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
                 showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
                 closeFormModal();
                 await fetchAndRenderGames();
-
             } catch (error) {
                 formError.textContent = error.message;
             } finally {

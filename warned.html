@@ -68,7 +68,6 @@
             
             const user = JSON.parse(localStorage.getItem('discord_user_v2'));
 
-            // Log the user out immediately by clearing their local session data.
             localStorage.removeItem('discord_user_v2');
 
             if (!user) {
@@ -86,8 +85,6 @@
                     reasonEl.textContent = data.warning.reason;
                     continueBtn.dataset.warnId = data.warning.id;
                 } else {
-                    // If they have no unacknowledged warnings, they shouldn't be here.
-                    // Send them back to the main site.
                     window.location.href = '/index.html';
                 }
 
@@ -119,7 +116,6 @@
                         throw new Error("Server failed to acknowledge the warning.");
                     }
 
-                    // Success, send them to the main site to log back in.
                     window.location.href = '/index.html';
                 } catch (error) {
                     alert("Could not acknowledge the warning. Please try refreshing the page.");
