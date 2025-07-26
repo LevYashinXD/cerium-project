@@ -1,37 +1,41 @@
 import { neon } from '@neondatabase/serverless';
 
-// Helper function to get the verified user from their token
-async function getVerifiedUser(authHeader) {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-  const token = authHeader.substring(7);
-  try {
-    const response = await fetch('https://discord.com/api/users/@me', {
-      headers: { authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) return null;
-    return await response.json();
-  } catch (error) {
-    return null;
-  }
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    // 1. Securely verify the user making the request. This prevents spam.
-    const user = await getVerifiedUser(req.headers.authorization);
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid or missing token.' });
+    const { game, description, user } = req.body;
+
+    // 1. Validate that we have the necessary data from the front-end.
+    if (!user || !user.id || !user.username) {
+        return res.status(400).json({ error: 'User data is missing from the request.' });
     }
-
-    const { game, description } = req.body;
-
-    // 2. Validate the incoming data.
     if (!game || !description) {
       return res.status(400).json({ error: 'Game and description are required fields.' });
+    }
+    
+    const sql = neon(process.env.POSTGRES_URL);
+
+    // 2. SERVER-SIDE RATE LIMITER
+    // Check when this user last submitted a report.
+    const [lastReport] = await sql`
+        SELECT created_at FROM bug_reports 
+        WHERE user_id = ${user.id} 
+        ORDER BY created_at DESC 
+        LIMIT 1
+    `;
+
+    if (lastReport) {
+        const timeSinceLastReport = new Date() - new Date(lastReport.created_at);
+        const rateLimitMinutes = 60; // Set the cooldown period to 60 minutes
+        const rateLimitMilliseconds = rateLimitMinutes * 60 * 1000;
+
+        if (timeSinceLastReport < rateLimitMilliseconds) {
+            const minutesRemaining = Math.ceil((rateLimitMilliseconds - timeSinceLastReport) / 60000);
+            return res.status(429).json({ error: `You are submitting reports too quickly. Please wait ${minutesRemaining} more minutes.` });
+        }
     }
 
     // 3. Get the secret webhook URL from environment variables.
@@ -50,20 +54,9 @@ export default async function handler(req, res) {
       title: 'New Bug Report Submitted',
       color: 16729421, // A red-ish color
       fields: [
-        {
-          name: 'Game',
-          value: game,
-          inline: true,
-        },
-        {
-          name: 'Submitted By',
-          value: `<@${user.id}>`, // This will ping the user in Discord
-          inline: true,
-        },
-        {
-          name: 'Description',
-          value: "```" + description.substring(0, 1020) + "```", // Limit length and format as code block
-        },
+        { name: 'Game', value: game, inline: true },
+        { name: 'Submitted By', value: `<@${user.id}>`, inline: true },
+        { name: 'Description', value: "```" + description.substring(0, 1020) + "```" },
       ],
       timestamp: new Date().toISOString(),
     };
@@ -81,6 +74,9 @@ export default async function handler(req, res) {
     if (!discordResponse.ok) {
       throw new Error('Failed to send report to Discord.');
     }
+
+    // 6. If successful, log this submission for rate limiting.
+    await sql`INSERT INTO bug_reports (user_id) VALUES (${user.id})`;
 
     return res.status(200).json({ message: 'Report submitted successfully.' });
 
