@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cerium | The Athletic Standard for Roblox Sports</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <style>
         :root {
             --color-background: #050505;
@@ -17,78 +13,37 @@
             --color-text: #E0E0E0;
             --color-card-bg: rgba(255, 255, 255, 0.05);
             --color-card-border: rgba(255, 255, 255, 0.1);
-            --color-card-border-hover: rgba(255, 255, 255, 0.2);
             --primary-gradient: linear-gradient(90deg, #FFFFFF, #888888);
-            --color-glow: rgba(255, 255, 255, 0.3);
-            --color-status-up: #00FF7F;
-            --color-status-down: #FF3366;
-            --color-status-caution: #FFD700;
             --header-height: 80px;
             --font-family: 'Inter', sans-serif;
             --border-radius: 16px;
-            --transition-speed: 0.4s;
-            --transition-curve: cubic-bezier(0.16, 1, 0.3, 1);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
-        body {
-            font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text);
-            line-height: 1.7; overflow-x: hidden;
-            background-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 35%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04), transparent 35%);
-            position: relative;
-        }
+        body { font-family: var(--font-family); background-color: var(--color-background); color: var(--color-text); line-height: 1.7; overflow-x: hidden; }
         body.no-scroll { overflow: hidden; }
         
-        @keyframes preloader-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
-        @keyframes reveal-up { from { opacity: 0; transform: translateY(50px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slide-up-and-fade-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-50px); } }
-        @keyframes modal-fade-in { from { opacity: 0; transform: translateY(-20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        #preloader, #login-wall, #welcome-transition { display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: var(--color-background); transition: opacity 0.5s ease, visibility 0.5s ease; }
+        #preloader, #login-wall, #welcome-transition { display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: var(--color-background); }
         #login-wall, #welcome-transition, #main-content { opacity: 0; visibility: hidden; }
         body.state-preloading #preloader { opacity: 1; visibility: visible; }
         body.state-login #login-wall { opacity: 1; visibility: visible; animation: fade-in 0.5s ease forwards; }
         body.state-welcome #welcome-transition { opacity: 1; visibility: visible; animation: fade-in 0.5s ease forwards; }
         body.state-authenticated #main-content { opacity: 1; visibility: visible; animation: fade-in 0.5s ease forwards; }
-        #preloader.hidden { opacity: 0; visibility: hidden; }
-
-        #preloader .preloader-logo { font-size: 2.5rem; font-weight: 800; color: var(--color-heading); animation: preloader-pulse 2s infinite ease-in-out; }
-        #login-wall .login-container { text-align: center; max-width: 500px; padding: 20px; }
-        #login-wall .login-card { padding: 50px 60px; animation: reveal-up 1s var(--transition-curve) 0.3s forwards; opacity: 0; }
-        #discord-login-btn { font-size: 1.1rem; padding: 16px 36px; }
-        #welcome-transition.exiting { animation: slide-up-and-fade-out 0.8s var(--transition-curve) forwards; }
-        .welcome-message h2 { font-size: 3rem; color: var(--color-heading); }
-        .welcome-message .username { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-
-        #profile-modal { display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
-        #profile-modal.visible { display: flex; align-items: center; justify-content: center; animation: fade-in 0.3s ease; }
-        .profile-modal-content { background: var(--color-background); border: 1px solid var(--color-card-border); padding: 40px; border-radius: var(--border-radius); max-width: 800px; width: 90%; position: relative; animation: modal-fade-in 0.5s var(--transition-curve); }
-        .profile-modal-close { color: var(--color-text); float: right; font-size: 28px; position: absolute; top: 15px; right: 25px; cursor: pointer; }
-        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
-        #profile-modal-avatar { width: 80px; height: 80px; border-radius: 50%; }
-        #profile-modal-username { font-size: 2rem; font-weight: 700; color: var(--color-heading); }
-        .profile-stats { display: flex; gap: 40px; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--color-card-border); }
-        .stat-item h4 { font-size: 0.9rem; opacity: 0.7; margin-bottom: 5px; text-transform: uppercase; }
-        .stat-item p { font-size: 1.2rem; font-weight: 600; color: var(--color-heading); }
-        #achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .achievement-card { background: var(--color-card-bg); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--color-card-border); }
-        .achievement-card.locked { opacity: 0.4; filter: grayscale(80%); }
-        .achievement-card .icon { font-size: 2.5rem; margin-bottom: 15px; }
         
-        .btn { position: relative; display: inline-block; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; border: 1px solid var(--color-card-border); cursor: pointer; }
+        .btn { display: inline-block; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-weight: 600; border: 1px solid var(--color-card-border); cursor: pointer; }
         .btn-primary { background-image: var(--primary-gradient); color: #000; border-color: transparent; }
         .btn-secondary { background-color: transparent; color: var(--color-heading); border-color: var(--color-heading); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn .fa-spinner { animation: fa-spin 1s linear infinite; }
         .content-section { padding: 140px 5%; max-width: 1280px; margin: 0 auto; text-align: center; }
-        .section-title { font-size: 3.5rem; font-weight: 800; color: var(--color-heading); margin-bottom: 20px; }
-        .section-subtitle { font-size: 1.1rem; max-width: 700px; margin: 0 auto 80px auto; color: var(--color-text); }
+        .section-title { font-size: 3.5rem; font-weight: 800; color: var(--color-heading); }
+        .section-subtitle { font-size: 1.1rem; max-width: 700px; margin: 20px auto 40px auto; }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .card { background: var(--color-card-bg); border-radius: var(--border-radius); padding: 40px; border: 1px solid var(--color-card-border); }
         
         .main-header { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: var(--header-height); display: flex; align-items: center; border-bottom: 1px solid transparent; }
-        .main-header.scrolled { background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); border-bottom-color: var(--color-card-border); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 5%; }
         .nav-left { display: flex; align-items: center; gap: 60px; }
         .nav-logo { font-size: 1.8rem; font-weight: 800; color: var(--color-heading); text-decoration: none; }
@@ -98,74 +53,41 @@
         .user-info-details { display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; }
         .user-name { font-weight: 600; color: var(--color-heading); }
-
         .hero-section { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
         .hero-title { font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 800; }
         .hero-subtitle { font-size: 1.25rem; max-width: 650px; margin: 40px auto; }
         .hero-buttons { display: flex; justify-content: center; gap: 20px; }
-
         #bug-report-form { max-width: 700px; margin: 40px auto 0; text-align: left; }
+        .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--color-card-border); background: var(--color-card-bg); color: var(--color-text); font-size: 1rem; }
-        .form-group textarea { resize: vertical; min-height: 120px; }
-        #form-status-message { margin-top: 20px; text-align: center; }
-        .mobile-nav-container { display: none; }
-        @media (max-width: 1024px) { .mobile-nav-container { display: block; } .nav-left .nav-menu-container, .nav-actions { display: none; } }
+        #form-status-message { margin-top: 20px; min-height: 1.2em; font-weight: 600; }
+        #form-status-message.success { color: var(--color-status-up); }
+        #form-status-message.error { color: var(--color-status-down); }
     </style>
 </head>
 <body class="state-preloading">
 
     <div id="preloader"><span class="preloader-logo gradient-text">Cerium</span></div>
     <div id="login-wall">
-        <div class="login-card card">
-            <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 10px;">Cerium</h1>
-            <p class="section-subtitle" style="margin-bottom: 40px;">Please connect with Discord to access the Cerium Hub.</p>
-            <div id="login-status-message"></div>
+        <div class="card">
+            <h1 class="gradient-text" style="font-size: 3rem;">Cerium</h1>
+            <p class="section-subtitle">Please connect with Discord to access the Cerium Hub.</p>
             <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
         </div>
     </div>
     <div id="welcome-transition">
-        <div class="welcome-message">
-            <h2>Welcome, <span id="welcome-username" class="username"></span></h2>
-        </div>
+        <div class="welcome-message"><h2>Welcome, <span id="welcome-username" class="username"></span></h2></div>
     </div>
-
-    <div id="profile-modal" role="dialog">
-        <div class="profile-modal-content">
-            <button class="profile-modal-close" aria-label="Close profile modal">×</button>
-            <div class="profile-header">
-                <img src="" alt="User Avatar" id="profile-modal-avatar">
-                <h3 id="profile-modal-username"></h3>
-            </div>
-            <div class="profile-stats">
-                <div class="stat-item"><h4>Member Since</h4><p id="profile-modal-join-date"></p></div>
-                <div class="stat-item"><h4>Reports Submitted</h4><p id="profile-modal-report-count"></p></div>
-                <div class="stat-item"><h4>Comments Posted</h4><p id="profile-modal-comment-count"></p></div>
-            </div>
-            <h3 style="margin-bottom: 20px;">Achievements</h3>
-            <div id="achievements-grid"></div>
-        </div>
-    </div>
-
+    
     <div id="main-content">
         <header class="main-header">
             <nav class="navbar">
                 <div class="nav-left">
                     <a href="#welcome" class="nav-logo">Cerium</a>
-                     <div class="nav-menu-container">
-                        <ul class="nav-menu">
-                            <!-- UPDATED NAVIGATION -->
-                            <li><a href="games.html" class="nav-link">Games</a></li>
-                            <li><a href="#bug-report" class="nav-link">Report</a></li>
-                        </ul>
-                    </div>
-                </div>
-                 <div class="mobile-nav-container">
-                    <button class="hamburger" aria-label="Open menu"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
-                    <ul class="nav-menu">
-                        <!-- UPDATED MOBILE NAVIGATION -->
+                     <ul class="nav-menu">
                         <li><a href="games.html" class="nav-link">Games</a></li>
-                        <li><a href="#bug-report" class="nav-link">Report a Bug</a></li>
+                        <li><a href="#bug-report" class="nav-link">Report</a></li>
                     </ul>
                 </div>
                 <div class="nav-actions">
@@ -181,8 +103,8 @@
         <main>
             <section id="welcome" class="hero-section">
                 <div>
-                    <h1 class="hero-title">The "Athletic" <span class="gradient-text">Standard</span></h1>
-                    <p class="hero-subtitle">Engineered for victory across Roblox's top competitive sports games, giving you the ultimate edge.</p>
+                    <h1 class="hero-title">The Athletic <span class="gradient-text">Standard</span></h1>
+                    <p class="hero-subtitle">Engineered for victory across Roblox's top competitive sports games.</p>
                     <div class="hero-buttons">
                         <a href="games.html" class="btn btn-primary">Explore Products</a>
                         <a href="#bug-report" class="btn btn-secondary">Report a Bug</a>
@@ -190,108 +112,50 @@
                 </div>
             </section>
 
-            <!-- REMOVED #updates and #staff sections -->
-
             <section id="bug-report" class="content-section">
                 <h2 class="section-title">Report a Bug</h2>
                 <form id="bug-report-form">
-                    <div class="form-group">
-                        <label for="game-select">Select Game</label>
-                        <select id="game-select" name="game-select" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="bug-description">Bug Description</label>
-                        <textarea id="bug-description" name="bug-description" placeholder="Please be as detailed as possible." required></textarea>
-                    </div>
+                    <div class="form-group"><label for="game-select">Select Game</label><select id="game-select" name="game-select" required></select></div>
+                    <div class="form-group"><label for="bug-description">Bug Description</label><textarea id="bug-description" name="bug-description" placeholder="Please be as detailed as possible." required></textarea></div>
                     <div>
                         <button type="submit" id="submit-bug-report" class="btn btn-primary">Submit Report</button>
                         <p id="form-status-message"></p>
                     </div>
                 </form>
             </section>
-
-            <section id="cta-section" class="content-section">
-                <h2>Ready to Redefine Your Game?</h2>
-                <p class="section-subtitle">Join our community of elite players.</p>
-                <a href="https://discord.gg/qjsGU83urz" target="_blank" class="btn btn-primary">Join the Discord Server</a>
-            </section>
         </main>
     </div>
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // --- CONFIG & DOM ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
         const preloader = document.getElementById('preloader');
         const discordLoginBtn = document.getElementById('discord-login-btn');
-        
-        const ACHIEVEMENTS = {
-            'welcome': { name: 'Welcome', description: 'Logged in for the first time.', icon: 'fas fa-door-open', condition: () => true },
-            'first_report': { name: 'Bug Squasher', description: 'Submitted your first report.', icon: 'fas fa-bug', condition: (p) => p.reportCount >= 1 },
-        };
 
-        const getProfileKey = (id) => `cerium_user_profile_${id}`;
-        const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch (e) { return null; } };
+        // --- HELPERS ---
+        const getAccessToken = () => localStorage.getItem('discord_access_token');
+        const setAccessToken = (token) => localStorage.setItem('discord_access_token', token);
+        const getCurrentUser = () => JSON.parse(localStorage.getItem('discord_user_v2'));
         const setPageState = (state) => body.className = `state-${state}`;
+        const handleLogout = () => { if (confirm("Are you sure?")) { localStorage.clear(); window.location.reload(); } };
 
-        function getOrCreateProfile(userData) {
-            const profileKey = getProfileKey(userData.id);
-            let profile = JSON.parse(localStorage.getItem(profileKey));
-            if (!profile) {
-                profile = { discordId: userData.id, joinDate: new Date().toISOString(), reportCount: 0, commentCount: 0, unlockedAchievements: [] };
-                localStorage.setItem(profileKey, JSON.stringify(profile));
-                unlockAchievement(profile, 'welcome');
-            }
-            return profile;
-        }
-
-        function unlockAchievement(profile, achievementId) {
-            if (profile.unlockedAchievements.includes(achievementId)) return;
-            profile.unlockedAchievements.push(achievementId);
-            localStorage.setItem(getProfileKey(profile.discordId), JSON.stringify(profile));
-        }
-
-        function checkAndUnlockAchievements(profile) {
-            Object.keys(ACHIEVEMENTS).forEach(id => {
-                if (!profile.unlockedAchievements.includes(id) && ACHIEVEMENTS[id].condition(profile)) {
-                   unlockAchievement(profile, id);
-                }
-            });
-        }
-
-        function displayProfileModal() {
-            const userData = getCurrentUser();
-            if (!userData) return;
-            const profile = getOrCreateProfile(userData);
-            document.getElementById('profile-modal-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
-            document.getElementById('profile-modal-username').textContent = `${userData.username}`;
-            document.getElementById('profile-modal-join-date').textContent = new Date(profile.joinDate).toLocaleDateString();
-            document.getElementById('profile-modal-report-count').textContent = profile.reportCount;
-            document.getElementById('profile-modal-comment-count').textContent = profile.commentCount || 0;
-            const grid = document.getElementById('achievements-grid');
-            grid.innerHTML = '';
-            Object.keys(ACHIEVEMENTS).forEach(id => {
-                const isUnlocked = profile.unlockedAchievements.includes(id);
-                grid.insertAdjacentHTML('beforeend', `<div class="achievement-card ${isUnlocked ? '' : 'locked'}"><i class="${ACHIEVEMENTS[id].icon} icon"></i><h5>${ACHIEVEMENTS[id].name}</h5></div>`);
-            });
-            document.getElementById('profile-modal').classList.add('visible');
-            body.classList.add('no-scroll');
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profile-modal').classList.remove('visible');
-            body.classList.remove('no-scroll');
-        }
-
-        const showLoginWall = () => {
-            preloader.classList.add('hidden');
-            setPageState('login');
+        const secureFetch = async (endpoint, options = {}) => {
+            const token = getAccessToken();
+            if (!token) { handleLogout(); throw new Error("Missing auth token"); }
+            const headers = { ...options.headers, 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+            const response = await fetch(endpoint, { ...options, headers });
+            if (response.status === 401 || response.status === 403) { handleLogout(); throw new Error("Authorization failed"); }
+            return response;
         };
 
+        // --- PAGE VIEWS & STATE ---
+        const showLoginWall = () => { preloader.classList.add('hidden'); setPageState('login'); };
+        const showMainContent = (userData) => { setPageState('authenticated'); initializePageScripts(userData); };
         const showWelcomeTransition = async (userData) => {
             document.getElementById('welcome-username').textContent = userData.username;
-            preloader.classList.add('hidden');
             setPageState('welcome');
             await loadDataForForms();
             setTimeout(() => {
@@ -299,45 +163,15 @@
                 setTimeout(() => showMainContent(userData), 800);
             }, 2000);
         };
-
-        const showMainContent = (userData) => {
-            const profile = getOrCreateProfile(userData);
-            checkAndUnlockAchievements(profile);
-            setPageState('authenticated');
-            initializePageScripts(userData);
-        };
-
-        const handleLogout = () => {
-            if (confirm("Are you sure you want to log out?")) {
-                localStorage.clear();
-                window.location.reload();
-            }
-        };
-
-        async function loadDataForForms() {
-            const gameSelect = document.getElementById('game-select');
-            if (!gameSelect) return;
-            try {
-                const response = await fetch('/api/games');
-                if (!response.ok) throw new Error('Server error');
-                const games = await response.json();
-                gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
-                games.forEach(game => {
-                    gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`);
-                });
-                gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
-            } catch (error) { 
-                gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`;
-            }
-        }
         
+        // --- SECURITY & PRESENCE ---
         const checkAndRedirect = async (user) => {
             try {
                 const response = await fetch(`/api/check-user-status?userId=${user.id}`);
                 const data = await response.json();
                 if (data.status === 'banned') {
                     window.location.href = `/banned.html?reason=${encodeURIComponent(data.reason || '')}`;
-                    return false; 
+                    return false;
                 }
                 if (data.status === 'suspended') {
                     window.location.href = `/suspended.html?expires=${encodeURIComponent(data.expires || '')}&reason=${encodeURIComponent(data.reason || '')}`;
@@ -345,11 +179,10 @@
                 }
                 return true;
             } catch (error) {
-                console.error("Status check failed, allowing access as a fail-safe:", error);
-                return true; 
+                console.error("Status check failed:", error);
+                return true;
             }
         };
-
         const recordUserPresence = (user) => {
             fetch('/api/record-login', {
                 method: 'POST',
@@ -358,20 +191,20 @@
             }).catch(err => console.warn("Failed to record user presence:", err));
         };
         
+        // --- MAIN AUTHENTICATION FLOW ---
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
+                setAccessToken(accessToken);
                 try {
                     const res = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
                     const userData = await res.json();
                     localStorage.setItem('discord_user_v2', JSON.stringify(userData));
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    
                     if (!await checkAndRedirect(userData)) return; 
                     recordUserPresence(userData);
-                    
                     await showWelcomeTransition(userData);
                 } catch { setPageState('login'); }
             } else {
@@ -379,7 +212,6 @@
                 if (storedUser) {
                     if (!await checkAndRedirect(storedUser)) return;
                     recordUserPresence(storedUser);
-                    
                     preloader.classList.add('hidden');
                     await loadDataForForms();
                     showMainContent(storedUser);
@@ -389,6 +221,21 @@
             }
         };
 
+        async function loadDataForForms() {
+            const gameSelect = document.getElementById('game-select');
+            if (!gameSelect) return;
+            try {
+                const response = await fetch('/api/games');
+                const games = await response.json();
+                gameSelect.innerHTML = '<option value="" disabled selected>Choose a game...</option>';
+                games.forEach(game => gameSelect.insertAdjacentHTML('beforeend', `<option value="${game.name}">${game.name}</option>`));
+                gameSelect.insertAdjacentHTML('beforeend', `<option value="Other">Other</option>`);
+            } catch (error) { 
+                gameSelect.innerHTML = `<option value="" disabled selected>Error</option>`;
+            }
+        }
+        
+        // --- PAGE INITIALIZATION & EVENT LISTENERS ---
         function initializePageScripts(userData) {
             document.getElementById('nav-user-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
             document.getElementById('nav-user-name').textContent = userData.username;
@@ -397,16 +244,6 @@
             if (logoutButton) {
                 logoutButton.addEventListener('click', handleLogout);
             }
-
-            const profileButton = document.getElementById('header-user-info');
-            if (profileButton) {
-                profileButton.addEventListener('click', displayProfileModal);
-            }
-
-            const profileModalClose = document.querySelector('.profile-modal-close');
-            if (profileModalClose) {
-                profileModalClose.addEventListener('click', closeProfileModal);
-            }
             
             const bugReportForm = document.getElementById('bug-report-form');
             if (bugReportForm) {
@@ -414,30 +251,36 @@
                     event.preventDefault();
                     const submitButton = document.getElementById('submit-bug-report');
                     const statusMessage = document.getElementById('form-status-message');
-                    const user = getCurrentUser();
+                    
+                    const originalButtonHTML = submitButton.innerHTML;
                     submitButton.disabled = true;
-                    statusMessage.textContent = 'Submitting...';
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                    statusMessage.textContent = '';
+                    statusMessage.className = '';
+
                     try {
-                        const response = await fetch('/api/bug-reports', {
+                        const response = await secureFetch('/api/bug-reports', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 game: bugReportForm['game-select'].value,
-                                description: bugReportForm['bug-description'].value,
-                                user
+                                description: bugReportForm['bug-description'].value
                             })
                         });
-                        if (!response.ok) throw new Error('Submission failed.');
-                        statusMessage.textContent = 'Report submitted!';
-                        bugReportForm.reset();
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Submission failed.');
+                        }
                         
-                        const profile = getOrCreateProfile(user);
-                        profile.reportCount = (profile.reportCount || 0) + 1;
-                        localStorage.setItem(getProfileKey(user.id), JSON.stringify(profile));
-                        checkAndUnlockAchievements(profile);
+                        statusMessage.textContent = 'Report submitted successfully!';
+                        statusMessage.className = 'success';
+                        bugReportForm.reset();
                     } catch (error) {
                         statusMessage.textContent = `Error: ${error.message}`;
+                        statusMessage.className = 'error';
+                    } finally {
                         submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonHTML;
                     }
                 });
             }
