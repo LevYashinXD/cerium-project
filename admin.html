@@ -19,12 +19,17 @@
             --color-status-up: #00FF7F;
             --color-status-down: #FF3366;
             --color-status-caution: #FFD700;
+            --color-status-new: #55aaff;
             --border-radius: 16px;
             --border-radius-sm: 10px;
             --font-family: 'Inter', sans-serif;
             --transition-speed: 0.3s;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
         body {
             font-family: var(--font-family);
             background-color: #020202;
@@ -85,7 +90,7 @@
         .admin-user-info { display: flex; align-items: center; gap: 15px; }
         .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
         .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
-        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
         .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--glass-border); margin-bottom: 40px; }
         .admin-tab-btn {
             background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px;
@@ -101,8 +106,8 @@
         .admin-tab-btn.active::after { width: 50%; }
         .admin-tab-pane { display: none; animation: fadeInUp 0.5s ease-out; }
         .admin-tab-pane.active { display: block; }
-        .shahada-header { padding: 25px; margin-bottom: 40px; text-align: center; }
-        .shahada-header h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 15px var(--color-glow); }
+        .shahada-header { padding: 25px; margin-bottom: 40px; text-align: center; border-image: linear-gradient(to right, transparent, var(--glass-border), transparent) 1; border-width: 0 0 1px 0; border-style: solid;}
+        .shahada-header h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 25px var(--color-glow); }
         .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
         .stat-card { padding: 25px; transition: all var(--transition-speed) ease; }
         .stat-card:hover { transform: translateY(-5px) scale(1.02); border-color: rgba(255, 255, 255, 0.3); }
@@ -118,7 +123,7 @@
         .search-bar::before {
             content: "\f002"; font-family: "Font Awesome 6 Free"; font-weight: 900;
             position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-            color: var(--color-text-muted);
+            color: var(--color-text-muted); pointer-events: none;
         }
         .table-container { padding: 20px; overflow-x: auto; }
         .table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -132,6 +137,12 @@
         .status-indicator { font-size: 1.2rem; }
         .status-indicator.published { color: var(--color-status-up); }
         .status-indicator.unpublished { color: var(--color-status-down); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-align: center; white-space: nowrap; }
+        .status-badge.status-updated { background-color: rgba(0, 255, 127, 0.15); color: var(--color-status-up); }
+        .status-badge.status-new { background-color: rgba(85, 170, 255, 0.15); color: var(--color-status-new); }
+        .status-badge.status-popular { background-color: rgba(255, 215, 0, 0.15); color: var(--color-status-caution); }
+        .status-badge.status-featured { background-color: rgba(200, 100, 255, 0.15); color: #c864ff; }
+        .status-badge.status-testing { background-color: rgba(255, 165, 0, 0.15); color: #ffa500; }
         .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
         .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; transition: all var(--transition-speed) ease; }
         .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.7); box-shadow: 0 0 15px rgba(255, 51, 102, 0.4); }
@@ -147,7 +158,7 @@
         .comment-card-admin-meta strong, .user-card-admin-meta strong { color: var(--color-text); font-weight: 500; }
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
         .comment-card-admin-actions, .user-card-admin .actions { margin-left: auto; padding-left: 20px; align-self: center; }
-        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.4s 0.1s both; }
         @keyframes slideInUpModal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .modal-content {
@@ -173,13 +184,16 @@
             transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
             font-family: inherit; font-size: 1rem;
         }
+        .form-group select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 1rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; }
         .form-group textarea { resize: vertical; min-height: 80px; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             outline: none; border-color: rgba(255, 255, 255, 0.4);
             box-shadow: 0 0 15px -2px var(--color-glow);
         }
         .form-group-checkbox { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
-        .form-group-checkbox input { width: auto; }
+        .form-group-checkbox input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border-radius: 6px; background-color: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); transition: all 0.2s ease; position: relative; cursor: pointer; }
+        .form-group-checkbox input[type="checkbox"]:checked { background-image: var(--primary-gradient); border-color: #fff; }
+        .form-group-checkbox input[type="checkbox"]:checked::before { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #000; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; }
         .form-actions { display:flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
@@ -195,6 +209,27 @@
         .confirm-modal-content { max-width: 500px; text-align: center; }
         .confirm-modal-content p { font-size: 1.1rem; margin: 20px 0 30px; color: var(--color-text); }
         .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
+        
+        /* Skeleton Loader Styles */
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+        .skeleton {
+            background-color: rgba(255,255,255,0.05);
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.05) 100%);
+            background-repeat: no-repeat;
+            background-size: 2000px 100%;
+            animation: shimmer 2s infinite linear;
+            border-radius: var(--border-radius-sm);
+        }
+        .skeleton.table-row-skeleton { height: 57px; margin-bottom: 1px; }
+        .skeleton.card-skeleton {
+            height: 110px; border-radius: var(--border-radius);
+            padding: 20px; display: flex; gap: 20px; align-items: flex-start;
+        }
+        .skeleton.card-skeleton .avatar { width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255,255,255,0.1); }
+        .skeleton.card-skeleton .content { flex-grow: 1; }
+        .skeleton.card-skeleton .line { height: 16px; background-color: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 10px; }
+        .skeleton.card-skeleton .line.short { width: 40%; }
+        .skeleton.card-skeleton .line.long { width: 90%; }
     </style>
 </head>
 <body class="state-loading">
@@ -269,6 +304,7 @@
         </main>
     </div>
 
+    <!-- Modals -->
     <div id="game-form-modal" class="modal">
         <div class="modal-content">
             <span class="modal-close">×</span>
@@ -283,15 +319,15 @@
                         <option value="Updated">Updated</option><option value="New">New</option><option value="Popular">Popular</option><option value="Featured">Featured</option><option value="Testing">Testing</option>
                     </select>
                 </div>
-                <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url"></div>
+                <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url" placeholder="https://i.imgur.com/example.png"></div>
                 <div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div>
                 <div class="form-group"><label for="game-key">Key (Optional)</label><input type="text" id="game-key" placeholder="Enter product key if applicable..."></div>
-                <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required></div>
+                <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required placeholder="e.g., fruit-battlegrounds-script"></div>
                 <div style="display: flex; gap: 20px;">
                     <div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div>
                     <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div>
                 </div>
-                <div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8"></textarea></div>
+                <div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8" placeholder="<ul><li>Feature 1</li><li>Feature 2</li></ul>"></textarea></div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Game</button>
@@ -308,9 +344,12 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // --- Constants & DOM Elements ---
         const DISCORD_CLIENT_ID = "1397805094854197280";
         const REDIRECT_URI = window.location.origin + window.location.pathname;
         const body = document.body;
+
+        // Elements
         const discordLoginBtn = document.getElementById('discord-login-btn');
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
         const logoutBtnDenied = document.getElementById('logout-btn-denied');
@@ -321,70 +360,47 @@
         const addNewGameBtn = document.getElementById('add-new-game-btn');
         const commentsContainer = document.getElementById('comments-container');
         const usersContainer = document.getElementById('users-container');
-        const gameFormModal = document.getElementById('game-form-modal');
-        const gameForm = document.getElementById('game-form');
-        const modalTitle = document.getElementById('modal-title');
-        const gameModalCloseBtn = gameFormModal.querySelector('.modal-close');
-        const gameModalCancelBtn = gameFormModal.querySelector('.modal-cancel-btn');
-        const formError = document.getElementById('form-error');
-        const moderateModal = document.getElementById('moderate-modal');
-        const moderateForm = document.getElementById('moderate-form');
-        const moderateModalClose = moderateModal.querySelector('.modal-close');
-        const moderateModalCancel = moderateModal.querySelector('.modal-cancel-btn');
-        const totalGamesEl = document.getElementById('total-games');
-        const totalUsersEl = document.getElementById('total-users');
-        const totalCommentsEl = document.getElementById('total-comments');
         const commentsSearch = document.getElementById('comments-search');
         const usersSearch = document.getElementById('users-search');
+        
+        // Modals
+        const allModals = document.querySelectorAll('.modal');
+        const gameFormModal = document.getElementById('game-form-modal');
+        const gameForm = document.getElementById('game-form');
+        const moderateModal = document.getElementById('moderate-modal');
+        const moderateForm = document.getElementById('moderate-form');
         const userDetailsModal = document.getElementById('user-details-modal');
-        const userDetailsContent = document.getElementById('user-details-content');
-        const userDetailsModalClose = userDetailsModal.querySelector('.modal-close');
         const confirmModal = document.getElementById('confirm-modal');
-        const confirmTitle = document.getElementById('confirm-title');
-        const confirmText = document.getElementById('confirm-text');
-        const confirmOkBtn = document.getElementById('confirm-ok-btn');
-        const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
-
+        
+        // Data cache
         let allGamesData = [], allUsersData = [], allCommentsData = [];
 
-        // --- NEW: Function to get the stored access token ---
-        const getAccessToken = () => {
-            return localStorage.getItem('discord_access_token');
-        };
+        // --- Core Authentication & API ---
+        const getAccessToken = () => localStorage.getItem('discord_access_token');
+        const setAccessToken = (token) => localStorage.setItem('discord_access_token', token);
+        const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
 
-        // --- NEW: Function to store the access token ---
-        const setAccessToken = (token) => {
-            localStorage.setItem('discord_access_token', token);
-        };
-        
-        // --- NEW: A central place for making secure API calls ---
         const secureFetch = async (endpoint, options = {}) => {
             const token = getAccessToken();
             if (!token) {
                 showToast("Authentication error. Please log in again.", true);
-                handleLogout(); // Force logout if token is missing
+                handleLogout();
                 throw new Error("Missing auth token");
             }
-            
-            const headers = {
-                ...options.headers,
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Add the token here
-            };
-
+            const headers = { ...options.headers, 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
             const response = await fetch(endpoint, { ...options, headers });
-
             if (response.status === 401 || response.status === 403) {
                  showToast("Session expired or invalid. Please log in again.", true);
                  handleLogout();
                  throw new Error("Authorization failed");
             }
-
             return response;
         };
 
+        const handleLogout = () => { localStorage.clear(); setPageState('login'); };
+
+        // --- UI & Utility Functions ---
         const setPageState = (state) => body.className = `state-${state}`;
-        const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } };
         const timeAgo = (date) => {
             if (!date) return 'Never';
             const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -400,10 +416,43 @@
             toastContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         };
+        const createSkeleton = (type) => {
+            const skeleton = document.createElement('div');
+            if (type === 'table-row') {
+                skeleton.className = 'skeleton table-row-skeleton';
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.appendChild(skeleton);
+                const tr = document.createElement('tr');
+                tr.appendChild(td);
+                return tr;
+            } else if (type === 'card') {
+                skeleton.className = 'skeleton card-skeleton';
+                skeleton.innerHTML = `<div class="avatar"></div><div class="content"><div class="line short"></div><div class="line long"></div><div class="line"></div></div>`;
+                return skeleton;
+            }
+        };
+        const showSkeletonLoader = (container, count, type) => {
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                container.appendChild(createSkeleton(type));
+            }
+        };
+        const updateDashboardStats = () => {
+            document.getElementById('total-games').textContent = allGamesData.length;
+            document.getElementById('total-users').textContent = allUsersData.length;
+            document.getElementById('total-comments').textContent = allCommentsData.length;
+        };
+
+        // --- Modal Handling ---
         const showConfirmModal = (title, text) => {
             return new Promise((resolve) => {
+                const confirmTitle = document.getElementById('confirm-title');
+                const confirmText = document.getElementById('confirm-text');
+                const confirmOkBtn = document.getElementById('confirm-ok-btn');
+                const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
                 confirmTitle.textContent = title;
-                confirmText.textContent = text;
+                confirmText.innerHTML = text; // Use innerHTML to allow for bolding etc.
                 confirmModal.classList.add('visible');
                 const cleanup = () => { confirmOkBtn.removeEventListener('click', handleConfirm); confirmCancelBtn.removeEventListener('click', handleCancel); confirmModal.classList.remove('visible'); };
                 const handleConfirm = () => { resolve(true); cleanup(); };
@@ -412,103 +461,84 @@
                 confirmCancelBtn.addEventListener('click', handleCancel, { once: true });
             });
         };
-        const handleLogout = () => { localStorage.clear(); setPageState('login'); };
-        const verifyAdminStatus = async () => {
-            const user = getCurrentUser();
-            if (!user) { setPageState('login'); return; }
-            authStatus.textContent = 'Verifying permissions...';
-            try {
-                // Use secureFetch for this check
-                const response = await secureFetch(`/api/check-admin`, { method: 'POST' });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Could not connect.'); }
-                const data = await response.json();
-                if (data.isAdmin) { showAdminPanel(user); } else { showAccessDenied(user); }
-            } catch (error) { authStatus.textContent = `Error: ${error.message}`; }
+        const closeModal = (modal) => modal.classList.remove('visible');
+        const openModal = (modal, focusElementId = null) => {
+            modal.classList.add('visible');
+            if(focusElementId) {
+                setTimeout(() => document.getElementById(focusElementId).focus(), 100);
+            }
         };
-        const showAdminPanel = (user) => {
+        
+        // --- Page Initialization & Auth Flow ---
+        const initializeAdminPanel = (user) => {
             document.getElementById('admin-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
             document.getElementById('admin-username').textContent = `${user.username}`;
             setPageState('admin');
             fetchAndRenderGames(); fetchAndRenderComments(); fetchAndRenderUsers();
         };
         const showAccessDenied = (user) => { document.getElementById('denied-username').textContent = `${user.username}`; setPageState('denied'); };
+
+        const verifyAdminStatus = async () => {
+            const user = getCurrentUser();
+            if (!user) { setPageState('login'); return; }
+            authStatus.textContent = 'Verifying permissions...';
+            try {
+                const response = await secureFetch(`/api/check-admin`, { method: 'POST' });
+                if (!response.ok) throw new Error((await response.json()).error || 'Could not connect.');
+                if ((await response.json()).isAdmin) { initializeAdminPanel(user); } else { showAccessDenied(user); }
+            } catch (error) { authStatus.textContent = `Error: ${error.message}`; }
+        };
         
         const handleOAuthCallback = async () => {
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
             if (accessToken) {
-                setAccessToken(accessToken); // Store the token securely
+                setAccessToken(accessToken);
                 authStatus.textContent = 'Fetching user data...';
                 try {
                     const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
                     if (!response.ok) throw new Error('Failed to fetch user data.');
-                    const userData = await response.json();
-                    localStorage.setItem('discord_user_v2', JSON.stringify(userData));
+                    localStorage.setItem('discord_user_v2', JSON.stringify(await response.json()));
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    await verifyAdminStatus(); // No need to pass user, it will use secureFetch
+                    await verifyAdminStatus();
                 } catch (error) { authStatus.textContent = `Login failed: ${error.message}`; window.history.replaceState({}, document.title, window.location.pathname); }
             } else { await verifyAdminStatus(); }
         };
         
-        const updateDashboardStats = () => { totalGamesEl.textContent = allGamesData.length; totalUsersEl.textContent = allUsersData.length; totalCommentsEl.textContent = allCommentsData.length; };
-        tabButtons.forEach(button => { button.addEventListener('click', () => { const targetTab = button.dataset.tab; tabButtons.forEach(btn => btn.classList.remove('active')); tabPanes.forEach(pane => pane.classList.remove('active')); button.classList.add('active'); document.getElementById(`${targetTab}-view`).classList.add('active'); }); });
+        // --- Data Fetching & Rendering ---
         
+        // GAMES
         const fetchAndRenderGames = async () => {
-            gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
+            showSkeletonLoader(gamesTableBody, 5, 'table-row');
             try {
                 const response = await secureFetch('/api/admin');
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to fetch games.'); }
+                if (!response.ok) throw new Error((await response.json()).details || 'Failed to fetch games.');
                 allGamesData = await response.json(); renderGamesTable(allGamesData); updateDashboardStats();
             } catch (error) { gamesTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--color-status-down);">${error.message}</td></tr>`; }
         };
         const renderGamesTable = (games) => {
             gamesTableBody.innerHTML = '';
             if (!games || games.length === 0) { gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No games found.</td></tr>'; return; }
-            games.sort((a, b) => a.display_order - b.display_order);
-            games.forEach(game => {
+            games.sort((a, b) => a.display_order - b.display_order).forEach(game => {
                 const row = document.createElement('tr');
                 const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished"></i>';
-                row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td>${game.status}</td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-danger icon-btn delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i></button></td>`;
+                row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td><span class="status-badge status-${game.status.toLowerCase()}">${game.status}</span></td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-danger icon-btn delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i></button></td>`;
                 gamesTableBody.appendChild(row);
             });
         };
-        
-        const openFormModal = (game = null) => {
-            gameForm.reset(); formError.textContent = '';
-            if (game) {
-                modalTitle.textContent = "Edit Game";
-                document.getElementById('game-id').value = game.id;
-                document.getElementById('game-name').value = game.name || '';
-                document.getElementById('game-status').value = game.status || '';
-                document.getElementById('thumbnail-url').value = game.thumbnail_url || '';
-                document.getElementById('loadstring').value = game.loadstring || '';
-                document.getElementById('game-key').value = game.key || '';
-                document.getElementById('topic-id').value = game.topic_id || '';
-                document.getElementById('display-order').value = game.display_order ?? 99;
-                document.getElementById('features-html').value = game.features_html || '';
-                document.getElementById('is-published').checked = game.is_published;
-            } else {
-                modalTitle.textContent = "Add New Game";
-                document.getElementById('game-id').value = '';
-                document.getElementById('display-order').value = 99;
-                document.getElementById('game-status').value = "";
-            }
-            gameFormModal.classList.add('visible');
-        };
-        const closeFormModal = () => gameFormModal.classList.remove('visible');
-        const handleDeleteGameClick = async (e) => {
-            const gameId = e.currentTarget.dataset.id; const game = allGamesData.find(g => g.id == gameId); if (!game) return;
-            const confirmed = await showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "${game.name}"?`);
-            if (!confirmed) return;
+        const handleDeleteGame = async (gameId) => {
+            const game = allGamesData.find(g => g.id == gameId); if (!game) return;
+            if (!await showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "<strong>${game.name}</strong>"?`)) return;
             try {
                 const response = await secureFetch('/api/admin', { method: 'DELETE', body: JSON.stringify({ gameId, gameName: game.name }) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to delete.'); }
+                if (!response.ok) throw new Error((await response.json()).details || 'Failed to delete.');
                 showToast('Game deleted successfully.'); await fetchAndRenderGames();
             } catch (error) { showToast(error.message, true); }
         };
-        
+
+        // COMMENTS
         const fetchAndRenderComments = async () => {
-            commentsContainer.innerHTML = '<p style="text-align:center;">Loading comments...</p>';
+            showSkeletonLoader(commentsContainer, 5, 'card');
             try {
                 const response = await secureFetch('/api/comments');
                 if (!response.ok) throw new Error('Failed to fetch comments.');
@@ -516,7 +546,12 @@
             } catch (error) { commentsContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
         const renderComments = (comments) => {
-            commentsContainer.innerHTML = ''; if (!comments || comments.length === 0) { commentsContainer.innerHTML = '<p style="text-align:center;">No comments found.</p>'; return; }
+            commentsContainer.innerHTML = ''; 
+            if (!comments || comments.length === 0) { 
+                const searchTerm = commentsSearch.value.trim();
+                commentsContainer.innerHTML = `<p style="text-align:center;">${searchTerm ? `No comments found for "${searchTerm}".` : 'No comments found.'}</p>`;
+                return;
+            }
             comments.forEach(comment => {
                 const card = document.createElement('div'); card.className = 'comment-card-admin glass-ui';
                 card.innerHTML = `<img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${comment.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${comment.topic_id}</strong></span><span>${timeAgo(comment.created_at)}</span></div></div><p class="comment-card-admin-body"></p></div><div class="comment-card-admin-actions"><button class="btn btn-danger icon-btn delete-comment-btn" data-id="${comment.id}"><i class="fas fa-trash"></i></button></div>`;
@@ -524,19 +559,25 @@
                 commentsContainer.appendChild(card);
             });
         };
-        const handleDeleteCommentClick = async (e) => {
-            const commentId = e.currentTarget.dataset.id; if (!commentId) return;
-            const confirmed = await showConfirmModal('Delete Comment?', 'Are you sure you want to permanently delete this comment?');
-            if (!confirmed) return;
+        const handleDeleteComment = async (commentId, buttonEl) => {
+            if (!await showConfirmModal('Delete Comment?', 'Are you sure you want to permanently delete this comment?')) return;
+            const originalHtml = buttonEl.innerHTML;
+            buttonEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            buttonEl.disabled = true;
             try {
                 const response = await secureFetch('/api/comments', { method: 'DELETE', body: JSON.stringify({ commentId }) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Failed to delete.'); }
-                showToast('Comment deleted.'); e.currentTarget.closest('.comment-card-admin').remove();
-            } catch (error) { showToast(error.message, true); }
+                if (!response.ok) throw new Error((await response.json()).error || 'Failed to delete.');
+                showToast('Comment deleted.');
+                buttonEl.closest('.comment-card-admin').style.transition = 'opacity 0.3s, transform 0.3s';
+                buttonEl.closest('.comment-card-admin').style.opacity = '0';
+                buttonEl.closest('.comment-card-admin').style.transform = 'scale(0.95)';
+                setTimeout(() => buttonEl.closest('.comment-card-admin').remove(), 300);
+            } catch (error) { showToast(error.message, true); buttonEl.innerHTML = originalHtml; buttonEl.disabled = false; }
         };
 
+        // USERS
         const fetchAndRenderUsers = async () => {
-            usersContainer.innerHTML = '<p style="text-align:center;">Loading users...</p>';
+            showSkeletonLoader(usersContainer, 5, 'card');
             try {
                 const response = await secureFetch('/api/admin-users');
                 if (!response.ok) throw new Error('Failed to fetch users.');
@@ -544,7 +585,12 @@
             } catch (error) { usersContainer.innerHTML = `<p style="text-align:center; color: var(--color-status-down);">${error.message}</p>`; }
         };
         const renderUsers = (users) => {
-            usersContainer.innerHTML = ''; if (!users || users.length === 0) { usersContainer.innerHTML = '<p style="text-align:center;">No users found.</p>'; return; }
+            usersContainer.innerHTML = ''; 
+            if (!users || users.length === 0) {
+                const searchTerm = usersSearch.value.trim();
+                usersContainer.innerHTML = `<p style="text-align:center;">${searchTerm ? `No users found for "${searchTerm}".` : 'No users found.'}</p>`;
+                return;
+            }
             users.forEach(user => {
                 const card = document.createElement('div');
                 const joinDate = new Date(user.join_date).toLocaleDateString(); const lastSeen = user.last_seen ? timeAgo(user.last_seen) : 'Never';
@@ -559,7 +605,7 @@
                     statusHTML = `<span>Status: <strong style="color:var(--color-status-up)">Active</strong></span>`;
                     actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                 }
-                card.className = cardClass;
+                card.className = cardClass; card.dataset.userId = user.discord_id;
                 card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Reason: ${user.moderation_reason}</div>` : ''}</div><div class="actions" style="margin-left: auto; align-items: center;">${actionsHTML}</div>`;
                 usersContainer.appendChild(card);
             });
@@ -567,21 +613,14 @@
         const moderateUser = async (targetUser, action, reason = null, duration_hours = null) => {
             try {
                 const response = await secureFetch('/api/admin-moderate-user', { method: 'POST', body: JSON.stringify({ targetUser, action, reason, duration_hours }) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Action failed.'); }
+                if (!response.ok) throw new Error((await response.json()).error || 'Action failed.');
                 const result = await response.json(); showToast(result.message); await fetchAndRenderUsers();
             } catch (error) { showToast(error.message, true); }
         };
-        const openModerateModal = (user, action) => {
-            document.getElementById('moderate-user-id').value = user.discord_id; document.getElementById('moderate-action').value = action; document.getElementById('moderate-reason').value = '';
-            const title = document.getElementById('moderate-title'); const durationGroup = document.getElementById('duration-group');
-            title.textContent = `${action.charAt(0).toUpperCase() + action.slice(1)} ${user.username}`;
-            durationGroup.style.display = (action === 'suspend') ? 'block' : 'none';
-            moderateModal.classList.add('visible');
-        };
-        const closeModerateModal = () => moderateModal.classList.remove('visible');
-        
         const openUserDetailsModal = async (user) => {
-            userDetailsContent.innerHTML = '<p style="text-align:center;">Loading details...</p>'; userDetailsModal.classList.add('visible');
+            const userDetailsContent = document.getElementById('user-details-content');
+            openModal(userDetailsModal);
+            userDetailsContent.innerHTML = '<p style="text-align:center; padding: 40px 0;">Loading details...</p>';
             try {
                 const response = await secureFetch(`/api/admin-user-details?userId=${user.discord_id}`);
                 if (!response.ok) throw new Error("Failed to load details.");
@@ -593,86 +632,84 @@
                 userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"><div class="details-header-info"><h3>${user.username}</h3><p style="opacity: 0.7;">${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
             } catch (error) { userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`; }
         };
-        const closeUserDetailsModal = () => userDetailsModal.classList.remove('visible');
-
-        discordLoginBtn.addEventListener('click', () => { const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; window.location.href = authUrl; });
-        logoutBtnAdmin.addEventListener('click', handleLogout); logoutBtnDenied.addEventListener('click', handleLogout);
-        addNewGameBtn.addEventListener('click', () => openFormModal());
-        gameModalCloseBtn.addEventListener('click', closeFormModal); gameModalCancelBtn.addEventListener('click', closeFormModal);
-        userDetailsModalClose.addEventListener('click', closeUserDetailsModal);
-        moderateModalClose.addEventListener('click', closeModerateModal); moderateModalCancel.addEventListener('click', closeModerateModal);
-        document.addEventListener('keydown', (e) => { if (e.key === "Escape") { closeFormModal(); closeModerateModal(); closeUserDetailsModal(); confirmModal.classList.remove('visible'); } });
         
-        gamesTableBody.addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-btn'); if (editBtn) { openFormModal(allGamesData.find(g => g.id == editBtn.dataset.id)); return; }
-            const deleteBtn = e.target.closest('.delete-btn'); if (deleteBtn) { handleDeleteGameClick({ currentTarget: deleteBtn }); }
+        // --- Event Listeners ---
+        
+        // General
+        discordLoginBtn.addEventListener('click', () => { window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`; });
+        [logoutBtnAdmin, logoutBtnDenied].forEach(btn => btn.addEventListener('click', handleLogout));
+        tabButtons.forEach(button => { button.addEventListener('click', () => { const targetTab = button.dataset.tab; tabButtons.forEach(btn => btn.classList.remove('active')); tabPanes.forEach(pane => pane.classList.remove('active')); button.classList.add('active'); document.getElementById(`${targetTab}-view`).classList.add('active'); }); });
+        document.addEventListener('keydown', (e) => { if (e.key === "Escape") allModals.forEach(closeModal); });
+        allModals.forEach(modal => {
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
+            modal.querySelector('.modal-close')?.addEventListener('click', () => closeModal(modal));
+            modal.querySelector('.modal-cancel-btn')?.addEventListener('click', () => closeModal(modal));
         });
-        commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteCommentClick({ currentTarget: deleteBtn }); });
+
+        // Games Tab
+        addNewGameBtn.addEventListener('click', () => { gameForm.reset(); document.getElementById('modal-title').textContent = "Add New Game"; document.getElementById('game-id').value = ''; openModal(gameFormModal, 'game-name'); });
+        gamesTableBody.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-btn');
+            if (editBtn) {
+                const game = allGamesData.find(g => g.id == editBtn.dataset.id); if (!game) return;
+                gameForm.reset(); document.getElementById('modal-title').textContent = "Edit Game";
+                Object.keys(game).forEach(key => { const el = document.getElementById(key.replace(/_([a-z])/g, g => g[1].toUpperCase())); if(el) { if(el.type === 'checkbox') el.checked = game[key]; else el.value = game[key] ?? ''; }});
+                document.getElementById('game-id').value = game.id;
+                openModal(gameFormModal, 'game-name');
+            }
+            const deleteBtn = e.target.closest('.delete-btn'); if (deleteBtn) handleDeleteGame(deleteBtn.dataset.id);
+        });
+        gameForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+            const originalHtml = submitButton.innerHTML;
+            submitButton.disabled = true; submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            document.getElementById('form-error').textContent = '';
+            const gameId = document.getElementById('game-id').value; const isEditing = !!gameId;
+            const gameData = {
+                name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value, thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(), key: document.getElementById('game-key').value.trim(), topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99, is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim()
+            };
+            try {
+                const response = await secureFetch('/api/admin', { method: isEditing ? 'PUT' : 'POST', body: JSON.stringify(isEditing ? { gameData, gameId } : { gameData }) });
+                if (!response.ok) throw new Error((await response.json()).details || 'Failed to save.');
+                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`); closeModal(gameFormModal); await fetchAndRenderGames();
+            } catch (error) { document.getElementById('form-error').textContent = error.message; } 
+            finally { submitButton.disabled = false; submitButton.innerHTML = originalHtml; }
+        });
+
+        // Comments Tab
+        commentsContainer.addEventListener('click', (e) => { const deleteBtn = e.target.closest('.delete-comment-btn'); if (deleteBtn) handleDeleteComment(deleteBtn.dataset.id, deleteBtn); });
+        commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
+
+        // Users Tab
         usersContainer.addEventListener('click', async (e) => {
-            const targetButton = e.target.closest('button'); const userCard = e.target.closest('.user-card-admin');
-            if (!userCard) return;
-            const userAuthorElement = userCard.querySelector('.user-card-admin-author');
-            const username = userAuthorElement ? userAuthorElement.textContent : null;
-            if (!username) return;
-            const userToActOn = allUsersData.find(u => u.username === username);
-            if (!userToActOn) return;
+            const userCard = e.target.closest('.user-card-admin'); if (!userCard) return;
+            const userId = userCard.dataset.userId; const userToActOn = allUsersData.find(u => u.discord_id === userId); if (!userToActOn) return;
+            const targetButton = e.target.closest('button');
             if (targetButton) {
                 e.stopPropagation();
-                if (targetButton.classList.contains('ban-btn')) openModerateModal(userToActOn, 'ban');
-                else if (targetButton.classList.contains('suspend-btn')) openModerateModal(userToActOn, 'suspend');
-                else if (targetButton.classList.contains('unban-btn')) {
-                    const confirmed = await showConfirmModal('Remove Restrictions?', `Are you sure you want to unban/unsuspend ${userToActOn.username}?`);
-                    if (confirmed) moderateUser(userToActOn, 'unban');
+                if (targetButton.classList.contains('ban-btn')) {
+                    document.getElementById('moderate-user-id').value = userId; document.getElementById('moderate-action').value = 'ban';
+                    document.getElementById('moderate-title').textContent = `Ban ${userToActOn.username}`;
+                    document.getElementById('duration-group').style.display = 'none'; openModal(moderateModal, 'moderate-reason');
+                } else if (targetButton.classList.contains('suspend-btn')) {
+                    document.getElementById('moderate-user-id').value = userId; document.getElementById('moderate-action').value = 'suspend';
+                    document.getElementById('moderate-title').textContent = `Suspend ${userToActOn.username}`;
+                    document.getElementById('duration-group').style.display = 'block'; openModal(moderateModal, 'moderate-duration');
+                } else if (targetButton.classList.contains('unban-btn')) {
+                    if (await showConfirmModal('Remove Restrictions?', `Are you sure you want to unban/unsuspend <strong>${userToActOn.username}</strong>?`)) moderateUser(userToActOn, 'unban');
                 }
             } else { openUserDetailsModal(userToActOn); }
         });
-        commentsSearch.addEventListener('input', () => { const searchTerm = commentsSearch.value.toLowerCase().trim(); const filtered = allCommentsData.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm)); renderComments(filtered); });
-        usersSearch.addEventListener('input', () => { const searchTerm = usersSearch.value.toLowerCase().trim(); const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm)); renderUsers(filtered); });
-        
         moderateForm.addEventListener('submit', (e) => {
             e.preventDefault(); const userId = document.getElementById('moderate-user-id').value; const action = document.getElementById('moderate-action').value;
             const reason = document.getElementById('moderate-reason').value; const duration = document.getElementById('moderate-duration').value;
             const targetUser = allUsersData.find(u => u.discord_id === userId); if (!targetUser) return showToast('User not found.', true);
             moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
-            closeModerateModal();
+            closeModal(moderateModal);
         });
-
-        gameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            formError.textContent = '';
-            const gameId = document.getElementById('game-id').value;
-            const isEditing = !!gameId;
-            const method = isEditing ? 'PUT' : 'POST';
-            const gameData = {
-                name: document.getElementById('game-name').value.trim(),
-                status: document.getElementById('game-status').value,
-                thumbnail_url: document.getElementById('thumbnail-url').value.trim(),
-                loadstring: document.getElementById('loadstring').value.trim(),
-                key: document.getElementById('game-key').value.trim(),
-                topic_id: document.getElementById('topic-id').value.trim(),
-                display_order: parseInt(document.getElementById('display-order').value, 10) || 99,
-                is_published: document.getElementById('is-published').checked,
-                features_html: document.getElementById('features-html').value.trim(),
-            };
-            const bodyPayload = { gameData };
-            if (isEditing) { bodyPayload.gameId = gameId; }
-            try {
-                const response = await secureFetch('/api/admin', { method: method, body: JSON.stringify(bodyPayload) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.details || 'Failed to save.'); }
-                showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
-                closeFormModal();
-                await fetchAndRenderGames();
-            } catch (error) {
-                formError.textContent = error.message;
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Save Game';
-            }
-        });
+        usersSearch.addEventListener('input', () => { const searchTerm = usersSearch.value.toLowerCase().trim(); const filtered = allUsersData.filter(u => u.username.toLowerCase().includes(searchTerm)); renderUsers(filtered); });
         
+        // --- Initial Load ---
         handleOAuthCallback();
     });
     </script>
