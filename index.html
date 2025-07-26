@@ -259,6 +259,7 @@
 
         async function loadDataForForms() {
             const gameSelect = document.getElementById('game-select');
+            if (!gameSelect) return; // Prevent errors if the element doesn't exist
             try {
                 const response = await fetch('/api/games');
                 if (!response.ok) throw new Error('Server error');
@@ -273,8 +274,6 @@
             }
         }
         
-        // --- NEW & IMPROVED AUTHENTICATION FLOW ---
-
         const checkAndRedirect = async (user) => {
             try {
                 const response = await fetch(`/api/check-user-status?userId=${user.id}`);
@@ -313,7 +312,7 @@
             const fragment = new URLSearchParams(window.location.hash.substring(1));
             const accessToken = fragment.get('access_token');
 
-            if (accessToken) { // User is logging in for the first time
+            if (accessToken) {
                 try {
                     const res = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
                     const userData = await res.json();
@@ -327,13 +326,12 @@
                 } catch (error) {
                     showLoginWall();
                 }
-            } else { // User is returning to the page or reloading
+            } else {
                 const storedUser = getCurrentUser();
                 if (storedUser) {
                     if (!await checkAndRedirect(storedUser)) return;
                     await recordUserPresence(storedUser);
-
-                    // Skip the long welcome transition for returning users
+                    
                     preloader.classList.add('hidden');
                     await loadDataForForms();
                     showMainContent(storedUser);
@@ -342,7 +340,6 @@
                 }
             }
         };
-        // --- END OF NEW AUTHENTICATION FLOW ---
 
         function initializePageScripts(userData) {
             const avatarUrl = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
@@ -358,47 +355,43 @@
 
             document.getElementById('header-user-info').addEventListener('click', displayProfileModal);
             profileModalClose.addEventListener('click', closeProfileModal);
-            
-            const reportSubmitBtn = document.getElementById('submit-bug-report');
-            const lastReportTime = parseInt(localStorage.getItem(`cerium_bug_report_ts_${userData.id}`), 10);
-            if (lastReportTime && (Date.now() - lastReportTime < BUG_REPORT_RATE_LIMIT_MS)) {
-                reportSubmitBtn.disabled = true;
-                const remainingTime = Math.ceil((BUG_REPORT_RATE_LIMIT_MS - (Date.now() - lastReportTime)) / 60000);
-                document.getElementById('form-status-message').textContent = `You can report again in ${remainingTime} min.`;
-            }
         }
         
-        bugReportForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const submitButton = document.getElementById('submit-bug-report');
-            const statusMessage = document.getElementById('form-status-message');
-            const userData = getCurrentUser();
-            const reportData = {
-                userId: userData.id,
-                username: userData.username,
-                game: document.getElementById('game-select').value,
-                description: document.getElementById('bug-description').value
-            };
-            
-            submitButton.disabled = true;
-            statusMessage.textContent = 'Submitting...';
-
-            try {
-                const response = await fetch('/api/bug-reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportData }) });
-                if (!response.ok) throw new Error('Submission failed.');
-                statusMessage.textContent = 'Report submitted!';
-                bugReportForm.reset();
+        // --- FIX IS HERE ---
+        // We only add the event listener if the bugReportForm element was found.
+        if (bugReportForm) {
+            bugReportForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const submitButton = document.getElementById('submit-bug-report');
+                const statusMessage = document.getElementById('form-status-message');
+                const userData = getCurrentUser();
+                const reportData = {
+                    userId: userData.id,
+                    username: userData.username,
+                    game: document.getElementById('game-select').value,
+                    description: document.getElementById('bug-description').value
+                };
                 
-                const profile = getOrCreateProfile(userData);
-                profile.reportCount = (profile.reportCount || 0) + 1;
-                localStorage.setItem(getProfileKey(userData.id), JSON.stringify(profile));
-                localStorage.setItem(`cerium_bug_report_ts_${userData.id}`, Date.now());
-                checkAndUnlockAchievements(profile);
-            } catch (error) {
-                statusMessage.textContent = `Error: ${error.message}`;
-                submitButton.disabled = false;
-            }
-        });
+                submitButton.disabled = true;
+                statusMessage.textContent = 'Submitting...';
+
+                try {
+                    const response = await fetch('/api/bug-reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reportData }) });
+                    if (!response.ok) throw new Error('Submission failed.');
+                    statusMessage.textContent = 'Report submitted!';
+                    bugReportForm.reset();
+                    
+                    const profile = getOrCreateProfile(userData);
+                    profile.reportCount = (profile.reportCount || 0) + 1;
+                    localStorage.setItem(getProfileKey(userData.id), JSON.stringify(profile));
+                    localStorage.setItem(`cerium_bug_report_ts_${userData.id}`, Date.now());
+                    checkAndUnlockAchievements(profile);
+                } catch (error) {
+                    statusMessage.textContent = `Error: ${error.message}`;
+                    submitButton.disabled = false;
+                }
+            });
+        }
 
         discordLoginBtn.addEventListener('click', () => window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`);
         document.getElementById('discord-logout-btn-header').addEventListener('click', handleLogout);
