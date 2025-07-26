@@ -29,12 +29,11 @@ export default async function handler(req, res) {
   const sql = neon(process.env.POSTGRES_URL);
 
   try {
-    // --- Handle GET requests ---
+    // --- Handle GET requests (No changes here) ---
     if (req.method === 'GET') {
       const { topic } = req.query;
       
       // Case 1: A normal user is fetching comments for a specific game page.
-      // This is public and does not need an admin check.
       if (topic) {
         const comments = await sql`
           SELECT * FROM comments 
@@ -45,7 +44,6 @@ export default async function handler(req, res) {
       }
       
       // Case 2: An admin is fetching ALL comments for the admin panel.
-      // This part MUST be protected with the secure token check.
       const user = await getVerifiedUser(req.headers.authorization);
       if (!isAdmin(user)) {
         return res.status(403).json({ error: 'Forbidden: Admin access required.' });
@@ -61,6 +59,37 @@ export default async function handler(req, res) {
       if (!topic || !content || !user || !user.id || !user.username) {
         return res.status(400).json({ error: 'Missing required fields for comment.' });
       }
+
+      // ===================================================================
+      // ===== NEW: SERVER-SIDE PROFANITY FILTER ===========================
+      // ===================================================================
+      try {
+        const profanityCheckResponse = await fetch('https://vector.profanity.dev/v1/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: content })
+        });
+
+        if (profanityCheckResponse.ok) {
+            const profanityData = await profanityCheckResponse.json();
+            if (profanityData.isProfanity) {
+                // If profanity is detected, reject the comment.
+                return res.status(400).json({ error: 'Your comment contains inappropriate language and cannot be posted.' });
+            }
+        } else {
+            // If the API service returns an error, log it but don't block the user.
+            console.warn('Profanity check API returned a non-ok status:', profanityCheckResponse.status);
+        }
+      } catch (profanityError) {
+          // If the fetch fails entirely (e.g., network issue), log it but let the comment through.
+          // This prevents legitimate comments from being blocked if the service is down.
+          console.error('Could not connect to profanity check service:', profanityError);
+      }
+      // ===================================================================
+      // ===== END OF PROFANITY FILTER =====================================
+      // ===================================================================
+
+      // If the content passes the filter, proceed to save it to the database.
       const avatarUrl = user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png';
       
       const [newComment] = await sql`
@@ -70,9 +99,8 @@ export default async function handler(req, res) {
       return res.status(201).json(newComment);
     }
 
-    // --- Handle DELETE request (admin deletes a comment) ---
+    // --- Handle DELETE request (admin deletes a comment) (No changes here) ---
     if (req.method === 'DELETE') {
-      // This is an admin-only action and MUST be protected.
       const user = await getVerifiedUser(req.headers.authorization);
       if (!isAdmin(user)) {
         return res.status(403).json({ error: 'Forbidden: You do not have permission to delete comments.' });
@@ -92,7 +120,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'Comment deleted successfully.' });
     }
 
-    // If the method is not one of the above, deny it.
+    // If method is not one of the above, deny it.
     res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
 
