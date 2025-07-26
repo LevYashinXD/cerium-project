@@ -416,10 +416,13 @@
                     const statusMessage = document.getElementById('form-status-message');
                     const user = getCurrentUser();
                     
+                    const originalButtonHTML = submitButton.innerHTML;
                     submitButton.disabled = true;
-                    statusMessage.textContent = 'Submitting...';
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                    statusMessage.textContent = '';
                     statusMessage.className = '';
 
+                    // THIS IS THE CORRECTED PAYLOAD TO MATCH YOUR EXISTING BACKEND
                     const discordPayload = {
                         username: "Cerium Bug Reports",
                         embeds: [{
@@ -439,7 +442,7 @@
                         const response = await fetch('/api/bug-reports', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ discordPayload })
+                            body: JSON.stringify({ discordPayload }) // Send the correctly named payload
                         });
 
                         if (!response.ok) {
@@ -460,6 +463,7 @@
                         statusMessage.className = 'error';
                     } finally {
                         submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonHTML;
                     }
                 });
             }
