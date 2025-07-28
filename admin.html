@@ -9,16 +9,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/css/all.min.css">
     
     <style>
         :root {
-            /* --- Color & Style Palette --- */
-            --color-background: #000000; /* UPDATED: Pure Black Background */
+            --color-background: #000000; 
             --color-heading: #FFFFFF;
             --color-text: #EAEAEA;
             --color-text-muted: #A0A0A0;
-            --glass-bg: rgba(15, 17, 26, 0.6); /* Slightly more transparent on pure black */
+            --glass-bg: rgba(15, 17, 26, 0.6);
             --glass-border: rgba(255, 255, 255, 0.1);
             --glass-blur: 16px;
             --primary-gradient: linear-gradient(90deg, #88a4ff, #FFFFFF);
@@ -56,7 +55,6 @@
         p { color: var(--color-text-muted); }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* --- UI Components --- */
         .glass-ui {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--glass-blur));
@@ -67,7 +65,6 @@
             transition: border-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
         }
         
-        /* --- Animation --- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in-stagger {
             animation: fadeInUp 0.5s ease-out backwards;
@@ -80,7 +77,6 @@
         }
         body.state-admin #admin-panel { display: block; animation: fadeInUp 0.6s ease-out; }
 
-        /* --- Buttons --- */
         .btn {
             position: relative; display: inline-flex; align-items: center; justify-content: center;
             gap: 10px; padding: 12px 28px; border-radius: 50px; text-decoration: none;
@@ -98,11 +94,45 @@
 
         /* --- Page Layout & Structure --- */
         .card { padding: 40px; }
-        .auth-container { text-align: center; max-width: 500px; }
+        .auth-container { text-align: center; max-width: 500px; position: relative; }
         .auth-logo { font-size: 4rem; margin-bottom: 20px; display: block; text-shadow: 0 0 40px var(--color-glow); }
+        
+        /* --- NEW: Login Screen States --- */
+        #warning-screen, #login-prompt {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #login-prompt {
+            display: none; /* Initially hidden */
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 40px;
+            opacity: 0; transform: scale(0.95);
+        }
+        .auth-container.show-login #warning-screen {
+            opacity: 0; transform: scale(0.95);
+            pointer-events: none;
+        }
+        .auth-container.show-login #login-prompt {
+            display: block;
+            position: static;
+            opacity: 1; transform: scale(1);
+        }
+        .ip-display {
+            background-color: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin: 25px 0;
+        }
+        .ip-display code {
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: var(--color-status-caution);
+            font-weight: 700;
+        }
+        
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
-        body.state-denied #login-prompt { display: none; }
+        body.state-denied #warning-screen, body.state-denied #login-prompt { display: none; }
         body.state-denied .auth-logo { color: var(--color-status-down); text-shadow: 0 0 30px var(--color-status-down); }
 
         .admin-header {
@@ -159,7 +189,6 @@
         .admin-tab-pane { display: none; animation: fadeInUp 0.5s ease-out; }
         .admin-tab-pane.active { display: block; }
 
-        /* --- Search, Tables, & Lists --- */
         .search-bar { position: relative; width: 100%; max-width: 400px; margin-bottom: 30px; }
         .search-bar input {
             width: 100%; padding: 12px 15px 12px 45px; border-radius: var(--border-radius-sm);
@@ -178,7 +207,6 @@
         .table th, .table td { padding: 16px; border-bottom: 1px solid var(--glass-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .table tbody tr { transition: background-color var(--transition-speed); position: relative; }
-        /* NEW: Hover on user table rows is now interactive */
         .table.users-table tbody tr { cursor: pointer; }
         .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
         .table tbody tr::before {
@@ -188,19 +216,16 @@
             transition: transform var(--transition-speed) ease;
         }
         .table tbody tr:hover::before { transform: scaleY(1); }
-
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: var(--border-radius-sm); }
         .table .icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
         
-        /* --- NEW: User Table Specifics --- */
         .user-info-cell { display: flex; align-items: center; gap: 15px; }
         .user-info-cell img { width: 40px; height: 40px; border-radius: 50%; }
         .user-info-cell div { display: flex; flex-direction: column; }
         .user-info-cell .user-name { font-weight: 600; color: var(--color-heading); }
         .user-info-cell .user-id { font-size: 0.85rem; color: var(--color-text-muted); }
 
-        /* --- NEW: Upgraded User Status Badges --- */
         .user-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
         .user-status-badge.status-active { background-color: rgba(0, 255, 127, 0.15); color: var(--color-status-up); }
         .user-status-badge.status-banned { background-color: rgba(255, 51, 102, 0.15); color: var(--color-status-down); }
@@ -213,7 +238,6 @@
         .status-badge.status-featured { background-color: rgba(200, 100, 255, 0.15); color: #c864ff; }
         .status-badge.status-testing { background-color: rgba(255, 165, 0, 0.15); color: #ffa500; }
         
-        /* --- Comment Card Styles (Unchanged) --- */
         .comments-list-admin { display: flex; flex-direction: column; gap: 20px; }
         .comment-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
         .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); background: rgba(25, 27, 36, 0.7); }
@@ -227,7 +251,6 @@
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
         .comment-card-admin-actions { margin-left: auto; padding-left: 20px; align-self: center; }
 
-        /* --- Modals --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.4s 0.1s both; }
         @keyframes slideInUpModal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -247,7 +270,6 @@
         .details-header h3 { font-size: 1.8rem; }
         .details-body { max-height: 60vh; overflow-y: auto; padding-right: 15px; }
 
-        /* --- Forms --- */
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-text); font-size: 0.9rem; }
         .form-group input, .form-group textarea, .form-group select {
@@ -268,7 +290,6 @@
         .form-group-checkbox input[type="checkbox"]:checked::before { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #000; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; }
         .form-actions { display:flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
-        /* --- Toast & Confirm Modals --- */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
         .toast {
@@ -284,7 +305,6 @@
         .confirm-modal-content p { font-size: 1.1rem; margin: 20px 0 30px; color: var(--color-text); }
         .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
         
-        /* --- Skeleton Loader Styles --- */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton {
             background-color: rgba(255,255,255,0.05);
@@ -311,12 +331,28 @@
     <!-- Auth Wall -->
     <div id="admin-auth-wall">
         <div class="card glass-ui auth-container">
+            <!-- NEW: Two-step login flow starts here -->
+            <div id="warning-screen">
+                <i class="fas fa-shield-halved auth-logo" style="color: var(--color-status-caution);"></i>
+                <h1>Restricted Access</h1>
+                <p style="margin: 15px 0; font-size: 1.1rem; color: var(--color-text);">
+                    IF YOU ARE NOT AN AUTHORIZED ADMINISTRATOR, PLEASE LEAVE THIS PAGE IMMEDIATELY.
+                </p>
+                <div class="ip-display">
+                    <p style="font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Your IP Address:</p>
+                    <code id="user-ip-address">Fetching...</code>
+                </div>
+                <p>Your IP address and connection attempt have been logged for security purposes.</p>
+                <button id="proceed-to-login-btn" class="btn btn-primary" style="margin-top: 30px;">Continue</button>
+            </div>
+            
             <div id="login-prompt">
                 <i class="fas fa-cogs auth-logo gradient-text"></i>
                 <h1>Admin Panel</h1>
                 <p style="margin: 20px 0 30px;">Connect with an authorized Discord account to continue.</p>
                 <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
             </div>
+
             <div id="denied-message">
                 <i class="fas fa-shield-halved auth-logo"></i>
                 <h1 style="color: var(--color-status-down);">Access Denied</h1>
@@ -383,10 +419,9 @@
                 <div id="comments-container" class="comments-list-admin"></div>
             </div>
 
-            <!-- UPDATED: Users View now uses a table -->
             <div id="users-view" class="admin-tab-pane">
                 <div class="content-header"><h1>Manage Users</h1></div>
-                <div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name..."></div>
+                <div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name or ID..."></div>
                 <div class="table-container glass-ui">
                     <table class="table users-table">
                         <thead><tr><th>User</th><th>Status</th><th>Joined</th><th>Last Seen</th><th>Actions</th></tr></thead>
@@ -435,8 +470,6 @@
     <div id="toast-container"></div>
 
     <script>
-    // The JavaScript remains exactly the same as the original,
-    // with only the renderUsers function's output and event listeners updated to match the new table structure.
     document.addEventListener("DOMContentLoaded", () => {
         
         const CeriumAdmin = {
@@ -452,6 +485,8 @@
             
             elements: {
                 body: document.body,
+                authContainer: document.querySelector('.auth-container'), // NEW
+                proceedToLoginBtn: document.getElementById('proceed-to-login-btn'), // NEW
                 discordLoginBtn: document.getElementById('discord-login-btn'),
                 logoutBtnAdmin: document.getElementById('logout-btn-admin'),
                 logoutBtnDenied: document.getElementById('logout-btn-denied'),
@@ -460,7 +495,7 @@
                 tabPanes: document.querySelectorAll('.admin-tab-pane'),
                 gamesTableBody: document.getElementById('games-table-body'),
                 commentsContainer: document.getElementById('comments-container'),
-                usersTableBody: document.getElementById('users-table-body'), // UPDATED
+                usersTableBody: document.getElementById('users-table-body'),
                 commentsSearch: document.getElementById('comments-search'),
                 usersSearch: document.getElementById('users-search'),
                 allModals: document.querySelectorAll('.modal'),
@@ -473,12 +508,32 @@
             },
 
             init() {
+                this.fetchAndDisplayIP(); // NEW
                 this.bindEventListeners();
                 this.handleOAuthCallback();
             },
 
+            // NEW: Function to fetch and display the user's IP
+            fetchAndDisplayIP() {
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('user-ip-address').textContent = data.ip;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching IP address:', error);
+                        document.getElementById('user-ip-address').textContent = 'Unavailable';
+                    });
+            },
+
             bindEventListeners() {
                 const { elements, config } = this;
+
+                // NEW: Event listener for the "Continue" button
+                elements.proceedToLoginBtn.addEventListener('click', () => {
+                    elements.authContainer.classList.add('show-login');
+                });
+
                 elements.discordLoginBtn.addEventListener('click', () => {
                     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${config.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(config.REDIRECT_URI)}&response_type=token&scope=identify`;
                 });
@@ -529,6 +584,7 @@
 
             handleLogout() {
                 localStorage.clear();
+                this.elements.authContainer.classList.remove('show-login'); // Reset the login screen state
                 this.utils.setPageState('login');
             },
             
@@ -653,7 +709,7 @@
             },
 
             async fetchAndRenderUsers() {
-                this.utils.showSkeletonLoader(this.elements.usersTableBody, 5, 'table-row'); // UPDATED
+                this.utils.showSkeletonLoader(this.elements.usersTableBody, 5, 'table-row');
                 try {
                     const response = await this.secureFetch('/api/admin-users');
                     if (!response.ok) throw new Error('Failed to fetch users.');
@@ -661,11 +717,10 @@
                     this.renderUsers(this.state.users);
                     this.updateDashboardStats();
                 } catch (error) {
-                    this.elements.usersTableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${error.message}</td></tr>`; // UPDATED
+                    this.elements.usersTableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${error.message}</td></tr>`;
                 }
             },
             
-            // UPDATED renderUsers to generate table rows
             renderUsers(users) {
                 const { usersTableBody, usersSearch } = this.elements;
                 usersTableBody.innerHTML = '';
@@ -783,7 +838,6 @@
                 });
             },
             
-            // UPDATED bindUsersEvents to use the table
             bindUsersEvents() {
                 const { elements } = this;
                 elements.usersTableBody.addEventListener('click', async (e) => {
@@ -928,7 +982,6 @@
                 createSkeleton(type) {
                     const skeleton = document.createElement('div');
                     if (type === 'table-row') {
-                        // UPDATED Skeleton for the new user table height
                         const tr = document.createElement('tr');
                         const td = document.createElement('td');
                         td.colSpan = 5;
