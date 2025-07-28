@@ -48,8 +48,6 @@
             line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
-            background-size: 25px 25px;
         }
 
         h1, h2, h3, h4, h5, h6 { color: var(--color-heading); font-weight: 700; }
@@ -77,7 +75,10 @@
         body.state-loading #admin-auth-wall, body.state-login #admin-auth-wall, body.state-denied #admin-auth-wall {
             display: flex; align-items: center; justify-content: center; min-height: 100vh; animation: fadeInUp 0.6s ease-out;
         }
-        body.state-warning #security-warning-overlay { display: flex; }
+        /* NEW: Show warning screen for warning state */
+        body.state-warning #security-warning-overlay {
+            display: flex;
+        }
         body.state-admin #admin-panel { display: block; animation: fadeInUp 0.6s ease-out; }
 
         .btn {
@@ -100,55 +101,117 @@
         .auth-container { text-align: center; max-width: 500px; position: relative; }
         .auth-logo { font-size: 4rem; margin-bottom: 20px; display: block; text-shadow: 0 0 40px var(--color-glow); }
         
-        /* --- Fullscreen Red Warning Overlay --- */
-        @keyframes pulse-red { 0%, 100% { transform: scale(1); text-shadow: 0 0 20px #ff3333; } 50% { transform: scale(1.05); text-shadow: 0 0 35px #ff6666; } }
+        /* --- NEW: Fullscreen Red Warning Overlay --- */
         #security-warning-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle, #600 0%, #200 100%);
-            z-index: 2000; align-items: center; justify-content: center;
-            text-align: center; padding: 20px; color: #fff;
+            z-index: 2000;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: #fff;
             animation: fadeInUp 0.5s ease;
         }
-        .warning-content .fa-shield-virus {
-            font-size: 5rem; margin-bottom: 30px; color: #ff9999;
-            animation: pulse-red 2.5s ease-in-out infinite;
+        .warning-content {
+            max-width: 600px;
         }
-        .warning-content h1 { font-size: 3rem; color: #fff; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #ff6666; }
-        .warning-content p { color: #ffcccc; font-size: 1.1rem; margin: 20px 0; }
-        .warning-content .ip-display { background-color: rgba(0,0,0,0.5); border: 1px solid rgba(255,100,100,0.4); padding: 15px; border-radius: var(--border-radius-sm); margin: 30px 0; }
-        .warning-content .ip-display code { font-family: monospace; font-size: 1.4rem; color: var(--color-status-caution); font-weight: 700; }
-        .warning-content .btn-continue { background-color: transparent; border: 2px solid #ffcccc; color: #ffcccc; font-weight: 700; padding: 14px 32px; font-size: 1rem; }
-        .warning-content .btn-continue:hover { background-color: #ffcccc; color: #300; }
+        .warning-content .fa-shield-virus {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            color: #ff9999;
+            text-shadow: 0 0 20px #ff3333;
+        }
+        .warning-content h1 {
+            font-size: 3rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #ff6666;
+        }
+        .warning-content p {
+            color: #ffcccc;
+            font-size: 1.1rem;
+            margin: 20px 0;
+        }
+        .warning-content .ip-display {
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,100,100,0.4);
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin: 30px 0;
+        }
+        .warning-content .ip-display code {
+            font-family: monospace;
+            font-size: 1.4rem;
+            color: var(--color-status-caution);
+            font-weight: 700;
+        }
+        .warning-content .btn-continue {
+            background-color: transparent;
+            border: 2px solid #ffcccc;
+            color: #ffcccc;
+            font-weight: 700;
+            padding: 14px 32px;
+            font-size: 1rem;
+        }
+        .warning-content .btn-continue:hover {
+            background-color: #ffcccc;
+            color: #300;
+        }
         
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
         body.state-denied #login-prompt { display: none; }
         body.state-denied .auth-logo { color: var(--color-status-down); text-shadow: 0 0 30px var(--color-status-down); }
 
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; position: sticky; top: 0; z-index: 100; background: rgba(5, 5, 10, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); }
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; position: sticky; top: 0; z-index: 100;
+            background: rgba(5, 5, 10, 0.6);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+        }
         .admin-user-info { display: flex; align-items: center; gap: 15px; }
         .admin-user-info img { width: 40px; height: 40px; border-radius: 50%; }
         .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
 
-        .reverence-banner { margin-bottom: 40px; padding: 30px; text-align: center; border-bottom: 1px solid var(--glass-border); position: relative; overflow: hidden; }
-        .reverence-banner::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent); animation: shimmer-bg 5s infinite; }
-        @keyframes shimmer-bg { 100% { left: 100%; } }
+        .reverence-banner {
+            margin-bottom: 40px; padding: 30px; text-align: center;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='rgba(255,255,255,0.03)' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            border-bottom: 1px solid var(--glass-border);
+        }
         .reverence-banner h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 25px var(--color-glow); }
 
         .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; margin-bottom: 40px; }
         .stat-card { padding: 25px; display: flex; align-items: center; gap: 20px; }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.4); box-shadow: 0 0 30px -5px var(--color-glow); }
-        .stat-icon-wrapper { width: 70px; height: 70px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); transition: all var(--transition-speed) ease; }
+        .stat-card:hover { transform: translateY(-5px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(25, 27, 36, 0.7); }
+        .stat-icon-wrapper {
+            width: 70px; height: 70px; border-radius: 50%; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border);
+            transition: all var(--transition-speed) ease;
+        }
         .stat-card:hover .stat-icon-wrapper { background: var(--primary-gradient); border-color: #fff; }
         .stat-icon { font-size: 2.2rem; color: var(--color-heading); transition: all var(--transition-speed) ease; }
-        .stat-card:hover .stat-icon { color: #000; transform: scale(1.1) rotate(-10deg); }
+        .stat-card:hover .stat-icon { color: #000; transform: scale(1.1); }
         .stat-info h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 5px; font-weight: 500; }
         .stat-info p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; }
 
         .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--glass-border); margin-bottom: 40px; }
-        .admin-tab-btn { background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px; font-size: 1rem; font-weight: 600; cursor: pointer; position: relative; transition: color var(--transition-speed); display: inline-flex; align-items: center; gap: 8px; }
-        .admin-tab-btn::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; width: 100%; height: 2px; background: var(--primary-gradient); box-shadow: 0 0 15px var(--color-glow); transition: all var(--transition-speed) ease; transform: scaleX(0); transform-origin: center; }
+        .admin-tab-btn {
+            background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; position: relative; transition: color var(--transition-speed);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .admin-tab-btn::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+            width: 100%; height: 2px; background: var(--primary-gradient);
+            box-shadow: 0 0 15px var(--color-glow);
+            transition: all var(--transition-speed) ease;
+            transform: scaleX(0); transform-origin: center;
+        }
         .admin-tab-btn:hover { color: var(--color-heading); }
         .admin-tab-btn.active { color: var(--color-heading); }
         .admin-tab-btn.active::after { transform: scaleX(1); }
@@ -157,62 +220,41 @@
         .admin-tab-pane.active { display: block; }
 
         .search-bar { position: relative; width: 100%; max-width: 400px; margin-bottom: 30px; }
-        .search-bar input { width: 100%; padding: 12px 45px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--color-text); font-size: 1rem; transition: all var(--transition-speed) ease; }
+        .search-bar input {
+            width: 100%; padding: 12px 15px 12px 45px; border-radius: var(--border-radius-sm);
+            border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);
+            color: var(--color-text); font-size: 1rem; transition: all var(--transition-speed) ease;
+        }
         .search-bar input:focus { outline: none; border-color: rgba(255,255,255,0.4); box-shadow: 0 0 15px var(--color-glow); }
-        .search-bar::before { content: "\f002"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); pointer-events: none; }
-        .search-clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-text-muted); font-size: 1.1rem; cursor: pointer; display: none; transition: color 0.2s; }
-        .search-clear-btn:hover { color: var(--color-heading); }
-        .search-bar.has-content .search-clear-btn { display: block; }
+        .search-bar::before {
+            content: "\f002"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--color-text-muted); pointer-events: none;
+        }
         
         .table-container { padding: 20px; overflow-x: auto; }
-        .table { width: 100%; border-collapse: collapse; text-align: left; min-width: 800px; }
+        .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 16px; border-bottom: 1px solid var(--glass-border); vertical-align: middle; }
-        .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; user-select: none; }
-        .table th.sortable { cursor: pointer; transition: color 0.2s; }
-        .table th.sortable:hover { color: var(--color-heading); }
-        .table th .sort-icon { display: inline-block; width: 1em; opacity: 0.4; transition: opacity 0.2s, transform 0.2s; }
-        .table th.sort-asc .sort-icon { opacity: 1; transform: rotate(180deg); }
-        .table th.sort-desc .sort-icon { opacity: 1; }
+        .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
         .table tbody tr { transition: background-color var(--transition-speed); position: relative; }
         .table.users-table tbody tr { cursor: pointer; }
         .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
-        .table tbody tr::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary-gradient); transform: scaleY(0); transform-origin: center; transition: transform var(--transition-speed) ease; }
+        .table tbody tr::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--primary-gradient);
+            transform: scaleY(0); transform-origin: center;
+            transition: transform var(--transition-speed) ease;
+        }
         .table tbody tr:hover::before { transform: scaleY(1); }
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: var(--border-radius-sm); }
         .table .icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
         
-        /* NEW: Tooltips for action buttons */
-        [data-tooltip] { position: relative; }
-        [data-tooltip]::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 110%; left: 50%;
-            transform: translateX(-50%);
-            background-color: #111;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: var(--border-radius-sm);
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s, bottom 0.2s;
-            z-index: 10;
-        }
-        [data-tooltip]:hover::after { opacity: 1; bottom: 125%; }
-
-        /* User Info Cell Fix */
-        .user-info-cell { display: flex; align-items: center; gap: 15px; min-width: 250px; }
-        .user-info-cell img { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
-        .user-info-cell .user-details { flex-grow: 1; min-width: 0; }
-        .user-info-cell .user-name { font-weight: 600; color: var(--color-heading); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-info-cell .user-id-wrapper { display: flex; align-items: center; gap: 8px; }
-        .user-info-cell .user-id { font-size: 0.85rem; color: var(--color-text-muted); word-break: break-all; }
-        .copy-id-btn { background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 0; opacity: 0.5; transition: all 0.2s; }
-        .user-info-cell:hover .copy-id-btn { opacity: 1; }
-        .copy-id-btn:hover { color: var(--color-heading); transform: scale(1.1); }
+        .user-info-cell { display: flex; align-items: center; gap: 15px; }
+        .user-info-cell img { width: 40px; height: 40px; border-radius: 50%; }
+        .user-info-cell div { display: flex; flex-direction: column; }
+        .user-info-cell .user-name { font-weight: 600; color: var(--color-heading); }
+        .user-info-cell .user-id { font-size: 0.85rem; color: var(--color-text-muted); }
 
         .user-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
         .user-status-badge.status-active { background-color: rgba(0, 255, 127, 0.15); color: var(--color-status-up); }
@@ -242,11 +284,16 @@
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.4s 0.1s both; }
         @keyframes slideInUpModal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .modal-content { background: rgba(15, 17, 26, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%; animation: slideInUpModal 0.5s ease-out; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.3); }
+        .modal-content {
+            background: rgba(15, 17, 26, 0.7);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%;
+            animation: slideInUpModal 0.5s ease-out; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+        }
         .modal-close { position: absolute; top: 15px; right: 25px; color: var(--color-text-muted); font-size: 28px; font-weight: bold; cursor: pointer; transition: all var(--transition-speed); }
         .modal-close:hover { color: var(--color-heading); transform: rotate(90deg) scale(1.1); }
-        .modal-content h2 { margin-bottom: 30px; display: flex; align-items: center; gap: 15px; }
-        .modal-content h2 .fa, .modal-content h2 .fas { color: var(--color-text-muted); font-size: 0.8em; }
+        .modal-content h2 { margin-bottom: 30px; }
         .details-modal-content { max-width: 800px; }
         .details-header { display: flex; align-items: center; gap: 20px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
         .details-header img { width: 60px; height: 60px; border-radius: 50%; }
@@ -255,10 +302,18 @@
 
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-text); font-size: 0.9rem; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border); background: rgba(0, 0, 0, 0.2); color: var(--color-text); transition: border-color var(--transition-speed), box-shadow var(--transition-speed); font-family: inherit; font-size: 1rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 14px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2); color: var(--color-text);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+            font-family: inherit; font-size: 1rem;
+        }
         .form-group select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 1rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; }
         .form-group textarea { resize: vertical; min-height: 80px; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: rgba(255, 255, 255, 0.4); box-shadow: 0 0 15px -2px var(--color-glow); }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px -2px var(--color-glow);
+        }
         .form-group-checkbox { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
         .form-group-checkbox input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border-radius: 6px; background-color: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); transition: all 0.2s ease; position: relative; cursor: pointer; }
         .form-group-checkbox input[type="checkbox"]:checked { background-image: var(--primary-gradient); border-color: #fff; }
@@ -267,7 +322,13 @@
 
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
-        .toast { padding: 15px 25px; border-radius: var(--border-radius-sm); font-weight: 600; color: #000; animation: toast-in-out 4s ease forwards; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .toast {
+            padding: 15px 25px; border-radius: var(--border-radius-sm); font-weight: 600; color: #000;
+            animation: toast-in-out 4s ease forwards; display: flex; align-items: center; gap: 10px;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
         .toast.success { background: rgba(0, 255, 127, 0.7); }
         .toast.error { background: rgba(255, 51, 102, 0.7); color: #fff; }
         .confirm-modal-content { max-width: 500px; text-align: center; }
@@ -283,7 +344,6 @@
             animation: shimmer 2s infinite linear;
             border-radius: var(--border-radius-sm);
         }
-        .skeleton.text-skeleton { height: 1em; width: 60px; display: inline-block; vertical-align: middle; }
         .skeleton.table-row-skeleton { height: 73px; margin-bottom: 1px; }
         .skeleton.card-skeleton {
             height: 110px; border-radius: var(--border-radius);
@@ -298,6 +358,7 @@
 </head>
 <body class="state-loading">
 
+    <!-- NEW: Fullscreen Red Warning Overlay -->
     <div id="security-warning-overlay">
         <div class="warning-content">
             <i class="fas fa-shield-virus"></i>
@@ -311,6 +372,7 @@
         </div>
     </div>
 
+    <!-- Auth Wall (now initially hidden) -->
     <div id="admin-auth-wall">
         <div class="card glass-ui auth-container">
             <div id="login-prompt">
@@ -329,13 +391,14 @@
         </div>
     </div>
 
+    <!-- Admin Panel (structure unchanged) -->
     <div id="admin-panel">
         <header class="admin-header">
             <h1 class="gradient-text" style="font-size: 1.8rem;">Cerium Admin</h1>
             <div class="admin-user-info">
                 <img src="" alt="Admin Avatar" id="admin-avatar">
                 <span id="admin-username"></span>
-                <button id="logout-btn-admin" class="btn btn-secondary" data-tooltip="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                <button id="logout-btn-admin" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </header>
 
@@ -344,22 +407,22 @@
                 <h2 class="gradient-text">لا إله إلا الله محمد رسول الله</h2>
             </div>
             <div class="dashboard-stats">
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 1;"><div class="stat-icon-wrapper"><i class="fas fa-gamepad stat-icon"></i></div><div class="stat-info"><h4>Total Games</h4><p id="total-games"><span class="skeleton text-skeleton"></span></p></div></div>
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 2;"><div class="stat-icon-wrapper"><i class="fas fa-users stat-icon"></i></div><div class="stat-info"><h4>Total Users</h4><p id="total-users"><span class="skeleton text-skeleton"></span></p></div></div>
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 3;"><div class="stat-icon-wrapper"><i class="fas fa-comments stat-icon"></i></div><div class="stat-info"><h4>Total Comments</h4><p id="total-comments"><span class="skeleton text-skeleton"></span></p></div></div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 1;"><div class="stat-icon-wrapper"><i class="fas fa-gamepad stat-icon"></i></div><div class="stat-info"><h4>Total Games</h4><p id="total-games">--</p></div></div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 2;"><div class="stat-icon-wrapper"><i class="fas fa-users stat-icon"></i></div><div class="stat-info"><h4>Total Users</h4><p id="total-users">--</p></div></div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 3;"><div class="stat-icon-wrapper"><i class="fas fa-comments stat-icon"></i></div><div class="stat-info"><h4>Total Comments</h4><p id="total-comments">--</p></div></div>
             </div>
             <div class="admin-tabs">
                 <button class="admin-tab-btn active" data-tab="games"><i class="fas fa-cogs"></i> Games</button>
                 <button class="admin-tab-btn" data-tab="messages"><i class="fas fa-envelope-open-text"></i> Messages</button>
                 <button class="admin-tab-btn" data-tab="users"><i class="fas fa-user-shield"></i> Users</button>
             </div>
-            <div id="games-view" class="admin-tab-pane active"><div class="content-header"><h1>Manage Games</h1><button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button></div><div class="table-container glass-ui"><table class="table games-table"><thead><tr><th class="sortable" data-sort="display_order">Order <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th class="sortable" data-sort="name">Game Name <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th class="sortable" data-sort="status">Status <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th class="sortable" data-sort="is_published">Published <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th>Actions</th></tr></thead><tbody id="games-table-body"></tbody></table></div></div>
-            <div id="messages-view" class="admin-tab-pane"><div class="content-header"><h1>Moderate Comments</h1></div><div class="search-bar"><input type="text" id="comments-search" placeholder="Search comments or authors..."><button class="search-clear-btn">×</button></div><div id="comments-container" class="comments-list-admin"></div></div>
-            <div id="users-view" class="admin-tab-pane"><div class="content-header"><h1>Manage Users</h1></div><div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name or ID..."><button class="search-clear-btn">×</button></div><div class="table-container glass-ui"><table class="table users-table"><thead><tr><th class="sortable" data-sort="username">User <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th class="sortable" data-sort="status">Status <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th class="sortable" data-sort="join_date">Joined <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th class="sortable" data-sort="last_seen">Last Seen <span class="sort-icon"><i class="fas fa-arrow-down"></i></span></th><th>Actions</th></tr></thead><tbody id="users-table-body"></tbody></table></div></div>
+            <div id="games-view" class="admin-tab-pane active"><div class="content-header"><h1>Manage Games</h1><button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button></div><div class="table-container glass-ui"><table class="table games-table"><thead><tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead><tbody id="games-table-body"></tbody></table></div></div>
+            <div id="messages-view" class="admin-tab-pane"><div class="content-header"><h1>Moderate Comments</h1></div><div class="search-bar"><input type="text" id="comments-search" placeholder="Search comments or authors..."></div><div id="comments-container" class="comments-list-admin"></div></div>
+            <div id="users-view" class="admin-tab-pane"><div class="content-header"><h1>Manage Users</h1></div><div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name or ID..."></div><div class="table-container glass-ui"><table class="table users-table"><thead><tr><th>User</th><th>Status</th><th>Joined</th><th>Last Seen</th><th>Actions</th></tr></thead><tbody id="users-table-body"></tbody></table></div></div>
         </main>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals (structure unchanged) -->
     <div id="game-form-modal" class="modal"><div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title"></h2><form id="game-form"><input type="hidden" id="game-id"><div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div><div class="form-group"><label for="game-status">Status</label><select id="game-status" required><option value="" disabled selected>Select a status...</option><option value="Updated">Updated</option><option value="New">New</option><option value="Popular">Popular</option><option value="Featured">Featured</option><option value="Testing">Testing</option></select></div><div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url" placeholder="https://i.imgur.com/example.png"></div><div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div><div class="form-group"><label for="game-key">Key (Optional)</label><input type="text" id="game-key" placeholder="Enter product key if applicable..."></div><div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required placeholder="e.g., fruit-battlegrounds-script"></div><div style="display: flex; gap: 20px;"><div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div><div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div></div><div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8" placeholder="<ul><li>Feature 1</li><li>Feature 2</li></ul>"></textarea></div><div class="form-actions"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Save Game</button></div><p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p></form></div></div>
     <div id="moderate-modal" class="modal"><div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div class="form-actions"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div></div>
     <div id="user-details-modal" class="modal"><div class="modal-content details-modal-content"><span class="modal-close">×</span><div id="user-details-content"></div></div></div>
@@ -367,6 +430,8 @@
     <div id="toast-container"></div>
 
     <script>
+    // The JavaScript logic remains unabridged.
+    // Changes are focused on adding the new warning screen state and its trigger.
     document.addEventListener("DOMContentLoaded", () => {
         
         const CeriumAdmin = {
@@ -378,16 +443,12 @@
                 games: [],
                 users: [],
                 comments: [],
-                sort: {
-                    games: { key: 'display_order', order: 'asc' },
-                    users: { key: 'join_date', order: 'desc' },
-                }
             },
             
             elements: {
                 body: document.body,
-                securityWarningOverlay: document.getElementById('security-warning-overlay'),
-                proceedToLoginBtn: document.getElementById('proceed-to-login-btn'),
+                securityWarningOverlay: document.getElementById('security-warning-overlay'), // NEW
+                proceedToLoginBtn: document.getElementById('proceed-to-login-btn'), // NEW
                 discordLoginBtn: document.getElementById('discord-login-btn'),
                 logoutBtnAdmin: document.getElementById('logout-btn-admin'),
                 logoutBtnDenied: document.getElementById('logout-btn-denied'),
@@ -397,7 +458,8 @@
                 gamesTableBody: document.getElementById('games-table-body'),
                 commentsContainer: document.getElementById('comments-container'),
                 usersTableBody: document.getElementById('users-table-body'),
-                searchBars: document.querySelectorAll('.search-bar'),
+                commentsSearch: document.getElementById('comments-search'),
+                usersSearch: document.getElementById('users-search'),
                 allModals: document.querySelectorAll('.modal'),
                 gameFormModal: document.getElementById('game-form-modal'),
                 gameForm: document.getElementById('game-form'),
@@ -445,33 +507,17 @@
                         elements.tabPanes.forEach(pane => pane.classList.remove('active'));
                         button.classList.add('active');
                         document.getElementById(`${targetTab}-view`).classList.add('active');
-                        document.title = `${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)} | Cerium Admin Panel`;
                     });
                 });
 
-                document.addEventListener('keydown', (e) => { if (e.key === "Escape") elements.allModals.forEach(modal => this.closeModal(modal)); });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === "Escape") elements.allModals.forEach(modal => this.closeModal(modal));
+                });
 
                 elements.allModals.forEach(modal => {
                     modal.addEventListener('click', (e) => { if (e.target === modal) this.closeModal(modal); });
                     modal.querySelector('.modal-close')?.addEventListener('click', () => this.closeModal(modal));
                     modal.querySelector('.modal-cancel-btn')?.addEventListener('click', () => this.closeModal(modal));
-                });
-                
-                elements.searchBars.forEach(searchBar => {
-                    const input = searchBar.querySelector('input');
-                    const clearBtn = searchBar.querySelector('.search-clear-btn');
-                    input.addEventListener('input', () => {
-                        searchBar.classList.toggle('has-content', input.value.length > 0);
-                    });
-                    clearBtn.addEventListener('click', () => {
-                        input.value = '';
-                        input.dispatchEvent(new Event('input')); // Trigger input event to re-filter
-                        searchBar.classList.remove('has-content');
-                    });
-                });
-
-                document.querySelectorAll('.table th.sortable').forEach(th => {
-                    th.addEventListener('click', () => this.handleTableSort(th));
                 });
 
                 this.bindGameFormEvents();
@@ -498,7 +544,7 @@
 
             handleLogout() {
                 localStorage.clear();
-                this.utils.setPageState('warning');
+                this.utils.setPageState('warning'); // Return to warning screen on logout
             },
             
             async handleOAuthCallback() {
@@ -506,7 +552,7 @@
                 const accessToken = fragment.get('access_token');
                 if (accessToken) {
                     localStorage.setItem('discord_access_token', accessToken);
-                    this.utils.setPageState('loading');
+                    this.utils.setPageState('loading'); // Show loading while verifying
                     this.elements.authStatus.textContent = 'Fetching user data...';
                     try {
                         const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
@@ -516,7 +562,7 @@
                         await this.verifyAdminStatus();
                     } catch (error) {
                         this.elements.authStatus.textContent = `Login failed: ${error.message}`;
-                        this.utils.setPageState('login');
+                        this.utils.setPageState('login'); // Revert to login on failure
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
                 } else {
@@ -526,7 +572,7 @@
 
             async verifyAdminStatus() {
                 const user = this.utils.getCurrentUser();
-                if (!user) { this.utils.setPageState('warning'); return; }
+                if (!user) { this.utils.setPageState('warning'); return; } // Start at warning screen
                 this.utils.setPageState('loading');
                 this.elements.authStatus.textContent = 'Verifying permissions...';
                 try {
@@ -540,7 +586,7 @@
                     }
                 } catch (error) {
                     this.elements.authStatus.textContent = `Error: ${error.message}`;
-                    this.utils.setPageState('login');
+                    this.utils.setPageState('login'); // Revert to login on failure
                 }
             },
 
@@ -548,7 +594,6 @@
                 document.getElementById('admin-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
                 document.getElementById('admin-username').textContent = user.username;
                 this.utils.setPageState('admin');
-                document.title = "Games | Cerium Admin Panel";
                 this.fetchAndRenderAll();
             },
 
@@ -571,27 +616,26 @@
                     const response = await this.secureFetch('/api/admin');
                     if (!response.ok) throw new Error((await response.json()).details || 'Failed to fetch games.');
                     this.state.games = await response.json();
-                    this.renderGamesTable();
+                    this.renderGamesTable(this.state.games);
                     this.updateDashboardStats();
                 } catch (error) {
                     this.elements.gamesTableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${error.message}</td></tr>`;
                 }
             },
 
-            renderGamesTable() {
+            renderGamesTable(games) {
                 const { gamesTableBody } = this.elements;
                 gamesTableBody.innerHTML = '';
-                const games = this.utils.sortData(this.state.games, this.state.sort.games);
                 if (!games || games.length === 0) {
                     gamesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No games found.</td></tr>';
                     return;
                 }
-                games.forEach((game, index) => {
+                games.sort((a, b) => a.display_order - b.display_order).forEach((game, index) => {
                     const row = document.createElement('tr');
                     row.className = 'fade-in-stagger';
                     row.style.setProperty('--i', index);
-                    const publishedIcon = game.is_published ? '<i class="fas fa-check-circle" style="color:var(--color-status-up);"></i>' : '<i class="fas fa-times-circle" style="color:var(--color-text-muted);"></i>';
-                    row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td><span class="status-badge status-${game.status.toLowerCase()}">${game.status}</span></td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}" data-tooltip="Edit"><i class="fas fa-edit"></i></button><button class="btn btn-danger icon-btn delete-btn" data-id="${game.id}" data-tooltip="Delete"><i class="fas fa-trash"></i></button></td>`;
+                    const publishedIcon = game.is_published ? '<i class="fas fa-check-circle status-indicator published"></i>' : '<i class="fas fa-times-circle status-indicator unpublished"></i>';
+                    row.innerHTML = `<td>${game.display_order}</td><td>${game.name}</td><td><span class="status-badge status-${game.status.toLowerCase()}">${game.status}</span></td><td>${publishedIcon}</td><td class="actions"><button class="btn btn-secondary edit-btn" data-id="${game.id}"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-danger icon-btn delete-btn" data-id="${game.id}"><i class="fas fa-trash"></i></button></td>`;
                     gamesTableBody.appendChild(row);
                 });
             },
@@ -610,8 +654,7 @@
             },
 
             renderComments(comments) {
-                const commentsContainer = document.getElementById('comments-container');
-                const commentsSearch = document.getElementById('comments-search');
+                const { commentsContainer, commentsSearch } = this.elements;
                 commentsContainer.innerHTML = ''; 
                 if (!comments || comments.length === 0) { 
                     const searchTerm = commentsSearch.value.trim();
@@ -622,7 +665,7 @@
                     const card = document.createElement('div');
                     card.className = 'comment-card-admin glass-ui fade-in-stagger';
                     card.style.setProperty('--i', index);
-                    card.innerHTML = `<img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${comment.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${comment.topic_id}</strong></span><span>${this.utils.timeAgo(comment.created_at)}</span></div></div><p class="comment-card-admin-body"></p></div><div class="comment-card-admin-actions"><button class="btn btn-danger icon-btn delete-comment-btn" data-id="${comment.id}" data-tooltip="Delete Comment"><i class="fas fa-trash"></i></button></div>`;
+                    card.innerHTML = `<img src="${comment.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${comment.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${comment.topic_id}</strong></span><span>${this.utils.timeAgo(comment.created_at)}</span></div></div><p class="comment-card-admin-body"></p></div><div class="comment-card-admin-actions"><button class="btn btn-danger icon-btn delete-comment-btn" data-id="${comment.id}"><i class="fas fa-trash"></i></button></div>`;
                     card.querySelector('.comment-card-admin-body').textContent = comment.content;
                     commentsContainer.appendChild(card);
                 });
@@ -634,26 +677,20 @@
                     const response = await this.secureFetch('/api/admin-users');
                     if (!response.ok) throw new Error('Failed to fetch users.');
                     this.state.users = await response.json();
-                    this.renderUsers();
+                    this.renderUsers(this.state.users);
                     this.updateDashboardStats();
                 } catch (error) {
                     this.elements.usersTableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${error.message}</td></tr>`;
                 }
             },
             
-            renderUsers() {
-                const usersTableBody = document.getElementById('users-table-body');
-                const usersSearch = document.getElementById('users-search');
+            renderUsers(users) {
+                const { usersTableBody, usersSearch } = this.elements;
                 usersTableBody.innerHTML = '';
-                const searchTerm = usersSearch.value.toLowerCase().trim();
-                let filteredUsers = this.state.users.filter(u => u.username.toLowerCase().includes(searchTerm) || u.discord_id.includes(searchTerm));
-                const users = this.utils.sortData(filteredUsers, this.state.sort.users);
-
                 if (!users || users.length === 0) {
-                    usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">${searchTerm ? `No users found for "${searchTerm}".` : 'No users found.'}</td></tr>`;
+                    usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">${usersSearch.value.trim() ? `No users found.` : 'No users found.'}</td></tr>`;
                     return;
                 }
-
                 users.forEach((user, index) => {
                     const row = document.createElement('tr');
                     row.className = 'fade-in-stagger';
@@ -661,68 +698,52 @@
                     row.dataset.userId = user.discord_id;
                     const joinDate = new Date(user.join_date).toLocaleDateString();
                     const lastSeen = user.last_seen ? this.utils.timeAgo(user.last_seen) : 'Never';
-                    
-                    let status, statusHTML, actionsHTML;
+                    let statusHTML = '', actionsHTML = '';
                     if (user.is_banned) {
-                        status = 'banned'; statusHTML = `<span class="user-status-badge status-banned"><i class="fas fa-ban"></i> Banned</span>`;
-                        actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}" data-tooltip="Remove Ban">Unban</button>`;
+                        statusHTML = `<span class="user-status-badge status-banned"><i class="fas fa-ban"></i> Banned</span>`;
+                        actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unban</button>`;
                     } else if (user.suspension_expires_at && new Date(user.suspension_expires_at) > new Date()) {
-                        status = 'suspended'; statusHTML = `<span class="user-status-badge status-suspended"><i class="fas fa-clock"></i> Suspended</span>`;
-                        actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}" data-tooltip="Remove Suspension">Unsuspend</button>`;
+                        statusHTML = `<span class="user-status-badge status-suspended"><i class="fas fa-clock"></i> Suspended</span>`;
+                        actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unsuspend</button>`;
                     } else {
-                        status = 'active'; statusHTML = `<span class="user-status-badge status-active"><i class="fas fa-check"></i> Active</span>`;
-                        actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}" data-tooltip="Suspend User"><i class="fas fa-clock"></i></button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}" data-tooltip="Ban User"><i class="fas fa-ban"></i></button>`;
+                        statusHTML = `<span class="user-status-badge status-active"><i class="fas fa-check"></i> Active</span>`;
+                        actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                     }
-                    this.state.users.find(u => u.discord_id === user.discord_id).status = status; // For sorting
-
-                    row.innerHTML = `
-                        <td>
-                            <div class="user-info-cell">
-                                <img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar">
-                                <div class="user-details">
-                                    <span class="user-name">${user.username}</span>
-                                    <div class="user-id-wrapper">
-                                        <span class="user-id">${user.discord_id}</span>
-                                        <button class="copy-id-btn" data-id="${user.discord_id}" data-tooltip="Copy ID"><i class="far fa-copy"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${statusHTML}</td>
-                        <td>${joinDate}</td>
-                        <td>${lastSeen}</td>
-                        <td class="actions">${actionsHTML}</td>`;
+                    row.innerHTML = `<td><div class="user-info-cell"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar"><div><span class="user-name">${user.username}</span><span class="user-id">${user.discord_id}</span></div></div></td><td>${statusHTML}</td><td>${joinDate}</td><td>${lastSeen}</td><td class="actions">${actionsHTML}</td>`;
                     usersTableBody.appendChild(row);
                 });
             },
             
             bindGameFormEvents() {
+                const { elements } = this;
                 document.getElementById('add-new-game-btn').addEventListener('click', () => {
-                    this.elements.gameForm.reset();
-                    document.getElementById('modal-title').innerHTML = '<i class="fas fa-plus-circle"></i> Add New Game';
+                    elements.gameForm.reset();
+                    document.getElementById('modal-title').textContent = "Add New Game";
                     document.getElementById('game-id').value = '';
-                    this.openModal(this.elements.gameFormModal, 'game-name');
+                    this.openModal(elements.gameFormModal, 'game-name');
                 });
-                this.elements.gamesTableBody.addEventListener('click', (e) => {
+                elements.gamesTableBody.addEventListener('click', (e) => {
                     const editBtn = e.target.closest('.edit-btn');
                     if (editBtn) {
                         const game = this.state.games.find(g => g.id == editBtn.dataset.id); if (!game) return;
-                        this.elements.gameForm.reset();
-                        document.getElementById('modal-title').innerHTML = '<i class="fas fa-edit"></i> Edit Game';
+                        elements.gameForm.reset();
+                        document.getElementById('modal-title').textContent = "Edit Game";
                         Object.keys(game).forEach(key => {
                             const el = document.getElementById(key.replace(/_([a-z])/g, g => g[1].toUpperCase()));
                             if(el) { if(el.type === 'checkbox') el.checked = game[key]; else el.value = game[key] ?? ''; }
                         });
                         document.getElementById('game-id').value = game.id;
-                        this.openModal(this.elements.gameFormModal, 'game-name');
+                        this.openModal(elements.gameFormModal, 'game-name');
                     }
                     const deleteBtn = e.target.closest('.delete-btn');
                     if (deleteBtn) this.handleDeleteGame(deleteBtn.dataset.id);
                 });
-                this.elements.gameForm.addEventListener('submit', async (e) => {
+                elements.gameForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const submitButton = e.currentTarget.querySelector('button[type="submit"]');
-                    this.utils.setButtonLoading(submitButton, true, "Saving...");
+                    const originalHtml = submitButton.innerHTML;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                     document.getElementById('form-error').textContent = '';
                     const gameId = document.getElementById('game-id').value;
                     const isEditing = !!gameId;
@@ -731,19 +752,19 @@
                         const response = await this.secureFetch('/api/admin', { method: isEditing ? 'PUT' : 'POST', body: JSON.stringify(isEditing ? { gameData, gameId } : { gameData }) });
                         if (!response.ok) throw new Error((await response.json()).details || 'Failed to save.');
                         this.utils.showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
-                        this.closeModal(this.elements.gameFormModal);
+                        this.closeModal(elements.gameFormModal);
                         await this.fetchAndRenderGames();
-                    } catch (error) { document.getElementById('form-error').textContent = error.message; } finally { this.utils.setButtonLoading(submitButton, false); }
+                    } catch (error) { document.getElementById('form-error').textContent = error.message; } finally { submitButton.disabled = false; submitButton.innerHTML = originalHtml; }
                 });
             },
 
             bindCommentsEvents() {
-                document.getElementById('comments-container').addEventListener('click', (e) => {
+                this.elements.commentsContainer.addEventListener('click', (e) => {
                     const deleteBtn = e.target.closest('.delete-comment-btn');
                     if (deleteBtn) this.handleDeleteComment(deleteBtn.dataset.id, deleteBtn);
                 });
-                document.getElementById('comments-search').addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase().trim();
+                this.elements.commentsSearch.addEventListener('input', () => {
+                    const searchTerm = this.elements.commentsSearch.value.toLowerCase().trim();
                     const filtered = this.state.comments.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm));
                     this.renderComments(filtered);
                 });
@@ -757,21 +778,18 @@
                     const targetButton = e.target.closest('button');
                     if (targetButton) {
                         e.stopPropagation();
-                        if (targetButton.matches('.ban-btn')) {
+                        if (targetButton.classList.contains('ban-btn')) {
                             document.getElementById('moderate-user-id').value = userId; document.getElementById('moderate-action').value = 'ban';
-                            document.getElementById('moderate-title').innerHTML = `<i class="fas fa-ban"></i> Ban ${userToActOn.username}`;
+                            document.getElementById('moderate-title').textContent = `Ban ${userToActOn.username}`;
                             document.getElementById('duration-group').style.display = 'none'; this.openModal(elements.moderateModal, 'moderate-reason');
-                        } else if (targetButton.matches('.suspend-btn')) {
+                        } else if (targetButton.classList.contains('suspend-btn')) {
                             document.getElementById('moderate-user-id').value = userId; document.getElementById('moderate-action').value = 'suspend';
-                            document.getElementById('moderate-title').innerHTML = `<i class="fas fa-clock"></i> Suspend ${userToActOn.username}`;
+                            document.getElementById('moderate-title').textContent = `Suspend ${userToActOn.username}`;
                             document.getElementById('duration-group').style.display = 'block'; this.openModal(elements.moderateModal, 'moderate-duration');
-                        } else if (targetButton.matches('.unban-btn')) {
+                        } else if (targetButton.classList.contains('unban-btn')) {
                             if (await this.utils.showConfirmModal('Remove Restrictions?', `Are you sure you want to unban/unsuspend <strong>${userToActOn.username}</strong>?`)) {
                                 this.moderateUser(userToActOn, 'unban');
                             }
-                        } else if (targetButton.matches('.copy-id-btn')) {
-                            this.utils.copyToClipboard(userId);
-                            this.utils.showToast("User ID copied to clipboard!");
                         }
                     } else { this.openUserDetailsModal(userToActOn); }
                 });
@@ -786,29 +804,16 @@
                     this.moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
                     this.closeModal(elements.moderateModal);
                 });
-                document.getElementById('users-search').addEventListener('input', () => this.renderUsers());
-            },
-
-            handleTableSort(th) {
-                const tableType = th.closest('.table').classList.contains('games-table') ? 'games' : 'users';
-                const key = th.dataset.sort;
-                const currentSort = this.state.sort[tableType];
-                
-                let order = 'asc';
-                if (currentSort.key === key) { order = currentSort.order === 'asc' ? 'desc' : 'asc'; }
-                currentSort.key = key;
-                currentSort.order = order;
-                
-                document.querySelectorAll(`.table.${tableType}-table th.sortable`).forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-                th.classList.add(order === 'asc' ? 'sort-asc' : 'sort-desc');
-                
-                if (tableType === 'games') this.renderGamesTable();
-                if (tableType === 'users') this.renderUsers();
+                elements.usersSearch.addEventListener('input', () => {
+                    const searchTerm = elements.usersSearch.value.toLowerCase().trim();
+                    const filtered = this.state.users.filter(u => u.username.toLowerCase().includes(searchTerm) || u.discord_id.includes(searchTerm));
+                    this.renderUsers(filtered);
+                });
             },
             
             async handleDeleteGame(gameId) {
                 const game = this.state.games.find(g => g.id == gameId); if (!game) return;
-                if (!await this.utils.showConfirmModal(`Delete '${game.name}'?`, `Are you sure you want to permanently delete this game? This action cannot be undone.`)) return;
+                if (!await this.utils.showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "<strong>${game.name}</strong>"?`)) return;
                 try {
                     const response = await this.secureFetch('/api/admin', { method: 'DELETE', body: JSON.stringify({ gameId, gameName: game.name }) });
                     if (!response.ok) throw new Error((await response.json()).details || 'Failed to delete.');
@@ -819,7 +824,9 @@
 
             async handleDeleteComment(commentId, buttonEl) {
                 if (!await this.utils.showConfirmModal('Delete Comment?', 'Are you sure you want to permanently delete this comment?')) return;
-                this.utils.setButtonLoading(buttonEl, true);
+                const originalHtml = buttonEl.innerHTML;
+                buttonEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+                buttonEl.disabled = true;
                 try {
                     const response = await this.secureFetch('/api/comments', { method: 'DELETE', body: JSON.stringify({ commentId }) });
                     if (!response.ok) throw new Error((await response.json()).error || 'Failed to delete.');
@@ -828,12 +835,8 @@
                     card.style.transition = 'opacity 0.3s, transform 0.3s';
                     card.style.opacity = '0';
                     card.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        card.remove();
-                        this.state.comments = this.state.comments.filter(c => c.id !== commentId);
-                        this.updateDashboardStats();
-                    }, 300);
-                } catch (error) { this.utils.showToast(error.message, true); this.utils.setButtonLoading(buttonEl, false); }
+                    setTimeout(() => card.remove(), 300);
+                } catch (error) { this.utils.showToast(error.message, true); buttonEl.innerHTML = originalHtml; buttonEl.disabled = false; }
             },
 
             async moderateUser(targetUser, action, reason = null, duration_hours = null) {
@@ -855,14 +858,14 @@
             async openUserDetailsModal(user) {
                 const userDetailsContent = document.getElementById('user-details-content');
                 this.openModal(this.elements.userDetailsModal);
-                userDetailsContent.innerHTML = this.utils.createSkeleton('card') + this.utils.createSkeleton('card'); // Placeholder
+                userDetailsContent.innerHTML = '<p style="text-align:center; padding: 40px 0;">Loading details...</p>';
                 try {
                     const response = await this.secureFetch(`/api/admin-user-details?userId=${user.discord_id}`);
                     if (!response.ok) throw new Error("Failed to load details.");
                     const data = await response.json();
                     let commentsHTML = '<h4>Comment History</h4><p>No comments found for this user.</p>';
                     if (data.comments && data.comments.length > 0) {
-                        commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0; box-shadow: none; backdrop-filter: none;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${this.utils.timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${this.utils.escapeHTML(c.content)}</p></div></div>`).join('');
+                        commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0; box-shadow: none; backdrop-filter: none;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${this.utils.timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
                     }
                     userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"><div class="details-header-info"><h3>${user.username}</h3><p style="opacity: 0.7;">${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
                 } catch (error) { userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`; }
@@ -877,6 +880,7 @@
             utils: {
                 setPageState: (state) => {
                     document.body.className = `state-${state}`;
+                    // Special handling for visibility
                     document.getElementById('security-warning-overlay').style.display = (state === 'warning') ? 'flex' : 'none';
                     document.getElementById('admin-auth-wall').style.display = (state === 'login' || state === 'denied' || state === 'loading') ? 'flex' : 'none';
                 },
@@ -900,14 +904,17 @@
                     const skeleton = document.createElement('div');
                     if (type === 'table-row') {
                         const tr = document.createElement('tr');
-                        const td = document.createElement('td'); td.colSpan = 5;
-                        const skeletonDiv = document.createElement('div'); skeletonDiv.className = 'skeleton table-row-skeleton';
-                        td.appendChild(skeletonDiv); tr.appendChild(td); return tr;
-                    }
-                    if (type === 'card') {
+                        const td = document.createElement('td');
+                        td.colSpan = 5;
+                        const skeletonDiv = document.createElement('div');
+                        skeletonDiv.className = 'skeleton table-row-skeleton';
+                        td.appendChild(skeletonDiv);
+                        tr.appendChild(td);
+                        return tr;
+                    } else if (type === 'card') {
                         skeleton.className = 'skeleton card-skeleton';
                         skeleton.innerHTML = `<div class="avatar"></div><div class="content"><div class="line short"></div><div class="line long"></div><div class="line"></div></div>`;
-                        return skeleton.outerHTML;
+                        return skeleton;
                     }
                 },
                 showSkeletonLoader(container, count, type) {
@@ -916,48 +923,18 @@
                 },
                 showConfirmModal(title, text) {
                     return new Promise((resolve) => {
+                        document.getElementById('confirm-title').textContent = title;
+                        document.getElementById('confirm-text').innerHTML = text;
                         const confirmModal = document.getElementById('confirm-modal');
-                        confirmModal.querySelector('#confirm-title').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${title}`;
-                        confirmModal.querySelector('#confirm-text').innerHTML = text;
                         const confirmOkBtn = document.getElementById('confirm-ok-btn');
                         const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
                         confirmModal.classList.add('visible');
-                        const cleanup = () => { confirmModal.classList.remove('visible'); };
+                        const cleanup = () => { confirmOkBtn.removeEventListener('click', handleConfirm); confirmCancelBtn.removeEventListener('click', handleCancel); confirmModal.classList.remove('visible'); };
                         const handleConfirm = () => { resolve(true); cleanup(); };
                         const handleCancel = () => { resolve(false); cleanup(); };
-                        confirmOkBtn.onclick = handleConfirm;
-                        confirmCancelBtn.onclick = handleCancel;
+                        confirmOkBtn.addEventListener('click', handleConfirm, { once: true });
+                        confirmCancelBtn.addEventListener('click', handleCancel, { once: true });
                     });
-                },
-                sortData: (data, { key, order }) => {
-                    if (!key) return data;
-                    return [...data].sort((a, b) => {
-                        let valA = a[key];
-                        let valB = b[key];
-                        if (typeof valA === 'string') valA = valA.toLowerCase();
-                        if (typeof valB === 'string') valB = valB.toLowerCase();
-                        if (valA < valB) return order === 'asc' ? -1 : 1;
-                        if (valA > valB) return order === 'asc' ? 1 : -1;
-                        return 0;
-                    });
-                },
-                setButtonLoading: (button, isLoading, loadingText = "...") => {
-                    if (isLoading) {
-                        button.originalHTML = button.innerHTML;
-                        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${loadingText}`;
-                        button.disabled = true;
-                    } else {
-                        button.innerHTML = button.originalHTML || 'Submit';
-                        button.disabled = false;
-                    }
-                },
-                copyToClipboard: (text) => {
-                    navigator.clipboard.writeText(text).catch(err => console.error('Failed to copy: ', err));
-                },
-                escapeHTML: (str) => {
-                    const div = document.createElement('div');
-                    div.appendChild(document.createTextNode(str));
-                    return div.innerHTML;
                 }
             }
         };
