@@ -13,7 +13,7 @@
     
     <style>
         :root {
-            --color-background: #000000; 
+            --color-background: #000000;
             --color-heading: #FFFFFF;
             --color-text: #EAEAEA;
             --color-text-muted: #A0A0A0;
@@ -71,9 +71,13 @@
             animation-delay: calc(var(--i) * var(--stagger-delay));
         }
 
-        #admin-auth-wall, #admin-panel { display: none; }
+        #admin-auth-wall, #admin-panel, #security-warning-overlay { display: none; }
         body.state-loading #admin-auth-wall, body.state-login #admin-auth-wall, body.state-denied #admin-auth-wall {
             display: flex; align-items: center; justify-content: center; min-height: 100vh; animation: fadeInUp 0.6s ease-out;
+        }
+        /* NEW: Show warning screen for warning state */
+        body.state-warning #security-warning-overlay {
+            display: flex;
         }
         body.state-admin #admin-panel { display: block; animation: fadeInUp 0.6s ease-out; }
 
@@ -97,42 +101,68 @@
         .auth-container { text-align: center; max-width: 500px; position: relative; }
         .auth-logo { font-size: 4rem; margin-bottom: 20px; display: block; text-shadow: 0 0 40px var(--color-glow); }
         
-        /* --- NEW: Login Screen States --- */
-        #warning-screen, #login-prompt {
-            transition: opacity 0.4s ease, transform 0.4s ease;
+        /* --- NEW: Fullscreen Red Warning Overlay --- */
+        #security-warning-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle, #600 0%, #200 100%);
+            z-index: 2000;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: #fff;
+            animation: fadeInUp 0.5s ease;
         }
-        #login-prompt {
-            display: none; /* Initially hidden */
-            position: absolute; top: 0; left: 0; right: 0;
-            padding: 40px;
-            opacity: 0; transform: scale(0.95);
+        .warning-content {
+            max-width: 600px;
         }
-        .auth-container.show-login #warning-screen {
-            opacity: 0; transform: scale(0.95);
-            pointer-events: none;
+        .warning-content .fa-shield-virus {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            color: #ff9999;
+            text-shadow: 0 0 20px #ff3333;
         }
-        .auth-container.show-login #login-prompt {
-            display: block;
-            position: static;
-            opacity: 1; transform: scale(1);
+        .warning-content h1 {
+            font-size: 3rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #ff6666;
         }
-        .ip-display {
-            background-color: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+        .warning-content p {
+            color: #ffcccc;
+            font-size: 1.1rem;
+            margin: 20px 0;
+        }
+        .warning-content .ip-display {
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,100,100,0.4);
             padding: 15px;
             border-radius: var(--border-radius-sm);
-            margin: 25px 0;
+            margin: 30px 0;
         }
-        .ip-display code {
+        .warning-content .ip-display code {
             font-family: monospace;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             color: var(--color-status-caution);
             font-weight: 700;
+        }
+        .warning-content .btn-continue {
+            background-color: transparent;
+            border: 2px solid #ffcccc;
+            color: #ffcccc;
+            font-weight: 700;
+            padding: 14px 32px;
+            font-size: 1rem;
+        }
+        .warning-content .btn-continue:hover {
+            background-color: #ffcccc;
+            color: #300;
         }
         
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
-        body.state-denied #warning-screen, body.state-denied #login-prompt { display: none; }
+        body.state-denied #login-prompt { display: none; }
         body.state-denied .auth-logo { color: var(--color-status-down); text-shadow: 0 0 30px var(--color-status-down); }
 
         .admin-header {
@@ -290,7 +320,7 @@
         .form-group-checkbox input[type="checkbox"]:checked::before { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #000; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; }
         .form-actions { display:flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
         .toast {
             padding: 15px 25px; border-radius: var(--border-radius-sm); font-weight: 600; color: #000;
@@ -328,31 +358,29 @@
 </head>
 <body class="state-loading">
 
-    <!-- Auth Wall -->
+    <!-- NEW: Fullscreen Red Warning Overlay -->
+    <div id="security-warning-overlay">
+        <div class="warning-content">
+            <i class="fas fa-shield-virus"></i>
+            <h1>Warning: Restricted Area</h1>
+            <p>This is a restricted administrative panel. If you are not an authorized administrator, please redirect yourself immediately.</p>
+            <div class="ip-display">
+                <p style="font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">This connection attempt has been logged from:</p>
+                <code id="user-ip-address">Fetching IP Address...</code>
+            </div>
+            <button id="proceed-to-login-btn" class="btn btn-continue">I'M SURE, CONTINUE</button>
+        </div>
+    </div>
+
+    <!-- Auth Wall (now initially hidden) -->
     <div id="admin-auth-wall">
         <div class="card glass-ui auth-container">
-            <!-- NEW: Two-step login flow starts here -->
-            <div id="warning-screen">
-                <i class="fas fa-shield-halved auth-logo" style="color: var(--color-status-caution);"></i>
-                <h1>Restricted Access</h1>
-                <p style="margin: 15px 0; font-size: 1.1rem; color: var(--color-text);">
-                    IF YOU ARE NOT AN AUTHORIZED ADMINISTRATOR, PLEASE LEAVE THIS PAGE IMMEDIATELY.
-                </p>
-                <div class="ip-display">
-                    <p style="font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Your IP Address:</p>
-                    <code id="user-ip-address">Fetching...</code>
-                </div>
-                <p>Your IP address and connection attempt have been logged for security purposes.</p>
-                <button id="proceed-to-login-btn" class="btn btn-primary" style="margin-top: 30px;">Continue</button>
-            </div>
-            
             <div id="login-prompt">
                 <i class="fas fa-cogs auth-logo gradient-text"></i>
                 <h1>Admin Panel</h1>
                 <p style="margin: 20px 0 30px;">Connect with an authorized Discord account to continue.</p>
                 <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
             </div>
-
             <div id="denied-message">
                 <i class="fas fa-shield-halved auth-logo"></i>
                 <h1 style="color: var(--color-status-down);">Access Denied</h1>
@@ -363,7 +391,7 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Admin Panel (structure unchanged) -->
     <div id="admin-panel">
         <header class="admin-header">
             <h1 class="gradient-text" style="font-size: 1.8rem;">Cerium Admin</h1>
@@ -378,98 +406,32 @@
             <div class="reverence-banner glass-ui">
                 <h2 class="gradient-text">لا إله إلا الله محمد رسول الله</h2>
             </div>
-
             <div class="dashboard-stats">
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 1;">
-                    <div class="stat-icon-wrapper"><i class="fas fa-gamepad stat-icon"></i></div>
-                    <div class="stat-info"><h4>Total Games</h4><p id="total-games">--</p></div>
-                </div>
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 2;">
-                    <div class="stat-icon-wrapper"><i class="fas fa-users stat-icon"></i></div>
-                    <div class="stat-info"><h4>Total Users</h4><p id="total-users">--</p></div>
-                </div>
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 3;">
-                    <div class="stat-icon-wrapper"><i class="fas fa-comments stat-icon"></i></div>
-                    <div class="stat-info"><h4>Total Comments</h4><p id="total-comments">--</p></div>
-                </div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 1;"><div class="stat-icon-wrapper"><i class="fas fa-gamepad stat-icon"></i></div><div class="stat-info"><h4>Total Games</h4><p id="total-games">--</p></div></div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 2;"><div class="stat-icon-wrapper"><i class="fas fa-users stat-icon"></i></div><div class="stat-info"><h4>Total Users</h4><p id="total-users">--</p></div></div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 3;"><div class="stat-icon-wrapper"><i class="fas fa-comments stat-icon"></i></div><div class="stat-info"><h4>Total Comments</h4><p id="total-comments">--</p></div></div>
             </div>
-
             <div class="admin-tabs">
                 <button class="admin-tab-btn active" data-tab="games"><i class="fas fa-cogs"></i> Games</button>
                 <button class="admin-tab-btn" data-tab="messages"><i class="fas fa-envelope-open-text"></i> Messages</button>
                 <button class="admin-tab-btn" data-tab="users"><i class="fas fa-user-shield"></i> Users</button>
             </div>
-
-            <div id="games-view" class="admin-tab-pane active">
-                <div class="content-header">
-                    <h1>Manage Games</h1>
-                    <button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button>
-                </div>
-                <div class="table-container glass-ui">
-                    <table class="table games-table">
-                        <thead><tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead>
-                        <tbody id="games-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="messages-view" class="admin-tab-pane">
-                <div class="content-header"><h1>Moderate Comments</h1></div>
-                <div class="search-bar"><input type="text" id="comments-search" placeholder="Search comments or authors..."></div>
-                <div id="comments-container" class="comments-list-admin"></div>
-            </div>
-
-            <div id="users-view" class="admin-tab-pane">
-                <div class="content-header"><h1>Manage Users</h1></div>
-                <div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name or ID..."></div>
-                <div class="table-container glass-ui">
-                    <table class="table users-table">
-                        <thead><tr><th>User</th><th>Status</th><th>Joined</th><th>Last Seen</th><th>Actions</th></tr></thead>
-                        <tbody id="users-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
+            <div id="games-view" class="admin-tab-pane active"><div class="content-header"><h1>Manage Games</h1><button id="add-new-game-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Game</button></div><div class="table-container glass-ui"><table class="table games-table"><thead><tr><th>Order</th><th>Game Name</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead><tbody id="games-table-body"></tbody></table></div></div>
+            <div id="messages-view" class="admin-tab-pane"><div class="content-header"><h1>Moderate Comments</h1></div><div class="search-bar"><input type="text" id="comments-search" placeholder="Search comments or authors..."></div><div id="comments-container" class="comments-list-admin"></div></div>
+            <div id="users-view" class="admin-tab-pane"><div class="content-header"><h1>Manage Users</h1></div><div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name or ID..."></div><div class="table-container glass-ui"><table class="table users-table"><thead><tr><th>User</th><th>Status</th><th>Joined</th><th>Last Seen</th><th>Actions</th></tr></thead><tbody id="users-table-body"></tbody></table></div></div>
         </main>
     </div>
 
     <!-- Modals (structure unchanged) -->
-    <div id="game-form-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">×</span>
-            <h2 id="modal-title"></h2>
-            <form id="game-form">
-                <input type="hidden" id="game-id">
-                <div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div>
-                <div class="form-group">
-                    <label for="game-status">Status</label>
-                    <select id="game-status" required>
-                        <option value="" disabled selected>Select a status...</option>
-                        <option value="Updated">Updated</option><option value="New">New</option><option value="Popular">Popular</option><option value="Featured">Featured</option><option value="Testing">Testing</option>
-                    </select>
-                </div>
-                <div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url" placeholder="https://i.imgur.com/example.png"></div>
-                <div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div>
-                <div class="form-group"><label for="game-key">Key (Optional)</label><input type="text" id="game-key" placeholder="Enter product key if applicable..."></div>
-                <div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required placeholder="e.g., fruit-battlegrounds-script"></div>
-                <div style="display: flex; gap: 20px;">
-                    <div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div>
-                    <div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div>
-                </div>
-                <div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8" placeholder="<ul><li>Feature 1</li><li>Feature 2</li></ul>"></textarea></div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Game</button>
-                </div>
-                <p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p>
-            </form>
-        </div>
-    </div>
+    <div id="game-form-modal" class="modal"><div class="modal-content"><span class="modal-close">×</span><h2 id="modal-title"></h2><form id="game-form"><input type="hidden" id="game-id"><div class="form-group"><label for="game-name">Game Name</label><input type="text" id="game-name" required></div><div class="form-group"><label for="game-status">Status</label><select id="game-status" required><option value="" disabled selected>Select a status...</option><option value="Updated">Updated</option><option value="New">New</option><option value="Popular">Popular</option><option value="Featured">Featured</option><option value="Testing">Testing</option></select></div><div class="form-group"><label for="thumbnail-url">Thumbnail URL</label><input type="url" id="thumbnail-url" placeholder="https://i.imgur.com/example.png"></div><div class="form-group"><label for="loadstring">Loadstring</label><textarea id="loadstring" rows="2"></textarea></div><div class="form-group"><label for="game-key">Key (Optional)</label><input type="text" id="game-key" placeholder="Enter product key if applicable..."></div><div class="form-group"><label for="topic-id">Topic ID</label><input type="text" id="topic-id" required placeholder="e.g., fruit-battlegrounds-script"></div><div style="display: flex; gap: 20px;"><div class="form-group" style="flex: 1;"><label for="display-order">Order</label><input type="number" id="display-order" value="99" required></div><div class="form-group" style="flex: 1; align-self: center; padding-top: 20px;"><label class="form-group-checkbox"><input type="checkbox" id="is-published"> Published</label></div></div><div class="form-group"><label for="features-html">Features HTML</label><textarea id="features-html" rows="8" placeholder="<ul><li>Feature 1</li><li>Feature 2</li></ul>"></textarea></div><div class="form-actions"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Save Game</button></div><p id="form-error" style="text-align: right; color: var(--color-status-down); margin-top: 15px;"></p></form></div></div>
     <div id="moderate-modal" class="modal"><div class="modal-content"><span class="modal-close">×</span><h2 id="moderate-title"></h2><form id="moderate-form"><input type="hidden" id="moderate-user-id"><input type="hidden" id="moderate-action"><div class="form-group" id="duration-group" style="display: none;"><label for="moderate-duration">Duration (hours)</label><input type="number" id="moderate-duration" min="1" value="24" required></div><div class="form-group"><label for="moderate-reason">Reason</label><textarea id="moderate-reason" rows="4" placeholder="Optional, shown to user..."></textarea></div><div class="form-actions"><button type="button" class="btn btn-secondary modal-cancel-btn">Cancel</button><button type="submit" class="btn btn-primary">Confirm</button></div></form></div></div>
     <div id="user-details-modal" class="modal"><div class="modal-content details-modal-content"><span class="modal-close">×</span><div id="user-details-content"></div></div></div>
     <div id="confirm-modal" class="modal"><div class="modal-content confirm-modal-content"><h2 id="confirm-title">Are you sure?</h2><p id="confirm-text">This action cannot be undone.</p><div class="confirm-modal-actions"><button id="confirm-cancel-btn" class="btn btn-secondary">Cancel</button><button id="confirm-ok-btn" class="btn btn-danger">Confirm</button></div></div></div>
     <div id="toast-container"></div>
 
     <script>
+    // The JavaScript logic remains unabridged.
+    // Changes are focused on adding the new warning screen state and its trigger.
     document.addEventListener("DOMContentLoaded", () => {
         
         const CeriumAdmin = {
@@ -485,7 +447,7 @@
             
             elements: {
                 body: document.body,
-                authContainer: document.querySelector('.auth-container'), // NEW
+                securityWarningOverlay: document.getElementById('security-warning-overlay'), // NEW
                 proceedToLoginBtn: document.getElementById('proceed-to-login-btn'), // NEW
                 discordLoginBtn: document.getElementById('discord-login-btn'),
                 logoutBtnAdmin: document.getElementById('logout-btn-admin'),
@@ -508,12 +470,11 @@
             },
 
             init() {
-                this.fetchAndDisplayIP(); // NEW
+                this.fetchAndDisplayIP();
                 this.bindEventListeners();
                 this.handleOAuthCallback();
             },
 
-            // NEW: Function to fetch and display the user's IP
             fetchAndDisplayIP() {
                 fetch('https://api.ipify.org?format=json')
                     .then(response => response.json())
@@ -529,9 +490,8 @@
             bindEventListeners() {
                 const { elements, config } = this;
 
-                // NEW: Event listener for the "Continue" button
                 elements.proceedToLoginBtn.addEventListener('click', () => {
-                    elements.authContainer.classList.add('show-login');
+                    this.utils.setPageState('login');
                 });
 
                 elements.discordLoginBtn.addEventListener('click', () => {
@@ -584,8 +544,7 @@
 
             handleLogout() {
                 localStorage.clear();
-                this.elements.authContainer.classList.remove('show-login'); // Reset the login screen state
-                this.utils.setPageState('login');
+                this.utils.setPageState('warning'); // Return to warning screen on logout
             },
             
             async handleOAuthCallback() {
@@ -593,6 +552,7 @@
                 const accessToken = fragment.get('access_token');
                 if (accessToken) {
                     localStorage.setItem('discord_access_token', accessToken);
+                    this.utils.setPageState('loading'); // Show loading while verifying
                     this.elements.authStatus.textContent = 'Fetching user data...';
                     try {
                         const response = await fetch('https://discord.com/api/users/@me', { headers: { authorization: `Bearer ${accessToken}` } });
@@ -602,6 +562,7 @@
                         await this.verifyAdminStatus();
                     } catch (error) {
                         this.elements.authStatus.textContent = `Login failed: ${error.message}`;
+                        this.utils.setPageState('login'); // Revert to login on failure
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
                 } else {
@@ -611,7 +572,8 @@
 
             async verifyAdminStatus() {
                 const user = this.utils.getCurrentUser();
-                if (!user) { this.utils.setPageState('login'); return; }
+                if (!user) { this.utils.setPageState('warning'); return; } // Start at warning screen
+                this.utils.setPageState('loading');
                 this.elements.authStatus.textContent = 'Verifying permissions...';
                 try {
                     const response = await this.secureFetch(`/api/check-admin`, { method: 'POST' });
@@ -624,6 +586,7 @@
                     }
                 } catch (error) {
                     this.elements.authStatus.textContent = `Error: ${error.message}`;
+                    this.utils.setPageState('login'); // Revert to login on failure
                 }
             },
 
@@ -733,11 +696,9 @@
                     row.className = 'fade-in-stagger';
                     row.style.setProperty('--i', index);
                     row.dataset.userId = user.discord_id;
-                    
                     const joinDate = new Date(user.join_date).toLocaleDateString();
                     const lastSeen = user.last_seen ? this.utils.timeAgo(user.last_seen) : 'Never';
                     let statusHTML = '', actionsHTML = '';
-                    
                     if (user.is_banned) {
                         statusHTML = `<span class="user-status-badge status-banned"><i class="fas fa-ban"></i> Banned</span>`;
                         actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unban</button>`;
@@ -748,22 +709,7 @@
                         statusHTML = `<span class="user-status-badge status-active"><i class="fas fa-check"></i> Active</span>`;
                         actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                     }
-                    
-                    row.innerHTML = `
-                        <td>
-                            <div class="user-info-cell">
-                                <img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar">
-                                <div>
-                                    <span class="user-name">${user.username}</span>
-                                    <span class="user-id">${user.discord_id}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${statusHTML}</td>
-                        <td>${joinDate}</td>
-                        <td>${lastSeen}</td>
-                        <td class="actions">${actionsHTML}</td>
-                    `;
+                    row.innerHTML = `<td><div class="user-info-cell"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar"><div><span class="user-name">${user.username}</span><span class="user-id">${user.discord_id}</span></div></div></td><td>${statusHTML}</td><td>${joinDate}</td><td>${lastSeen}</td><td class="actions">${actionsHTML}</td>`;
                     usersTableBody.appendChild(row);
                 });
             },
@@ -776,7 +722,6 @@
                     document.getElementById('game-id').value = '';
                     this.openModal(elements.gameFormModal, 'game-name');
                 });
-
                 elements.gamesTableBody.addEventListener('click', (e) => {
                     const editBtn = e.target.closest('.edit-btn');
                     if (editBtn) {
@@ -793,7 +738,6 @@
                     const deleteBtn = e.target.closest('.delete-btn');
                     if (deleteBtn) this.handleDeleteGame(deleteBtn.dataset.id);
                 });
-
                 elements.gameForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const submitButton = e.currentTarget.querySelector('button[type="submit"]');
@@ -803,25 +747,14 @@
                     document.getElementById('form-error').textContent = '';
                     const gameId = document.getElementById('game-id').value;
                     const isEditing = !!gameId;
-                    const gameData = {
-                        name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value, thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(), key: document.getElementById('game-key').value.trim(), topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99, is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim()
-                    };
-
+                    const gameData = { name: document.getElementById('game-name').value.trim(), status: document.getElementById('game-status').value, thumbnail_url: document.getElementById('thumbnail-url').value.trim(), loadstring: document.getElementById('loadstring').value.trim(), key: document.getElementById('game-key').value.trim(), topic_id: document.getElementById('topic-id').value.trim(), display_order: parseInt(document.getElementById('display-order').value, 10) || 99, is_published: document.getElementById('is-published').checked, features_html: document.getElementById('features-html').value.trim() };
                     try {
-                        const response = await this.secureFetch('/api/admin', {
-                            method: isEditing ? 'PUT' : 'POST',
-                            body: JSON.stringify(isEditing ? { gameData, gameId } : { gameData })
-                        });
+                        const response = await this.secureFetch('/api/admin', { method: isEditing ? 'PUT' : 'POST', body: JSON.stringify(isEditing ? { gameData, gameId } : { gameData }) });
                         if (!response.ok) throw new Error((await response.json()).details || 'Failed to save.');
                         this.utils.showToast(`Game ${isEditing ? 'updated' : 'added'} successfully.`);
                         this.closeModal(elements.gameFormModal);
                         await this.fetchAndRenderGames();
-                    } catch (error) {
-                        document.getElementById('form-error').textContent = error.message;
-                    } finally {
-                        submitButton.disabled = false;
-                        submitButton.innerHTML = originalHtml;
-                    }
+                    } catch (error) { document.getElementById('form-error').textContent = error.message; } finally { submitButton.disabled = false; submitButton.innerHTML = originalHtml; }
                 });
             },
 
@@ -830,7 +763,6 @@
                     const deleteBtn = e.target.closest('.delete-comment-btn');
                     if (deleteBtn) this.handleDeleteComment(deleteBtn.dataset.id, deleteBtn);
                 });
-
                 this.elements.commentsSearch.addEventListener('input', () => {
                     const searchTerm = this.elements.commentsSearch.value.toLowerCase().trim();
                     const filtered = this.state.comments.filter(c => c.content.toLowerCase().includes(searchTerm) || c.user_name.toLowerCase().includes(searchTerm));
@@ -861,7 +793,6 @@
                         }
                     } else { this.openUserDetailsModal(userToActOn); }
                 });
-
                 elements.moderateForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const userId = document.getElementById('moderate-user-id').value;
@@ -873,7 +804,6 @@
                     this.moderateUser(targetUser, action, reason, action === 'suspend' ? parseInt(duration, 10) : null);
                     this.closeModal(elements.moderateModal);
                 });
-                
                 elements.usersSearch.addEventListener('input', () => {
                     const searchTerm = elements.usersSearch.value.toLowerCase().trim();
                     const filtered = this.state.users.filter(u => u.username.toLowerCase().includes(searchTerm) || u.discord_id.includes(searchTerm));
@@ -889,9 +819,7 @@
                     if (!response.ok) throw new Error((await response.json()).details || 'Failed to delete.');
                     this.utils.showToast('Game deleted successfully.');
                     await this.fetchAndRenderGames();
-                } catch (error) {
-                    this.utils.showToast(error.message, true);
-                }
+                } catch (error) { this.utils.showToast(error.message, true); }
             },
 
             async handleDeleteComment(commentId, buttonEl) {
@@ -908,11 +836,7 @@
                     card.style.opacity = '0';
                     card.style.transform = 'scale(0.95)';
                     setTimeout(() => card.remove(), 300);
-                } catch (error) {
-                    this.utils.showToast(error.message, true);
-                    buttonEl.innerHTML = originalHtml;
-                    buttonEl.disabled = false;
-                }
+                } catch (error) { this.utils.showToast(error.message, true); buttonEl.innerHTML = originalHtml; buttonEl.disabled = false; }
             },
 
             async moderateUser(targetUser, action, reason = null, duration_hours = null) {
@@ -922,20 +846,14 @@
                     const result = await response.json();
                     this.utils.showToast(result.message);
                     await this.fetchAndRenderUsers();
-                } catch (error) {
-                    this.utils.showToast(error.message, true);
-                }
+                } catch (error) { this.utils.showToast(error.message, true); }
             },
             
             openModal(modal, focusElementId = null) {
                 modal.classList.add('visible');
-                if(focusElementId) {
-                    setTimeout(() => document.getElementById(focusElementId).focus(), 100);
-                }
+                if(focusElementId) { setTimeout(() => document.getElementById(focusElementId).focus(), 100); }
             },
-            closeModal(modal) {
-                modal.classList.remove('visible');
-            },
+            closeModal(modal) { modal.classList.remove('visible'); },
 
             async openUserDetailsModal(user) {
                 const userDetailsContent = document.getElementById('user-details-content');
@@ -950,9 +868,7 @@
                         commentsHTML = '<h4>Comment History</h4>' + data.comments.map(c => `<div class="comment-card-admin" style="background:transparent; border-width: 0 0 1px 0; border-radius: 0; padding: 15px 0; box-shadow: none; backdrop-filter: none;"><img src="${c.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="comment-card-admin-avatar"><div class="comment-card-admin-content"><div class="comment-card-admin-header"><span class="comment-card-admin-author">${c.user_name}</span><div class="comment-card-admin-meta"><span>Topic: <strong>${c.topic_id}</strong></span><span>${this.utils.timeAgo(c.created_at)}</span></div></div><p class="comment-card-admin-body">${c.content}</p></div></div>`).join('');
                     }
                     userDetailsContent.innerHTML = `<div class="details-header"><img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}"><div class="details-header-info"><h3>${user.username}</h3><p style="opacity: 0.7;">${user.discord_id}</p></div></div><div class="details-body">${commentsHTML}</div>`;
-                } catch (error) {
-                    userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`;
-                }
+                } catch (error) { userDetailsContent.innerHTML = `<p style="color:var(--color-status-down);">${error.message}</p>`; }
             },
             
             updateDashboardStats() {
@@ -962,7 +878,12 @@
             },
 
             utils: {
-                setPageState: (state) => document.body.className = `state-${state}`,
+                setPageState: (state) => {
+                    document.body.className = `state-${state}`;
+                    // Special handling for visibility
+                    document.getElementById('security-warning-overlay').style.display = (state === 'warning') ? 'flex' : 'none';
+                    document.getElementById('admin-auth-wall').style.display = (state === 'login' || state === 'denied' || state === 'loading') ? 'flex' : 'none';
+                },
                 getCurrentUser: () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } },
                 timeAgo: (date) => {
                     if (!date) return 'Never';
