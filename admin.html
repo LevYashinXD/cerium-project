@@ -13,14 +13,15 @@
     
     <style>
         :root {
-            /* --- Original Colors --- */
+            /* --- Color & Style Palette --- */
+            --color-background: #020202;
             --color-heading: #FFFFFF;
             --color-text: #EAEAEA;
             --color-text-muted: #A0A0A0;
-            --glass-bg: rgba(35, 35, 45, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(15, 17, 26, 0.5); /* Darker, more contrast */
+            --glass-border: rgba(255, 255, 255, 0.1);
             --glass-blur: 16px;
-            --primary-gradient: linear-gradient(90deg, #FFFFFF, #DDDDDD); /* Softened gradient */
+            --primary-gradient: linear-gradient(90deg, #88a4ff, #FFFFFF); /* More vibrant gradient */
             --color-glow: rgba(180, 180, 255, 0.3);
             --color-status-up: #00FF7F;
             --color-status-down: #FF3366;
@@ -30,7 +31,6 @@
             --border-radius-sm: 10px;
             --font-family: 'Inter', sans-serif;
             --transition-speed: 0.3s;
-            /* --- NEW: Staggered animation delay variable --- */
             --stagger-delay: 80ms;
         }
 
@@ -44,17 +44,30 @@
 
         body {
             font-family: var(--font-family);
-            background-color: #020202;
+            background-color: var(--color-background);
             color: var(--color-text);
             line-height: 1.6;
             min-height: 100vh;
-            background-image:
-                radial-gradient(at 20% 25%, hsla(212,80%,30%,0.3) 0px, transparent 50%),
-                radial-gradient(at 80% 20%, hsla(288,80%,40%,0.3) 0px, transparent 50%),
-                radial-gradient(at 20% 80%, hsla(343,80%,50%,0.3) 0px, transparent 50%),
-                radial-gradient(at 80% 85%, hsla(180,80%,40%,0.3) 0px, transparent 50%);
-            background-attachment: fixed;
-            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- NEW: Animated "Aurora" Background --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 25%, hsla(212,90%,60%,0.25) 0px, transparent 40%),
+                radial-gradient(circle at 80% 20%, hsla(288,90%,60%,0.25) 0px, transparent 40%),
+                radial-gradient(circle at 20% 80%, hsla(343,90%,60%,0.25) 0px, transparent 40%),
+                radial-gradient(circle at 80% 85%, hsla(180,90%,60%,0.25) 0px, transparent 40%);
+            animation: aurora-bg 20s linear infinite;
+        }
+        @keyframes aurora-bg {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         h1, h2, h3, h4, h5, h6 { color: var(--color-heading); font-weight: 700; }
@@ -63,20 +76,18 @@
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
         /* --- UI Components --- */
-        /* IMPROVED: Deeper glass effect with inset shadow */
         .glass-ui {
             background: var(--glass-bg);
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 0 1px var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
             border-radius: var(--border-radius);
             transition: border-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
         }
         
         /* --- Animation --- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        /* NEW: Class for staggered entry animations, delay set by JS */
         .fade-in-stagger {
             animation: fadeInUp 0.5s ease-out backwards;
             animation-delay: calc(var(--i) * var(--stagger-delay));
@@ -88,7 +99,7 @@
         }
         body.state-admin #admin-panel { display: block; animation: fadeInUp 0.6s ease-out; }
 
-        /* IMPROVED: Enhanced button styles */
+        /* --- Buttons --- */
         .btn {
             position: relative; display: inline-flex; align-items: center; justify-content: center;
             gap: 10px; padding: 12px 28px; border-radius: 50px; text-decoration: none;
@@ -106,15 +117,18 @@
 
         /* --- Page Layout & Structure --- */
         .card { padding: 40px; }
+        /* UPGRADED: Login screen styling */
         .auth-container { text-align: center; max-width: 500px; }
+        .auth-logo { font-size: 4rem; margin-bottom: 20px; display: block; text-shadow: 0 0 40px var(--color-glow); }
         #denied-message { display: none; }
         body.state-denied #denied-message { display: block; }
         body.state-denied #login-prompt { display: none; }
+        body.state-denied .auth-logo { color: var(--color-status-down); text-shadow: 0 0 30px var(--color-status-down); }
 
         .admin-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 5%; position: sticky; top: 0; z-index: 100;
-            background: rgba(15, 15, 20, 0.6);
+            background: rgba(5, 5, 10, 0.6);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
         }
@@ -123,7 +137,39 @@
         .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
 
-        /* IMPROVED: Tabs with icons */
+        /* --- NEW: Reverence Banner for Shahada --- */
+        .reverence-banner {
+            margin-bottom: 40px;
+            padding: 30px;
+            text-align: center;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='rgba(255,255,255,0.03)' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .reverence-banner h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 25px var(--color-glow);
+        }
+
+        /* --- UPGRADED: Dashboard Stat Cards --- */
+        .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .stat-card { padding: 25px; display: flex; align-items: center; gap: 20px; }
+        .stat-card:hover { transform: translateY(-5px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(25, 27, 36, 0.7); }
+        .stat-icon-wrapper {
+            width: 70px; height: 70px; border-radius: 50%; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            transition: all var(--transition-speed) ease;
+        }
+        .stat-card:hover .stat-icon-wrapper { background: var(--primary-gradient); border-color: #fff; }
+        .stat-icon { font-size: 2.2rem; color: var(--color-heading); transition: all var(--transition-speed) ease; }
+        .stat-card:hover .stat-icon { color: #000; transform: scale(1.1); }
+        .stat-info h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 5px; font-weight: 500; }
+        .stat-info p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; }
+
+        /* UPGRADED: Admin Tabs */
         .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--glass-border); margin-bottom: 40px; }
         .admin-tab-btn {
             background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px;
@@ -131,27 +177,18 @@
             display: inline-flex; align-items: center; gap: 8px;
         }
         .admin-tab-btn::after {
-            content: ''; position: absolute; bottom: -1px; left: 0; right: 0; margin: auto;
-            width: 0; height: 2px; background: var(--primary-gradient);
-            transition: width var(--transition-speed) ease; border-radius: 2px;
+            content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+            width: 100%; height: 2px; background: var(--primary-gradient);
+            box-shadow: 0 0 15px var(--color-glow);
+            transition: all var(--transition-speed) ease;
+            transform: scaleX(0); transform-origin: center;
         }
         .admin-tab-btn:hover { color: var(--color-heading); }
         .admin-tab-btn.active { color: var(--color-heading); }
-        .admin-tab-btn.active::after { width: 50%; }
+        .admin-tab-btn.active::after { transform: scaleX(1); }
 
         .admin-tab-pane { display: none; animation: fadeInUp 0.5s ease-out; }
         .admin-tab-pane.active { display: block; }
-        .shahada-header { padding: 25px; margin-bottom: 40px; text-align: center; border-image: linear-gradient(to right, transparent, var(--glass-border), transparent) 1; border-width: 0 0 1px 0; border-style: solid;}
-        .shahada-header h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 25px var(--color-glow); }
-        
-        /* IMPROVED: Stat cards with icons and better hover */
-        .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 40px; }
-        .stat-card { padding: 25px; display: flex; align-items: center; gap: 20px; }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.4); box-shadow: 0 12px 40px -5px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.3); }
-        .stat-icon { font-size: 2.5rem; color: var(--color-heading); opacity: 0.5; transition: opacity var(--transition-speed); }
-        .stat-card:hover .stat-icon { opacity: 0.9; }
-        .stat-info h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 5px; font-weight: 500; }
-        .stat-info p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; }
 
         /* --- Search, Tables, & Lists --- */
         .search-bar { position: relative; width: 100%; max-width: 400px; margin-bottom: 30px; }
@@ -171,8 +208,17 @@
         .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 16px; border-bottom: 1px solid var(--glass-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        .table tbody tr { transition: background-color var(--transition-speed), transform 0.2s ease-out; }
-        .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); transform: scale(1.01); }
+        /* UPGRADED: Table row hover */
+        .table tbody tr { transition: background-color var(--transition-speed); position: relative; }
+        .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .table tbody tr::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--primary-gradient);
+            transform: scaleY(0); transform-origin: center;
+            transition: transform var(--transition-speed) ease;
+        }
+        .table tbody tr:hover::before { transform: scaleY(1); }
+
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: var(--border-radius-sm); }
         .table .icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
@@ -193,7 +239,7 @@
         .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
         .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.7); box-shadow: 0 0 15px rgba(255, 51, 102, 0.4), inset 0 0 0 1px rgba(255, 51, 102, 0.7); }
         .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); }
-        .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); }
+        .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); background: rgba(25, 27, 36, 0.7); }
         .user-card-admin:not(.banned):not(.suspended) { cursor: pointer; }
         .comment-card-admin-avatar, .user-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
         .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
@@ -205,12 +251,12 @@
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
         .comment-card-admin-actions, .user-card-admin .actions { margin-left: auto; padding-left: 20px; align-self: center; }
 
-        /* --- Modals (Mostly Unchanged) --- */
+        /* --- Modals --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal.visible { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.4s 0.1s both; }
         @keyframes slideInUpModal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .modal-content {
-            background: rgba(25, 25, 35, 0.7);
+            background: rgba(15, 17, 26, 0.7);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 40px; border-radius: var(--border-radius); max-width: 700px; width: 90%;
@@ -225,7 +271,7 @@
         .details-header h3 { font-size: 1.8rem; }
         .details-body { max-height: 60vh; overflow-y: auto; padding-right: 15px; }
 
-        /* --- Forms (Unchanged) --- */
+        /* --- Forms --- */
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-text); font-size: 0.9rem; }
         .form-group input, .form-group textarea, .form-group select {
@@ -246,7 +292,7 @@
         .form-group-checkbox input[type="checkbox"]:checked::before { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #000; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; }
         .form-actions { display:flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
-        /* --- Toast & Confirm Modals (Unchanged) --- */
+        /* --- Toast & Confirm Modals --- */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1002; display: flex; flex-direction: column; gap: 10px; }
         @keyframes toast-in-out { 0% { opacity: 0; transform: translateY(20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
         .toast {
@@ -262,7 +308,7 @@
         .confirm-modal-content p { font-size: 1.1rem; margin: 20px 0 30px; color: var(--color-text); }
         .confirm-modal-actions { display: flex; justify-content: center; gap: 15px; }
         
-        /* --- Skeleton Loader Styles (Unchanged) --- */
+        /* --- Skeleton Loader Styles --- */
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         .skeleton {
             background-color: rgba(255,255,255,0.05);
@@ -290,11 +336,13 @@
     <div id="admin-auth-wall">
         <div class="card glass-ui auth-container">
             <div id="login-prompt">
-                <h1 class="gradient-text">Admin Panel</h1>
+                <i class="fas fa-cogs auth-logo gradient-text"></i>
+                <h1>Admin Panel</h1>
                 <p style="margin: 20px 0 30px;">Connect with an authorized Discord account to continue.</p>
                 <button id="discord-login-btn" class="btn btn-primary"><i class="fab fa-discord"></i> Connect with Discord</button>
             </div>
             <div id="denied-message">
+                <i class="fas fa-shield-halved auth-logo"></i>
                 <h1 style="color: var(--color-status-down);">Access Denied</h1>
                 <p style="margin: 20px 0 30px;">The account <strong id="denied-username" style="color: var(--color-heading);"></strong> is not authorized.</p>
                 <button id="logout-btn-denied" class="btn btn-secondary">Logout</button>
@@ -315,14 +363,23 @@
         </header>
 
         <main class="admin-content">
-            <div class="shahada-header glass-ui">
+            <div class="reverence-banner glass-ui">
                 <h2 class="gradient-text">لا إله إلا الله محمد رسول الله</h2>
             </div>
 
             <div class="dashboard-stats">
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 1;"><div class="stat-icon"><i class="fas fa-gamepad"></i></div><div class="stat-info"><h4>Total Games</h4><p id="total-games">--</p></div></div>
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 2;"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h4>Total Users</h4><p id="total-users">--</p></div></div>
-                <div class="stat-card glass-ui fade-in-stagger" style="--i: 3;"><div class="stat-icon"><i class="fas fa-comments"></i></div><div class="stat-info"><h4>Total Comments</h4><p id="total-comments">--</p></div></div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 1;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-gamepad stat-icon"></i></div>
+                    <div class="stat-info"><h4>Total Games</h4><p id="total-games">--</p></div>
+                </div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 2;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-users stat-icon"></i></div>
+                    <div class="stat-info"><h4>Total Users</h4><p id="total-users">--</p></div>
+                </div>
+                <div class="stat-card glass-ui fade-in-stagger" style="--i: 3;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-comments stat-icon"></i></div>
+                    <div class="stat-info"><h4>Total Comments</h4><p id="total-comments">--</p></div>
+                </div>
             </div>
 
             <div class="admin-tabs">
@@ -396,6 +453,8 @@
     <div id="toast-container"></div>
 
     <script>
+    // The JavaScript remains exactly the same as the original,
+    // ensuring all functionality is preserved as requested.
     document.addEventListener("DOMContentLoaded", () => {
         
         /**
