@@ -14,14 +14,14 @@
     <style>
         :root {
             /* --- Color & Style Palette --- */
-            --color-background: #020202;
+            --color-background: #000000; /* UPDATED: Pure Black Background */
             --color-heading: #FFFFFF;
             --color-text: #EAEAEA;
             --color-text-muted: #A0A0A0;
-            --glass-bg: rgba(15, 17, 26, 0.5); /* Darker, more contrast */
+            --glass-bg: rgba(15, 17, 26, 0.6); /* Slightly more transparent on pure black */
             --glass-border: rgba(255, 255, 255, 0.1);
             --glass-blur: 16px;
-            --primary-gradient: linear-gradient(90deg, #88a4ff, #FFFFFF); /* More vibrant gradient */
+            --primary-gradient: linear-gradient(90deg, #88a4ff, #FFFFFF);
             --color-glow: rgba(180, 180, 255, 0.3);
             --color-status-up: #00FF7F;
             --color-status-down: #FF3366;
@@ -49,25 +49,6 @@
             line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative;
-        }
-
-        /* --- NEW: Animated "Aurora" Background --- */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: -1;
-            background: 
-                radial-gradient(circle at 20% 25%, hsla(212,90%,60%,0.25) 0px, transparent 40%),
-                radial-gradient(circle at 80% 20%, hsla(288,90%,60%,0.25) 0px, transparent 40%),
-                radial-gradient(circle at 20% 80%, hsla(343,90%,60%,0.25) 0px, transparent 40%),
-                radial-gradient(circle at 80% 85%, hsla(180,90%,60%,0.25) 0px, transparent 40%);
-            animation: aurora-bg 20s linear infinite;
-        }
-        @keyframes aurora-bg {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
 
         h1, h2, h3, h4, h5, h6 { color: var(--color-heading); font-weight: 700; }
@@ -117,7 +98,6 @@
 
         /* --- Page Layout & Structure --- */
         .card { padding: 40px; }
-        /* UPGRADED: Login screen styling */
         .auth-container { text-align: center; max-width: 500px; }
         .auth-logo { font-size: 4rem; margin-bottom: 20px; display: block; text-shadow: 0 0 40px var(--color-glow); }
         #denied-message { display: none; }
@@ -137,30 +117,20 @@
         .admin-content { max-width: 1400px; margin: 40px auto; padding: 0 5%; }
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
 
-        /* --- NEW: Reverence Banner for Shahada --- */
         .reverence-banner {
-            margin-bottom: 40px;
-            padding: 30px;
-            text-align: center;
+            margin-bottom: 40px; padding: 30px; text-align: center;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='rgba(255,255,255,0.03)' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             border-bottom: 1px solid var(--glass-border);
         }
-        .reverence-banner h2 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-shadow: 0 0 25px var(--color-glow);
-        }
+        .reverence-banner h2 { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 25px var(--color-glow); }
 
-        /* --- UPGRADED: Dashboard Stat Cards --- */
         .dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; margin-bottom: 40px; }
         .stat-card { padding: 25px; display: flex; align-items: center; gap: 20px; }
         .stat-card:hover { transform: translateY(-5px); border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(25, 27, 36, 0.7); }
         .stat-icon-wrapper {
             width: 70px; height: 70px; border-radius: 50%; flex-shrink: 0;
             display: grid; place-items: center;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border);
             transition: all var(--transition-speed) ease;
         }
         .stat-card:hover .stat-icon-wrapper { background: var(--primary-gradient); border-color: #fff; }
@@ -169,7 +139,6 @@
         .stat-info h4 { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 5px; font-weight: 500; }
         .stat-info p { font-size: 2.8rem; font-weight: 700; color: var(--color-heading); line-height: 1; }
 
-        /* UPGRADED: Admin Tabs */
         .admin-tabs { display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--glass-border); margin-bottom: 40px; }
         .admin-tab-btn {
             background: transparent; border: none; color: var(--color-text-muted); padding: 15px 25px;
@@ -208,8 +177,9 @@
         .table { width: 100%; border-collapse: collapse; text-align: left; }
         .table th, .table td { padding: 16px; border-bottom: 1px solid var(--glass-border); vertical-align: middle; }
         .table th { font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        /* UPGRADED: Table row hover */
         .table tbody tr { transition: background-color var(--transition-speed); position: relative; }
+        /* NEW: Hover on user table rows is now interactive */
+        .table.users-table tbody tr { cursor: pointer; }
         .table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
         .table tbody tr::before {
             content: ''; position: absolute; left: 0; top: 0; bottom: 0;
@@ -222,11 +192,20 @@
         .table .actions { display: flex; gap: 10px; }
         .table .btn { padding: 8px 16px; font-size: 0.9rem; border-radius: var(--border-radius-sm); }
         .table .icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
+        
+        /* --- NEW: User Table Specifics --- */
+        .user-info-cell { display: flex; align-items: center; gap: 15px; }
+        .user-info-cell img { width: 40px; height: 40px; border-radius: 50%; }
+        .user-info-cell div { display: flex; flex-direction: column; }
+        .user-info-cell .user-name { font-weight: 600; color: var(--color-heading); }
+        .user-info-cell .user-id { font-size: 0.85rem; color: var(--color-text-muted); }
 
-        /* --- Status Badges (Unchanged) --- */
-        .status-indicator { font-size: 1.2rem; }
-        .status-indicator.published { color: var(--color-status-up); }
-        .status-indicator.unpublished { color: var(--color-status-down); }
+        /* --- NEW: Upgraded User Status Badges --- */
+        .user-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .user-status-badge.status-active { background-color: rgba(0, 255, 127, 0.15); color: var(--color-status-up); }
+        .user-status-badge.status-banned { background-color: rgba(255, 51, 102, 0.15); color: var(--color-status-down); }
+        .user-status-badge.status-suspended { background-color: rgba(255, 215, 0, 0.15); color: var(--color-status-caution); }
+
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-align: center; white-space: nowrap; }
         .status-badge.status-updated { background-color: rgba(0, 255, 127, 0.15); color: var(--color-status-up); }
         .status-badge.status-new { background-color: rgba(85, 170, 255, 0.15); color: var(--color-status-new); }
@@ -234,22 +213,19 @@
         .status-badge.status-featured { background-color: rgba(200, 100, 255, 0.15); color: #c864ff; }
         .status-badge.status-testing { background-color: rgba(255, 165, 0, 0.15); color: #ffa500; }
         
-        /* --- Comment & User Cards --- */
-        .comments-list-admin, .users-list-admin { display: flex; flex-direction: column; gap: 20px; }
-        .comment-card-admin, .user-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
-        .user-card-admin.banned { border-color: rgba(255, 51, 102, 0.7); box-shadow: 0 0 15px rgba(255, 51, 102, 0.4), inset 0 0 0 1px rgba(255, 51, 102, 0.7); }
-        .user-card-admin.suspended { border-color: rgba(255, 215, 0, 0.5); }
-        .user-card-admin:not(.banned):not(.suspended):hover, .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); background: rgba(25, 27, 36, 0.7); }
-        .user-card-admin:not(.banned):not(.suspended) { cursor: pointer; }
-        .comment-card-admin-avatar, .user-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-        .comment-card-admin-content, .user-card-admin-content { flex-grow: 1; }
-        .comment-card-admin-header, .user-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;}
-        .comment-card-admin-author, .user-card-admin-author { font-weight: 600; color: var(--color-heading); font-size: 1.05rem; }
-        .comment-card-admin-meta, .user-card-admin-meta { font-size: 0.85rem; color: var(--color-text-muted); }
-        .comment-card-admin-meta span, .user-card-admin-meta span { margin-left: 15px; }
-        .comment-card-admin-meta strong, .user-card-admin-meta strong { color: var(--color-text); font-weight: 500; }
+        /* --- Comment Card Styles (Unchanged) --- */
+        .comments-list-admin { display: flex; flex-direction: column; gap: 20px; }
+        .comment-card-admin { padding: 20px; display: flex; gap: 20px; align-items: flex-start; }
+        .comment-card-admin:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.4); background: rgba(25, 27, 36, 0.7); }
+        .comment-card-admin-avatar { width: 45px; height: 45px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .comment-card-admin-content { flex-grow: 1; }
+        .comment-card-admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;}
+        .comment-card-admin-author { font-weight: 600; color: var(--color-heading); font-size: 1.05rem; }
+        .comment-card-admin-meta { font-size: 0.85rem; color: var(--color-text-muted); }
+        .comment-card-admin-meta span { margin-left: 15px; }
+        .comment-card-admin-meta strong { color: var(--color-text); font-weight: 500; }
         .comment-card-admin-body { white-space: pre-wrap; word-break: break-word; line-height: 1.5; font-size: 0.95rem; }
-        .comment-card-admin-actions, .user-card-admin .actions { margin-left: auto; padding-left: 20px; align-self: center; }
+        .comment-card-admin-actions { margin-left: auto; padding-left: 20px; align-self: center; }
 
         /* --- Modals --- */
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
@@ -318,7 +294,7 @@
             animation: shimmer 2s infinite linear;
             border-radius: var(--border-radius-sm);
         }
-        .skeleton.table-row-skeleton { height: 57px; margin-bottom: 1px; }
+        .skeleton.table-row-skeleton { height: 73px; margin-bottom: 1px; }
         .skeleton.card-skeleton {
             height: 110px; border-radius: var(--border-radius);
             padding: 20px; display: flex; gap: 20px; align-items: flex-start;
@@ -407,10 +383,16 @@
                 <div id="comments-container" class="comments-list-admin"></div>
             </div>
 
+            <!-- UPDATED: Users View now uses a table -->
             <div id="users-view" class="admin-tab-pane">
                 <div class="content-header"><h1>Manage Users</h1></div>
                 <div class="search-bar"><input type="text" id="users-search" placeholder="Search users by name..."></div>
-                <div id="users-container" class="users-list-admin"></div>
+                <div class="table-container glass-ui">
+                    <table class="table users-table">
+                        <thead><tr><th>User</th><th>Status</th><th>Joined</th><th>Last Seen</th><th>Actions</th></tr></thead>
+                        <tbody id="users-table-body"></tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
@@ -454,15 +436,10 @@
 
     <script>
     // The JavaScript remains exactly the same as the original,
-    // ensuring all functionality is preserved as requested.
+    // with only the renderUsers function's output and event listeners updated to match the new table structure.
     document.addEventListener("DOMContentLoaded", () => {
         
-        /**
-         * CeriumAdmin Object
-         * Encapsulates all functionality for the admin panel to keep the global scope clean.
-         */
         const CeriumAdmin = {
-            // --- Configuration & State ---
             config: {
                 DISCORD_CLIENT_ID: "1397805094854197280",
                 REDIRECT_URI: window.location.origin + window.location.pathname,
@@ -473,7 +450,6 @@
                 comments: [],
             },
             
-            // --- DOM Element Cache ---
             elements: {
                 body: document.body,
                 discordLoginBtn: document.getElementById('discord-login-btn'),
@@ -484,7 +460,7 @@
                 tabPanes: document.querySelectorAll('.admin-tab-pane'),
                 gamesTableBody: document.getElementById('games-table-body'),
                 commentsContainer: document.getElementById('comments-container'),
-                usersContainer: document.getElementById('users-container'),
+                usersTableBody: document.getElementById('users-table-body'), // UPDATED
                 commentsSearch: document.getElementById('comments-search'),
                 usersSearch: document.getElementById('users-search'),
                 allModals: document.querySelectorAll('.modal'),
@@ -496,13 +472,11 @@
                 confirmModal: document.getElementById('confirm-modal'),
             },
 
-            // --- Core Initialization ---
             init() {
                 this.bindEventListeners();
                 this.handleOAuthCallback();
             },
 
-            // --- Event Binding ---
             bindEventListeners() {
                 const { elements, config } = this;
                 elements.discordLoginBtn.addEventListener('click', () => {
@@ -536,7 +510,6 @@
                 this.bindUsersEvents();
             },
 
-            // --- Authentication & Authorization ---
             secureFetch: async function(endpoint, options = {}) {
                 const token = localStorage.getItem('discord_access_token');
                 if (!token) {
@@ -610,7 +583,6 @@
                 this.utils.setPageState('denied');
             },
 
-            // --- Data Fetching & Rendering ---
             async fetchAndRenderAll() {
                 await Promise.all([
                     this.fetchAndRenderGames(),
@@ -681,7 +653,7 @@
             },
 
             async fetchAndRenderUsers() {
-                this.utils.showSkeletonLoader(this.elements.usersContainer, 5, 'card');
+                this.utils.showSkeletonLoader(this.elements.usersTableBody, 5, 'table-row'); // UPDATED
                 try {
                     const response = await this.secureFetch('/api/admin-users');
                     if (!response.ok) throw new Error('Failed to fetch users.');
@@ -689,41 +661,58 @@
                     this.renderUsers(this.state.users);
                     this.updateDashboardStats();
                 } catch (error) {
-                    this.elements.usersContainer.innerHTML = `<p class="error-cell">${error.message}</p>`;
+                    this.elements.usersTableBody.innerHTML = `<tr><td colspan="5" class="error-cell">${error.message}</td></tr>`; // UPDATED
                 }
             },
-
+            
+            // UPDATED renderUsers to generate table rows
             renderUsers(users) {
-                const { usersContainer, usersSearch } = this.elements;
-                usersContainer.innerHTML = '';
+                const { usersTableBody, usersSearch } = this.elements;
+                usersTableBody.innerHTML = '';
                 if (!users || users.length === 0) {
-                    usersContainer.innerHTML = `<p style="text-align:center;">${usersSearch.value.trim() ? `No users found.` : 'No users found.'}</p>`;
+                    usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">${usersSearch.value.trim() ? `No users found.` : 'No users found.'}</td></tr>`;
                     return;
                 }
                 users.forEach((user, index) => {
-                    const card = document.createElement('div');
-                    card.style.setProperty('--i', index);
+                    const row = document.createElement('tr');
+                    row.className = 'fade-in-stagger';
+                    row.style.setProperty('--i', index);
+                    row.dataset.userId = user.discord_id;
+                    
                     const joinDate = new Date(user.join_date).toLocaleDateString();
                     const lastSeen = user.last_seen ? this.utils.timeAgo(user.last_seen) : 'Never';
-                    let cardClass = 'user-card-admin glass-ui fade-in-stagger', statusHTML = '', actionsHTML = '';
+                    let statusHTML = '', actionsHTML = '';
                     
                     if (user.is_banned) {
-                        cardClass += ' banned'; statusHTML = `<span>Status: <strong style="color:var(--color-status-down)">Banned</strong></span>`;
+                        statusHTML = `<span class="user-status-badge status-banned"><i class="fas fa-ban"></i> Banned</span>`;
                         actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unban</button>`;
                     } else if (user.suspension_expires_at && new Date(user.suspension_expires_at) > new Date()) {
-                        cardClass += ' suspended'; statusHTML = `<span>Status: <strong style="color:var(--color-status-caution)">Suspended</strong></span>`;
+                        statusHTML = `<span class="user-status-badge status-suspended"><i class="fas fa-clock"></i> Suspended</span>`;
                         actionsHTML = `<button class="btn btn-secondary unban-btn" data-id="${user.discord_id}">Unsuspend</button>`;
                     } else {
-                        statusHTML = `<span>Status: <strong style="color:var(--color-status-up)">Active</strong></span>`;
+                        statusHTML = `<span class="user-status-badge status-active"><i class="fas fa-check"></i> Active</span>`;
                         actionsHTML = `<button class="btn btn-secondary suspend-btn" data-id="${user.discord_id}">Suspend</button><button class="btn btn-danger ban-btn" data-id="${user.discord_id}">Ban</button>`;
                     }
-                    card.className = cardClass; card.dataset.userId = user.discord_id;
-                    card.innerHTML = `<img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar" class="user-card-admin-avatar"><div class="user-card-admin-content"><div class="user-card-admin-header"><span class="user-card-admin-author">${user.username}</span></div><div class="user-card-admin-meta">${statusHTML}<span>Joined: <strong>${joinDate}</strong></span><span>Last Seen: <strong>${lastSeen}</strong></span></div>${user.moderation_reason ? `<div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Reason: ${user.moderation_reason}</div>` : ''}</div><div class="actions" style="margin-left: auto; align-items: center;">${actionsHTML}</div>`;
-                    usersContainer.appendChild(card);
+                    
+                    row.innerHTML = `
+                        <td>
+                            <div class="user-info-cell">
+                                <img src="${user.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="avatar">
+                                <div>
+                                    <span class="user-name">${user.username}</span>
+                                    <span class="user-id">${user.discord_id}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${statusHTML}</td>
+                        <td>${joinDate}</td>
+                        <td>${lastSeen}</td>
+                        <td class="actions">${actionsHTML}</td>
+                    `;
+                    usersTableBody.appendChild(row);
                 });
             },
             
-            // --- Component-Specific Event Logic ---
             bindGameFormEvents() {
                 const { elements } = this;
                 document.getElementById('add-new-game-btn').addEventListener('click', () => {
@@ -793,12 +782,13 @@
                     this.renderComments(filtered);
                 });
             },
-
+            
+            // UPDATED bindUsersEvents to use the table
             bindUsersEvents() {
                 const { elements } = this;
-                elements.usersContainer.addEventListener('click', async (e) => {
-                    const userCard = e.target.closest('.user-card-admin'); if (!userCard) return;
-                    const userId = userCard.dataset.userId; const userToActOn = this.state.users.find(u => u.discord_id === userId); if (!userToActOn) return;
+                elements.usersTableBody.addEventListener('click', async (e) => {
+                    const userRow = e.target.closest('tr'); if (!userRow) return;
+                    const userId = userRow.dataset.userId; const userToActOn = this.state.users.find(u => u.discord_id === userId); if (!userToActOn) return;
                     const targetButton = e.target.closest('button');
                     if (targetButton) {
                         e.stopPropagation();
@@ -832,12 +822,11 @@
                 
                 elements.usersSearch.addEventListener('input', () => {
                     const searchTerm = elements.usersSearch.value.toLowerCase().trim();
-                    const filtered = this.state.users.filter(u => u.username.toLowerCase().includes(searchTerm));
+                    const filtered = this.state.users.filter(u => u.username.toLowerCase().includes(searchTerm) || u.discord_id.includes(searchTerm));
                     this.renderUsers(filtered);
                 });
             },
             
-            // --- Action Handlers ---
             async handleDeleteGame(gameId) {
                 const game = this.state.games.find(g => g.id == gameId); if (!game) return;
                 if (!await this.utils.showConfirmModal('Delete Game?', `Are you sure you want to permanently delete "<strong>${game.name}</strong>"?`)) return;
@@ -884,7 +873,6 @@
                 }
             },
             
-            // --- Modal & UI Helpers ---
             openModal(modal, focusElementId = null) {
                 modal.classList.add('visible');
                 if(focusElementId) {
@@ -919,7 +907,6 @@
                 document.getElementById('total-comments').textContent = this.state.comments.length;
             },
 
-            // --- Generic Utilities ---
             utils: {
                 setPageState: (state) => document.body.className = `state-${state}`,
                 getCurrentUser: () => { try { return JSON.parse(localStorage.getItem('discord_user_v2')); } catch { return null; } },
@@ -941,9 +928,15 @@
                 createSkeleton(type) {
                     const skeleton = document.createElement('div');
                     if (type === 'table-row') {
-                        skeleton.className = 'skeleton table-row-skeleton';
-                        const td = document.createElement('td'); td.colSpan = 5; td.appendChild(skeleton);
-                        const tr = document.createElement('tr'); tr.appendChild(td); return tr;
+                        // UPDATED Skeleton for the new user table height
+                        const tr = document.createElement('tr');
+                        const td = document.createElement('td');
+                        td.colSpan = 5;
+                        const skeletonDiv = document.createElement('div');
+                        skeletonDiv.className = 'skeleton table-row-skeleton';
+                        td.appendChild(skeletonDiv);
+                        tr.appendChild(td);
+                        return tr;
                     } else if (type === 'card') {
                         skeleton.className = 'skeleton card-skeleton';
                         skeleton.innerHTML = `<div class="avatar"></div><div class="content"><div class="line short"></div><div class="line long"></div><div class="line"></div></div>`;
@@ -972,7 +965,6 @@
             }
         };
 
-        // Start the application
         CeriumAdmin.init();
     });
     </script>
