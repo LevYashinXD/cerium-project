@@ -101,9 +101,28 @@
 
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         @media(max-width: 768px) { .detail-header { grid-template-columns: 1fr; } #detail-title { font-size: 2.2rem; } }
+
+        /* --- QOL UPDATE: New Styles --- */
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--color-background); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--color-card-border); border-top-color: var(--color-heading); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .comment-error-message { color: #ff6b6b; font-size: 0.9rem; margin-top: 10px; text-align: right; display: none; }
+        .comment-card.new-comment-highlight { animation: new-comment-fade-in 1.5s ease-out; }
+        @keyframes new-comment-fade-in {
+            from { background-color: rgba(255, 215, 0, 0.15); }
+            to { background-color: rgba(255,255,255,0.03); }
+        }
+        /* --- End of QOL Styles --- */
     </style>
 </head>
 <body>
+    <!-- QOL UPDATE: Loading Screen -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- The main content is hidden by default and shown by script after loading -->
     <div id="main-content" style="opacity:0; visibility: hidden;">
          <header class="main-header">
             <nav class="navbar">
@@ -173,6 +192,8 @@
                             <img src="" alt="Your avatar" class="comment-form-avatar">
                             <div class="comment-form-input-wrapper">
                                 <textarea class="comment-textarea" placeholder="Share your thoughts..." required></textarea>
+                                <!-- QOL UPDATE: Inline error message instead of alert -->
+                                <p class="comment-error-message"></p>
                                 <div class="comment-form-actions">
                                     <button type="submit" class="btn btn-primary">Post Comment</button>
                                 </div>
@@ -188,6 +209,7 @@
     <script>
     document.addEventListener("DOMContentLoaded", async function() {
 
+        const loadingOverlay = document.getElementById('loading-overlay');
         const user = JSON.parse(localStorage.getItem('discord_user_v2'));
         if (!user) {
             window.location.href = 'index.html';
@@ -213,18 +235,21 @@
                 return true;
             } catch (error) {
                 console.error("Failed to check user status:", error);
-                return true;
+                return true; // Let them proceed if the check fails, can be changed
             }
         };
 
         const isAllowed = await checkAndRedirect(user);
         if (!isAllowed) {
-            return;
+            return; // Stop execution if redirected
         }
-
+        
+        // --- QOL UPDATE: Hide loader and show content after checks ---
         const mainContent = document.getElementById('main-content');
+        loadingOverlay.style.display = 'none';
         mainContent.style.opacity = '1';
         mainContent.style.visibility = 'visible';
+        // --- End of QOL Update ---
 
         const browserView = document.getElementById('games-browser-view');
         const detailView = document.getElementById('game-detail-view');
@@ -248,9 +273,17 @@
         const showGridView = () => {
             browserView.style.display = 'block';
             detailView.style.display = 'none';
+            // QOL UPDATE: Clear the URL hash when returning to the grid
+            if (window.location.hash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            }
         };
 
         const showDetailView = (game) => {
+            if (!game) {
+                showGridView();
+                return;
+            }
             document.getElementById('detail-thumbnail').src = game.thumbnail_url || '';
             document.getElementById('detail-title').textContent = game.name;
             const statusEl = document.getElementById('detail-status');
@@ -273,6 +306,8 @@
             window.scrollTo(0, 0);
             
             fetchComments(game.topic_id);
+            // QOL UPDATE: Set URL hash
+            window.location.hash = `game-${game.topic_id}`;
         };
 
         const renderGames = () => {
@@ -300,14 +335,26 @@
                     </div>`);
             });
         };
+        
+        // --- QOL UPDATE: Debounce function for smarter searching ---
+        const debounce = (func, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        };
+        // --- End of QOL Update ---
 
-        const loadGames = async () => {
+        const loadGamesAndRoute = async () => {
             gameGrid.innerHTML = '<p class="api-status">Loading games...</p>';
             try {
                 const response = await fetch('/api/games');
                 if (!response.ok) throw new Error('Could not fetch games from server.');
                 allGames = await response.json();
                 renderGames();
+                // --- QOL UPDATE: Handle routing after games are loaded ---
+                handleRouting();
             } catch (error) {
                 gameGrid.innerHTML = `<p class="api-status" style="color:red;">${error.message}</p>`;
             }
@@ -326,6 +373,7 @@
         
         const createCommentCardHTML = (comment) => {
             const tempDiv = document.createElement('div');
+            // Using .textContent is safer against XSS attacks
             const userStrong = document.createElement('strong');
             userStrong.className = 'comment-user';
             userStrong.textContent = comment.user_name || 'Anonymous';
@@ -339,7 +387,12 @@
         };
 
         document.getElementById('back-to-grid-btn').addEventListener('click', showGridView);
-        searchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value.toLowerCase(); renderGames(); });
+        
+        searchInput.addEventListener('input', debounce((e) => {
+             currentSearchTerm = e.target.value.toLowerCase();
+             renderGames();
+        }, 300));
+
         filterButtonsContainer.addEventListener('click', (e) => {
             const filterBtn = e.target.closest('.filter-btn');
             if (!filterBtn) return;
@@ -368,7 +421,9 @@
             if (!content || !topic) return;
             
             const submitButton = form.querySelector('button[type="submit"]');
+            const errorMessageEl = form.querySelector('.comment-error-message');
             submitButton.disabled = true;
+            errorMessageEl.style.display = 'none'; // Hide previous errors
 
             try {
                 const response = await fetch('/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, content, user }) });
@@ -376,10 +431,20 @@
                 const newComment = await response.json();
                 const list = document.querySelector('#game-detail-view .comments-list');
                 if (list.querySelector('.api-status')) list.innerHTML = '';
-                list.insertAdjacentHTML('afterbegin', createCommentCardHTML(newComment));
+                
+                const newCommentHtml = createCommentCardHTML(newComment);
+                list.insertAdjacentHTML('afterbegin', newCommentHtml);
                 textarea.value = '';
+
+                // --- QOL UPDATE: Highlight the new comment ---
+                const newCard = list.firstElementChild;
+                newCard.classList.add('new-comment-highlight');
+                setTimeout(() => newCard.classList.remove('new-comment-highlight'), 1500);
+
             } catch (error) {
-                alert(error.message);
+                // --- QOL UPDATE: Show inline error message ---
+                errorMessageEl.textContent = error.message;
+                errorMessageEl.style.display = 'block';
             } finally {
                 submitButton.disabled = false;
             }
@@ -393,7 +458,32 @@
             });
         });
 
-        loadGames();
+        // --- QOL UPDATE: Routing and Keyboard Shortcuts ---
+        const handleRouting = () => {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#game-')) {
+                const gameId = hash.substring(6); // Remove '#game-'
+                const gameToView = allGames.find(g => g.topic_id == gameId);
+                if (gameToView) {
+                    showDetailView(gameToView);
+                } else {
+                    showGridView();
+                }
+            } else {
+                showGridView();
+            }
+        };
+
+        window.addEventListener('hashchange', handleRouting);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && detailView.style.display === 'block') {
+                showGridView();
+            }
+        });
+        // --- End of QOL Update ---
+        
+        loadGamesAndRoute();
     });
     </script>
 </body>
